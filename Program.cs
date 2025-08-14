@@ -1,11 +1,52 @@
+using AvyyanBackend.Extensions;
+using AvyyanBackend.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+
+// Add custom services using extension methods
+builder.Services.AddDatabaseServices(builder.Configuration);
+builder.Services.AddRepositoryServices();
+builder.Services.AddBusinessServices();
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddValidationServices();
+builder.Services.AddAutoMapperServices();
+builder.Services.AddCorsServices();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "Avyyan Knitfab API", Version = "v1" });
+
+    // Add JWT authentication to Swagger
+    c.AddSecurityDefinition("Bearer", new()
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new()
+    {
+        {
+            new()
+            {
+                Reference = new()
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -13,13 +54,30 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Avyyan Knitfab API V1");
+        c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+    });
 }
 
 app.UseHttpsRedirection();
 
+// Use CORS
+app.UseCors("AllowSpecificOrigins");
+
+// Use Authentication & Authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Ensure database is created (for development)
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await context.Database.EnsureCreatedAsync();
+}
 
 app.Run();
