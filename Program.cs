@@ -1,8 +1,12 @@
 using AvyyanBackend.Extensions;
 using AvyyanBackend.Data;
+using AvyyanBackend.Middleware;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
+// Configure Serilog early
 var builder = WebApplication.CreateBuilder(args);
+builder.ConfigureSerilog();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -60,8 +64,16 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
     });
 }
+else
+{
+    // Use exception logging middleware in production
+    app.UseExceptionLogging();
+}
 
 app.UseHttpsRedirection();
+
+// Use Serilog request logging
+app.UseSerilogRequestLogging();
 
 // Use CORS
 app.UseCors("AllowSpecificOrigins");
@@ -79,4 +91,17 @@ if (app.Environment.IsDevelopment())
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await context.Database.EnsureCreatedAsync();
 }
-app.Run();
+
+try
+{
+    Log.Information("Starting Avyyan Knitfab API");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

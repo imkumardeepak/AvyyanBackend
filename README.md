@@ -11,7 +11,9 @@ A comprehensive ASP.NET Core 8.0 Web API for managing a textile/knitfab business
 - **Swagger/OpenAPI** documentation
 - **FluentValidation** for input validation
 - **CORS** configuration
-- **Comprehensive logging**
+- **Serilog** structured logging with file and console sinks
+- **Exception handling middleware**
+- **Request/Response logging**
 
 ## 📁 Project Structure
 
@@ -94,7 +96,34 @@ AvyyanBackend/
 - **Microsoft.AspNetCore.Authentication.JwtBearer** (8.0.8) - JWT authentication
 - **AutoMapper.Extensions.Microsoft.DependencyInjection** (12.0.1) - Object mapping
 - **FluentValidation.AspNetCore** (11.3.1) - Input validation
+- **Serilog.AspNetCore** (9.0.0) - Structured logging framework
+- **Serilog.Sinks.File** (7.0.0) - File logging sink
+- **Serilog.Sinks.Console** (6.0.0) - Console logging sink
+- **Serilog.Enrichers.Environment** (3.0.1) - Environment enrichers
+- **Serilog.Enrichers.Process** (3.0.0) - Process enrichers
+- **Serilog.Enrichers.Thread** (4.0.0) - Thread enrichers
 - **Swashbuckle.AspNetCore** (6.6.2) - Swagger/OpenAPI
+
+## 📊 Logging Configuration
+
+### Serilog Features
+- **Structured Logging** - JSON formatted logs for production
+- **Multiple Sinks** - Console and file outputs
+- **Log Rotation** - Daily rotation with size limits
+- **Request Logging** - Automatic HTTP request/response logging
+- **Exception Logging** - Comprehensive error tracking
+- **Environment Enrichment** - Machine, process, and thread information
+
+### Log Files
+- **General Logs**: `logs/avyyan-knitfab-YYYYMMDD.log` (JSON format)
+- **Error Logs**: `logs/avyyan-knitfab-errors-YYYYMMDD.log` (Text format)
+- **Development Logs**: `logs/dev/avyyan-knitfab-dev-YYYYMMDD.log`
+
+### Log Levels
+- **Production**: Information and above
+- **Development**: Debug and above
+- **Microsoft**: Warning and above (filtered)
+- **Entity Framework**: Information for database commands
 
 ## 🔐 Security Configuration
 
