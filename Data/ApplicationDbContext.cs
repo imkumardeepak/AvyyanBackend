@@ -22,6 +22,15 @@ namespace AvyyanBackend.Data
         public DbSet<PurchaseOrderItem> PurchaseOrderItems { get; set; }
         public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
 
+        // DbSets for Chat and Notification models
+        public DbSet<User> Users { get; set; }
+        public DbSet<ChatRoom> ChatRooms { get; set; }
+        public DbSet<ChatRoomMember> ChatRoomMembers { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<MessageReaction> MessageReactions { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<UserConnection> UserConnections { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -137,6 +146,91 @@ namespace AvyyanBackend.Data
             modelBuilder.Entity<PurchaseOrder>()
                     .HasIndex(po => po.PurchaseOrderNumber)
                     .IsUnique();
+
+            // User configurations
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            // Chat Room configurations
+            modelBuilder.Entity<ChatRoom>()
+                .HasOne(cr => cr.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(cr => cr.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Chat Room Member configurations
+            modelBuilder.Entity<ChatRoomMember>()
+                .HasOne(crm => crm.ChatRoom)
+                .WithMany(cr => cr.Members)
+                .HasForeignKey(crm => crm.ChatRoomId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ChatRoomMember>()
+                .HasOne(crm => crm.User)
+                .WithMany(u => u.ChatRoomMemberships)
+                .HasForeignKey(crm => crm.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Unique constraint for user-room membership
+            modelBuilder.Entity<ChatRoomMember>()
+                .HasIndex(crm => new { crm.ChatRoomId, crm.UserId })
+                .IsUnique();
+
+            // Chat Message configurations
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne(cm => cm.ChatRoom)
+                .WithMany(cr => cr.Messages)
+                .HasForeignKey(cm => cm.ChatRoomId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne(cm => cm.Sender)
+                .WithMany(u => u.SentMessages)
+                .HasForeignKey(cm => cm.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne(cm => cm.ReplyToMessage)
+                .WithMany(cm => cm.Replies)
+                .HasForeignKey(cm => cm.ReplyToMessageId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Message Reaction configurations
+            modelBuilder.Entity<MessageReaction>()
+                .HasOne(mr => mr.Message)
+                .WithMany(cm => cm.Reactions)
+                .HasForeignKey(mr => mr.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MessageReaction>()
+                .HasOne(mr => mr.User)
+                .WithMany()
+                .HasForeignKey(mr => mr.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Unique constraint for user-message reaction
+            modelBuilder.Entity<MessageReaction>()
+                .HasIndex(mr => new { mr.MessageId, mr.UserId, mr.Emoji })
+                .IsUnique();
+
+            // Notification configurations
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany(u => u.Notifications)
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // User Connection configurations
+            modelBuilder.Entity<UserConnection>()
+                .HasOne(uc => uc.User)
+                .WithMany(u => u.Connections)
+                .HasForeignKey(uc => uc.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserConnection>()
+                .HasIndex(uc => uc.ConnectionId)
+                .IsUnique();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

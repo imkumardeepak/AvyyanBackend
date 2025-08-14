@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Avyyan Knitfab - Chat & Notifications Test</title>
+    <script src="https://unpkg.com/@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .section { border: 1px solid #ccc; margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .messages { height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
+        .message { margin: 5px 0; padding: 5px; background: #f5f5f5; border-radius: 3px; }
+        .notification { margin: 5px 0; padding: 10px; background: #e7f3ff; border-left: 4px solid #2196F3; }
+        .error { color: red; }
+        .success { color: green; }
+        .status { font-weight: bold; margin: 10px 0; }
+        input, button, select { margin: 5px; padding: 8px; }
+        button { background: #4CAF50; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #45a049; }
+        .disconnect { background: #f44336; }
+        .disconnect:hover { background: #da190b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Avyyan Knitfab - WebSocket Test</h1>
+        
+        <!-- Connection Status -->
+        <div class="section">
+            <h2>Connection Status</h2>
+            <div id="connectionStatus" class="status">Disconnected</div>
+            <button id="connectBtn" onclick="connect()">Connect</button>
+            <button id="disconnectBtn" onclick="disconnect()" class="disconnect" disabled>Disconnect</button>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="section">
+            <h2>Chat Hub</h2>
+            <div>
+                <label>Chat Room ID: </label>
+                <input type="number" id="chatRoomId" value="1" />
+                <button onclick="joinRoom()">Join Room</button>
+                <button onclick="leaveRoom()">Leave Room</button>
+            </div>
+            <div>
+                <label>Message: </label>
+                <input type="text" id="messageInput" placeholder="Type your message..." />
+                <button onclick="sendMessage()">Send Message</button>
+            </div>
+            <div>
+                <button onclick="startTyping()">Start Typing</button>
+                <button onclick="stopTyping()">Stop Typing</button>
+            </div>
+            <div class="messages" id="chatMessages"></div>
+        </div>
+
+        <!-- Notifications Section -->
+        <div class="section">
+            <h2>Notification Hub</h2>
+            <div>
+                <button onclick="markAllNotificationsRead()">Mark All Read</button>
+                <button onclick="getNotifications()">Get Notifications</button>
+            </div>
+            <div>
+                <label>Unread Count: </label>
+                <span id="unreadCount">0</span>
+            </div>
+            <div class="messages" id="notifications"></div>
+        </div>
+
+        <!-- Test Controls -->
+        <div class="section">
+            <h2>Test Controls</h2>
+            <div>
+                <h3>Create Test Notification</h3>
+                <input type="text" id="notificationTitle" placeholder="Notification Title" />
+                <input type="text" id="notificationMessage" placeholder="Notification Message" />
+                <select id="notificationType">
+                    <option value="Info">Info</option>
+                    <option value="Success">Success</option>
+                    <option value="Warning">Warning</option>
+                    <option value="Error">Error</option>
+                </select>
+                <button onclick="createTestNotification()">Create Notification</button>
+            </div>
+        </div>
+
+        <!-- Logs -->
+        <div class="section">
+            <h2>Connection Logs</h2>
+            <div class="messages" id="logs"></div>
+            <button onclick="clearLogs()">Clear Logs</button>
+        </div>
+    </div>
+
+    <script>
+        let chatConnection = null;
+        let notificationConnection = null;
+
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logs.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        async function connect() {
+            try {
+                // Chat Hub Connection
+                chatConnection = new signalR.HubConnectionBuilder()
+                    .withUrl("/hubs/chat")
+                    .build();
+
+                // Notification Hub Connection
+                notificationConnection = new signalR.HubConnectionBuilder()
+                    .withUrl("/hubs/notifications")
+                    .build();
+
+                // Chat Hub Events
+                chatConnection.on("ReceiveMessage", function (message) {
+                    const messages = document.getElementById('chatMessages');
+                    messages.innerHTML += `<div class="message"><strong>${message.senderName}:</strong> ${message.content}</div>`;
+                    messages.scrollTop = messages.scrollHeight;
+                    log(`Received message from ${message.senderName}`);
+                });
+
+                chatConnection.on("UserOnline", function (data) {
+                    log(`User ${data.UserId} came online`);
+                });
+
+                chatConnection.on("UserOffline", function (data) {
+                    log(`User ${data.UserId} went offline`);
+                });
+
+                chatConnection.on("UserTyping", function (data) {
+                    log(`User ${data.UserId} is typing in room ${data.ChatRoomId}`);
+                });
+
+                chatConnection.on("UserStoppedTyping", function (data) {
+                    log(`User ${data.UserId} stopped typing in room ${data.ChatRoomId}`);
+                });
+
+                chatConnection.on("JoinedRoom", function (roomId) {
+                    log(`Joined room ${roomId}`);
+                });
+
+                chatConnection.on("LeftRoom", function (roomId) {
+                    log(`Left room ${roomId}`);
+                });
+
+                chatConnection.on("Error", function (error) {
+                    log(`Chat Error: ${error}`);
+                });
+
+                // Notification Hub Events
+                notificationConnection.on("ReceiveNotification", function (notification) {
+                    const notifications = document.getElementById('notifications');
+                    notifications.innerHTML += `<div class="notification"><strong>${notification.title}</strong><br/>${notification.message}</div>`;
+                    notifications.scrollTop = notifications.scrollHeight;
+                    log(`Received notification: ${notification.title}`);
+                });
+
+                notificationConnection.on("UnreadNotificationCount", function (count) {
+                    document.getElementById('unreadCount').textContent = count;
+                    log(`Unread count updated: ${count}`);
+                });
+
+                notificationConnection.on("RecentNotifications", function (notifications) {
+                    log(`Received ${notifications.length} recent notifications`);
+                });
+
+                notificationConnection.on("NotificationsList", function (notifications) {
+                    log(`Received ${notifications.length} notifications`);
+                });
+
+                notificationConnection.on("Error", function (error) {
+                    log(`Notification Error: ${error}`);
+                });
+
+                // Start connections
+                await chatConnection.start();
+                await notificationConnection.start();
+
+                document.getElementById('connectionStatus').textContent = 'Connected';
+                document.getElementById('connectionStatus').className = 'status success';
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
+                
+                log('Connected to both Chat and Notification hubs');
+
+            } catch (err) {
+                log(`Connection failed: ${err}`);
+                document.getElementById('connectionStatus').textContent = 'Connection Failed';
+                document.getElementById('connectionStatus').className = 'status error';
+            }
+        }
+
+        async function disconnect() {
+            if (chatConnection) {
+                await chatConnection.stop();
+            }
+            if (notificationConnection) {
+                await notificationConnection.stop();
+            }
+            
+            document.getElementById('connectionStatus').textContent = 'Disconnected';
+            document.getElementById('connectionStatus').className = 'status';
+            document.getElementById('connectBtn').disabled = false;
+            document.getElementById('disconnectBtn').disabled = true;
+            
+            log('Disconnected from hubs');
+        }
+
+        async function joinRoom() {
+            const roomId = parseInt(document.getElementById('chatRoomId').value);
+            if (chatConnection && roomId) {
+                try {
+                    await chatConnection.invoke("JoinRoom", roomId);
+                } catch (err) {
+                    log(`Failed to join room: ${err}`);
+                }
+            }
+        }
+
+        async function leaveRoom() {
+            const roomId = parseInt(document.getElementById('chatRoomId').value);
+            if (chatConnection && roomId) {
+                try {
+                    await chatConnection.invoke("LeaveRoom", roomId);
+                } catch (err) {
+                    log(`Failed to leave room: ${err}`);
+                }
+            }
+        }
+
+        async function sendMessage() {
+            const roomId = parseInt(document.getElementById('chatRoomId').value);
+            const message = document.getElementById('messageInput').value;
+            
+            if (chatConnection && roomId && message) {
+                try {
+                    await chatConnection.invoke("SendMessage", {
+                        chatRoomId: roomId,
+                        content: message,
+                        messageType: "Text"
+                    });
+                    document.getElementById('messageInput').value = '';
+                } catch (err) {
+                    log(`Failed to send message: ${err}`);
+                }
+            }
+        }
+
+        async function startTyping() {
+            const roomId = parseInt(document.getElementById('chatRoomId').value);
+            if (chatConnection && roomId) {
+                try {
+                    await chatConnection.invoke("StartTyping", roomId);
+                } catch (err) {
+                    log(`Failed to start typing: ${err}`);
+                }
+            }
+        }
+
+        async function stopTyping() {
+            const roomId = parseInt(document.getElementById('chatRoomId').value);
+            if (chatConnection && roomId) {
+                try {
+                    await chatConnection.invoke("StopTyping", roomId);
+                } catch (err) {
+                    log(`Failed to stop typing: ${err}`);
+                }
+            }
+        }
+
+        async function markAllNotificationsRead() {
+            if (notificationConnection) {
+                try {
+                    await notificationConnection.invoke("MarkAllNotificationsAsRead");
+                } catch (err) {
+                    log(`Failed to mark notifications as read: ${err}`);
+                }
+            }
+        }
+
+        async function getNotifications() {
+            if (notificationConnection) {
+                try {
+                    await notificationConnection.invoke("GetNotifications", 1, 20);
+                } catch (err) {
+                    log(`Failed to get notifications: ${err}`);
+                }
+            }
+        }
+
+        async function createTestNotification() {
+            const title = document.getElementById('notificationTitle').value;
+            const message = document.getElementById('notificationMessage').value;
+            const type = document.getElementById('notificationType').value;
+
+            if (title && message) {
+                try {
+                    const response = await fetch('/api/notifications', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            userId: 1, // Test user ID
+                            title: title,
+                            message: message,
+                            type: type
+                        })
+                    });
+
+                    if (response.ok) {
+                        log('Test notification created successfully');
+                        document.getElementById('notificationTitle').value = '';
+                        document.getElementById('notificationMessage').value = '';
+                    } else {
+                        log(`Failed to create notification: ${response.statusText}`);
+                    }
+                } catch (err) {
+                    log(`Failed to create notification: ${err}`);
+                }
+            }
+        }
+
+        // Auto-connect on page load
+        window.addEventListener('load', function() {
+            log('Page loaded. Click Connect to start testing.');
+        });
+    </script>
+</body>
+</html>

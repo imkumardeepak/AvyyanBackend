@@ -1,5 +1,6 @@
 using AvyyanBackend.Extensions;
 using AvyyanBackend.Data;
+using AvyyanBackend.Hubs;
 using AvyyanBackend.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -19,6 +20,7 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddValidationServices();
 builder.Services.AddAutoMapperServices();
 builder.Services.AddCorsServices();
+builder.Services.AddSignalRServices();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -83,6 +85,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Map SignalR Hubs
+app.MapHub<ChatHub>("/hubs/chat");
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 // Ensure database is created (for development)
 if (app.Environment.IsDevelopment())

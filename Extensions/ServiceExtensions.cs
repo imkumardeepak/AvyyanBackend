@@ -39,6 +39,8 @@ namespace AvyyanBackend.Extensions
         {
             // Add your business service registrations here
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<INotificationService, NotificationService>();
             // services.AddScoped<ICategoryService, CategoryService>();
             // services.AddScoped<ICustomerService, CustomerService>();
             // services.AddScoped<IOrderService, OrderService>();
@@ -117,6 +119,19 @@ namespace AvyyanBackend.Extensions
                         .AllowAnyMethod()
                         .AllowAnyHeader();
                 });
+            });
+
+            return services;
+        }
+
+        public static IServiceCollection AddSignalRServices(this IServiceCollection services)
+        {
+            services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true;
+                options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+                options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+                options.HandshakeTimeout = TimeSpan.FromSeconds(15);
             });
 
             return services;
