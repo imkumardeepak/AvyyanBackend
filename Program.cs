@@ -79,5 +79,4 @@ if (app.Environment.IsDevelopment())
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await context.Database.EnsureCreatedAsync();
 }
-
 app.Run();
