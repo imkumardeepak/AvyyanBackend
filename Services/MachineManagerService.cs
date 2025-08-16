@@ -27,7 +27,7 @@ namespace AvyyanBackend.Services
         public async Task<IEnumerable<MachineManagerDto>> GetAllMachinesAsync()
         {
             _logger.LogDebug("Getting all machines");
-            var machines = await _machineRepository.FindAsync(m => m.IsActive);
+            var machines = await _machineRepository.GetAllAsync();
             _logger.LogInformation("Retrieved {MachineCount} machines", machines.Count());
             return _mapper.Map<IEnumerable<MachineManagerDto>>(machines);
         }
@@ -36,7 +36,7 @@ namespace AvyyanBackend.Services
         {
             _logger.LogDebug("Getting machine by ID: {MachineId}", id);
             var machine = await _machineRepository.GetByIdAsync(id);
-            if (machine == null || !machine.IsActive)
+            if (machine == null)
             {
                 _logger.LogWarning("Machine {MachineId} not found or inactive", id);
                 return null;
@@ -68,7 +68,7 @@ namespace AvyyanBackend.Services
             _logger.LogDebug("Updating machine {MachineId}", id);
 
             var machine = await _machineRepository.GetByIdAsync(id);
-            if (machine == null || !machine.IsActive)
+            if (machine == null)
             {
                 _logger.LogWarning("Machine {MachineId} not found for update", id);
                 return null;
