@@ -8,30 +8,24 @@ namespace AvyyanBackend.Extensions
     {
         public MappingProfile()
         {
-            // Product mappings
-            CreateMap<Product, ProductDto>()
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
-                .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : null))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.ProductImages));
+            // MachineManager mappings
+            CreateMap<MachineManager, MachineManagerDto>();
 
-            CreateMap<CreateProductDto, Product>()
+            CreateMap<CreateMachineManagerDto, MachineManager>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
 
-            CreateMap<UpdateProductDto, Product>()
+            CreateMap<UpdateMachineManagerDto, MachineManager>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.SKU, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedBy, opt => opt.Ignore());
-
-            CreateMap<ProductImage, ProductImageDto>();
 
             // Category mappings
             CreateMap<Category, CategoryDto>()
                 .ForMember(dest => dest.ParentCategoryName, opt => opt.MapFrom(src => src.ParentCategory != null ? src.ParentCategory.Name : null))
-                .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => src.Products.Count));
+                .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => 0)); // No products anymore
 
             CreateMap<CreateCategoryDto, Category>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())

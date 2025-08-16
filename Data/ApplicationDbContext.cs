@@ -10,9 +10,8 @@ namespace AvyyanBackend.Data
         }
 
         // DbSets for Knitfab business models
+        public DbSet<MachineManager> MachineManagers { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Order> Orders { get; set; }
@@ -20,7 +19,6 @@ namespace AvyyanBackend.Data
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
         public DbSet<PurchaseOrderItem> PurchaseOrderItems { get; set; }
-        public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
 
         // DbSets for Chat and Notification models
         public DbSet<User> Users { get; set; }
@@ -44,22 +42,9 @@ namespace AvyyanBackend.Data
                 .HasForeignKey(c => c.ParentCategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Product relationships
-            modelBuilder.Entity<Product>()
-                .HasOne(p => p.Category)
-                .WithMany(c => c.Products)
-                .HasForeignKey(p => p.CategoryId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Product>()
-                .HasOne(p => p.Supplier)
-                .WithMany(s => s.Products)
-                .HasForeignKey(p => p.SupplierId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            // Product indexes
-            modelBuilder.Entity<Product>()
-                .HasIndex(p => p.SKU)
+            // MachineManager configurations
+            modelBuilder.Entity<MachineManager>()
+                .HasIndex(m => m.MachineName)
                 .IsUnique();
 
             // Customer relationships
@@ -95,26 +80,6 @@ namespace AvyyanBackend.Data
                     .HasForeignKey(oi => oi.OrderId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<OrderItem>()
-                    .HasOne(oi => oi.Product)
-                    .WithMany(p => p.OrderItems)
-                    .HasForeignKey(oi => oi.ProductId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-            // ProductImage relationships
-            modelBuilder.Entity<ProductImage>()
-                    .HasOne(pi => pi.Product)
-                    .WithMany(p => p.ProductImages)
-                    .HasForeignKey(pi => pi.ProductId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-            // InventoryTransaction relationships
-            modelBuilder.Entity<InventoryTransaction>()
-                    .HasOne(it => it.Product)
-                    .WithMany(p => p.InventoryTransactions)
-                    .HasForeignKey(it => it.ProductId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
             // PurchaseOrder relationships
             modelBuilder.Entity<PurchaseOrder>()
                     .HasOne(po => po.Supplier)
@@ -127,12 +92,6 @@ namespace AvyyanBackend.Data
                     .WithMany(po => po.PurchaseOrderItems)
                     .HasForeignKey(poi => poi.PurchaseOrderId)
                     .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<PurchaseOrderItem>()
-                    .HasOne(poi => poi.Product)
-                    .WithMany()
-                    .HasForeignKey(poi => poi.ProductId)
-                    .OnDelete(DeleteBehavior.Restrict);
 
             // Configure unique indexes
             modelBuilder.Entity<Customer>()

@@ -37,17 +37,15 @@ AvyyanBackend/
 ## 🗄️ Database Models
 
 ### Core Entities
-- **Product** - Main product catalog
-- **Category** - Product categorization (hierarchical)
+- **MachineManager** - Machine management with specifications (dia, gg, needle, feeder, rpm, slit, constat, efficiency)
+- **Category** - General categorization system
 - **Customer** - Customer information
 - **Address** - Customer addresses
 - **Order** - Customer orders
-- **OrderItem** - Order line items
+- **OrderItem** - Order line items (with product name/SKU)
 - **Supplier** - Supplier information
 - **PurchaseOrder** - Purchase orders from suppliers
-- **PurchaseOrderItem** - Purchase order line items
-- **InventoryTransaction** - Stock movement tracking
-- **ProductImage** - Product images
+- **PurchaseOrderItem** - Purchase order line items (with product name/SKU)
 
 ### Chat & Communication Entities
 - **User** - System users with authentication and profiles
@@ -157,18 +155,28 @@ Update the JWT settings in `appsettings.json`:
 
 ## 🌐 API Endpoints
 
-### Products API
-- `GET /api/products` - Get all products
-- `GET /api/products/{id}` - Get product by ID
-- `GET /api/products/sku/{sku}` - Get product by SKU
-- `GET /api/products/category/{categoryId}` - Get products by category
-- `GET /api/products/search?searchTerm={term}` - Search products
-- `GET /api/products/featured` - Get featured products
-- `GET /api/products/low-stock` - Get low stock products
-- `POST /api/products` - Create new product
-- `PUT /api/products/{id}` - Update product
-- `DELETE /api/products/{id}` - Delete product (soft delete)
-- `PATCH /api/products/{id}/stock` - Update product stock
+### Machine Manager API
+- `GET /api/machinemanager` - Get all machines
+- `GET /api/machinemanager/summary` - Get machines summary
+- `GET /api/machinemanager/{id}` - Get machine by ID
+- `GET /api/machinemanager/name/{name}` - Get machine by name
+- `GET /api/machinemanager/search?searchTerm={term}` - Search machines
+- `GET /api/machinemanager/status/{status}` - Get machines by status
+- `GET /api/machinemanager/manufacturer/{manufacturer}` - Get machines by manufacturer
+- `GET /api/machinemanager/efficiency?min={min}&max={max}` - Get machines by efficiency range
+- `GET /api/machinemanager/maintenance/due` - Get machines due for maintenance
+- `GET /api/machinemanager/efficiency/high?threshold={threshold}` - Get high efficiency machines
+- `GET /api/machinemanager/efficiency/low?threshold={threshold}` - Get low efficiency machines
+- `GET /api/machinemanager/stats` - Get machine statistics
+- `POST /api/machinemanager` - Create new machine
+- `PUT /api/machinemanager/{id}` - Update machine
+- `DELETE /api/machinemanager/{id}` - Delete machine (soft delete)
+- `PATCH /api/machinemanager/{id}/status` - Update machine status
+- `PATCH /api/machinemanager/{id}/efficiency` - Update machine efficiency
+- `PATCH /api/machinemanager/{id}/maintenance/schedule` - Schedule maintenance
+- `POST /api/machinemanager/bulk` - Create multiple machines
+- `PATCH /api/machinemanager/bulk/status` - Bulk update status
+- `DELETE /api/machinemanager/bulk` - Bulk delete machines
 
 ### Chat API
 - `GET /api/chat/rooms` - Get user's chat rooms

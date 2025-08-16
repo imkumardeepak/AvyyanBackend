@@ -38,7 +38,7 @@ namespace AvyyanBackend.Extensions
         public static IServiceCollection AddBusinessServices(this IServiceCollection services)
         {
             // Add your business service registrations here
-            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IMachineManagerService, MachineManagerService>();
             services.AddScoped<IChatService, ChatService>();
             services.AddScoped<INotificationService, NotificationService>();
             // services.AddScoped<ICategoryService, CategoryService>();
@@ -103,15 +103,6 @@ namespace AvyyanBackend.Extensions
         {
             services.AddCors(options =>
             {
-                options.AddPolicy("AllowSpecificOrigins", builder =>
-                {
-                    builder
-                        .WithOrigins("http://localhost:3000", "http://localhost:4200") // Add your frontend URLs
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials();
-                });
-
                 options.AddPolicy("AllowAll", builder =>
                 {
                     builder
