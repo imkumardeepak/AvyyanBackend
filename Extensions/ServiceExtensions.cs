@@ -41,10 +41,10 @@ namespace AvyyanBackend.Extensions
             services.AddScoped<IMachineManagerService, MachineManagerService>();
             services.AddScoped<IChatService, ChatService>();
             services.AddScoped<INotificationService, NotificationService>();
-            // services.AddScoped<ICategoryService, CategoryService>();
-            // services.AddScoped<ICustomerService, CustomerService>();
-            // services.AddScoped<IOrderService, OrderService>();
-            // services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<DataSeedService>();
 
             return services;
         }
@@ -52,11 +52,11 @@ namespace AvyyanBackend.Extensions
         public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             var jwtSettings = configuration.GetSection("JwtSettings");
-            var secretKey = jwtSettings["SecretKey"];
+            var secretKey = jwtSettings["Secret"];
 
             if (string.IsNullOrEmpty(secretKey))
             {
-                throw new InvalidOperationException("JWT SecretKey is not configured");
+                throw new InvalidOperationException("JWT Secret is not configured");
             }
 
             services.AddAuthentication(options =>

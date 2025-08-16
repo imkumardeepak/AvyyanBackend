@@ -93,7 +93,7 @@ namespace AvyyanBackend.Services
         {
             var memberships = await _memberRepository.FindAsync(m => m.UserId == userId && m.IsActive);
             var chatRoomIds = memberships.Select(m => m.ChatRoomId).ToList();
-            
+
             var chatRooms = await _chatRoomRepository.FindAsync(cr => chatRoomIds.Contains(cr.Id) && cr.IsActive);
             return _mapper.Map<IEnumerable<ChatRoomDto>>(chatRooms);
         }
@@ -126,11 +126,11 @@ namespace AvyyanBackend.Services
 
         public async Task<IEnumerable<ChatMessageDto>> GetChatRoomMessagesAsync(int chatRoomId, int page = 1, int pageSize = 50)
         {
-            var messages = await _messageRepository.FindAsync(m => 
-                m.ChatRoomId == chatRoomId && 
-                !m.IsDeleted && 
+            var messages = await _messageRepository.FindAsync(m =>
+                m.ChatRoomId == chatRoomId &&
+                !m.IsDeleted &&
                 m.IsActive);
-            
+
             var pagedMessages = messages
                 .OrderByDescending(m => m.CreatedAt)
                 .Skip((page - 1) * pageSize)
@@ -179,19 +179,13 @@ namespace AvyyanBackend.Services
 
         public async Task UpdateUserOnlineStatusAsync(int userId, bool isOnline)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user != null)
-            {
-                user.IsOnline = isOnline;
-                if (!isOnline)
-                {
-                    user.LastSeenAt = DateTime.UtcNow;
-                }
-                _userRepository.Update(user);
-                await _unitOfWork.SaveChangesAsync();
+            // Online status is now computed from UserConnections
+            // This method can be used to manage UserConnection records
+            _logger.LogDebug("User {UserId} online status changed to {IsOnline}", userId, isOnline);
 
-                _logger.LogDebug("Updated user {UserId} online status to {IsOnline}", userId, isOnline);
-            }
+            // The online status is automatically computed from active UserConnections
+            // No need to update the User entity directly
+            await Task.CompletedTask;
         }
 
         // Placeholder implementations for other interface methods

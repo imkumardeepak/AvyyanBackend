@@ -2,6 +2,7 @@ using AvyyanBackend.Extensions;
 using AvyyanBackend.Data;
 using AvyyanBackend.Hubs;
 using AvyyanBackend.Middleware;
+using AvyyanBackend.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -90,12 +91,16 @@ app.MapControllers();
 app.MapHub<ChatHub>("/hubs/chat");
 app.MapHub<NotificationHub>("/hubs/notifications");
 
-// Ensure database is created (for development)
+// Ensure database is created and seeded (for development)
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await context.Database.EnsureCreatedAsync();
+
+    // Seed initial data
+    var dataSeedService = scope.ServiceProvider.GetRequiredService<DataSeedService>();
+    await dataSeedService.SeedAsync();
 }
 
 try

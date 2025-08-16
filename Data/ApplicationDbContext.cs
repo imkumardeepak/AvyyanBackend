@@ -11,17 +11,14 @@ namespace AvyyanBackend.Data
 
         // DbSets for Knitfab business models
         public DbSet<MachineManager> MachineManagers { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Address> Addresses { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderItem> OrderItems { get; set; }
-        public DbSet<Supplier> Suppliers { get; set; }
-        public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
-        public DbSet<PurchaseOrderItem> PurchaseOrderItems { get; set; }
 
-        // DbSets for Chat and Notification models
+        // DbSets for Authentication
         public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<PageAccess> PageAccesses { get; set; }
+        public DbSet<RolePageAccess> RolePageAccesses { get; set; }
+
         public DbSet<ChatRoom> ChatRooms { get; set; }
         public DbSet<ChatRoomMember> ChatRoomMembers { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
@@ -35,81 +32,65 @@ namespace AvyyanBackend.Data
 
             // Configure entity relationships and constraints
 
-            // Category self-referencing relationship
-            modelBuilder.Entity<Category>()
-                .HasOne(c => c.ParentCategory)
-                .WithMany(c => c.SubCategories)
-                .HasForeignKey(c => c.ParentCategoryId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             // MachineManager configurations
             modelBuilder.Entity<MachineManager>()
                 .HasIndex(m => m.MachineName)
                 .IsUnique();
 
-            // Customer relationships
-            modelBuilder.Entity<Address>()
-                .HasOne(a => a.Customer)
-                .WithMany(c => c.Addresses)
-                .HasForeignKey(a => a.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Order relationships
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Customer)
-                .WithMany(c => c.Orders)
-                .HasForeignKey(o => o.CustomerId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.BillingAddress)
-                .WithMany(a => a.BillingOrders)
-                .HasForeignKey(o => o.BillingAddressId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.ShippingAddress)
-                .WithMany(a => a.ShippingOrders)
-                .HasForeignKey(o => o.ShippingAddressId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // OrderItem relationships
-            modelBuilder.Entity<OrderItem>()
-                    .HasOne(oi => oi.Order)
-                    .WithMany(o => o.OrderItems)
-                    .HasForeignKey(oi => oi.OrderId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-            // PurchaseOrder relationships
-            modelBuilder.Entity<PurchaseOrder>()
-                    .HasOne(po => po.Supplier)
-                    .WithMany(s => s.PurchaseOrders)
-                    .HasForeignKey(po => po.SupplierId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<PurchaseOrderItem>()
-                    .HasOne(poi => poi.PurchaseOrder)
-                    .WithMany(po => po.PurchaseOrderItems)
-                    .HasForeignKey(poi => poi.PurchaseOrderId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-            // Configure unique indexes
-            modelBuilder.Entity<Customer>()
-                    .HasIndex(c => c.Email)
-                    .IsUnique();
-
-            modelBuilder.Entity<Order>()
-                    .HasIndex(o => o.OrderNumber)
-                    .IsUnique();
-
-            modelBuilder.Entity<PurchaseOrder>()
-                    .HasIndex(po => po.PurchaseOrderNumber)
-                    .IsUnique();
-
-            // User configurations
+            // Authentication configurations
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
+
+            modelBuilder.Entity<Role>()
+                .HasIndex(r => r.Name)
+                .IsUnique();
+
+            modelBuilder.Entity<PageAccess>()
+                .HasIndex(p => p.PageUrl)
+                .IsUnique();
+
+            // UserRole relationships
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(ur => ur.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.AssignedByUser)
+                .WithMany()
+                .HasForeignKey(ur => ur.AssignedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // RolePageAccess relationships
+            modelBuilder.Entity<RolePageAccess>()
+                .HasOne(rpa => rpa.Role)
+                .WithMany(r => r.RolePageAccesses)
+                .HasForeignKey(rpa => rpa.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RolePageAccess>()
+                .HasOne(rpa => rpa.PageAccess)
+                .WithMany(pa => pa.RolePageAccesses)
+                .HasForeignKey(rpa => rpa.PageAccessId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RolePageAccess>()
+                .HasOne(rpa => rpa.GrantedByUser)
+                .WithMany()
+                .HasForeignKey(rpa => rpa.GrantedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Chat Room configurations
             modelBuilder.Entity<ChatRoom>()
@@ -145,7 +126,7 @@ namespace AvyyanBackend.Data
 
             modelBuilder.Entity<ChatMessage>()
                 .HasOne(cm => cm.Sender)
-                .WithMany(u => u.SentMessages)
+                .WithMany(u => u.ChatMessages)
                 .HasForeignKey(cm => cm.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -183,7 +164,7 @@ namespace AvyyanBackend.Data
             // User Connection configurations
             modelBuilder.Entity<UserConnection>()
                 .HasOne(uc => uc.User)
-                .WithMany(u => u.Connections)
+                .WithMany(u => u.UserConnections)
                 .HasForeignKey(uc => uc.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 

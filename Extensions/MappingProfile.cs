@@ -22,59 +22,23 @@ namespace AvyyanBackend.Extensions
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedBy, opt => opt.Ignore());
 
-            // Category mappings
-            CreateMap<Category, CategoryDto>()
-                .ForMember(dest => dest.ParentCategoryName, opt => opt.MapFrom(src => src.ParentCategory != null ? src.ParentCategory.Name : null))
-                .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => 0)); // No products anymore
-
-            CreateMap<CreateCategoryDto, Category>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
-
-            CreateMap<UpdateCategoryDto, Category>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore());
-
-            // Customer mappings
-            CreateMap<Customer, CustomerDto>()
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
-                .ForMember(dest => dest.TotalOrders, opt => opt.MapFrom(src => src.Orders.Count))
-                .ForMember(dest => dest.TotalSpent, opt => opt.MapFrom(src => src.Orders.Sum(o => o.TotalAmount)));
-
-            CreateMap<CreateCustomerDto, Customer>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true))
-                .ForMember(dest => dest.RegistrationDate, opt => opt.MapFrom(src => DateTime.UtcNow));
-
-            CreateMap<UpdateCustomerDto, Customer>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-                .ForMember(dest => dest.RegistrationDate, opt => opt.Ignore());
-
-            // Address mappings
-            CreateMap<Address, AddressDto>();
-            CreateMap<CreateAddressDto, Address>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
-
-            // User mappings
+            // Authentication mappings
             CreateMap<User, UserDto>()
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.IsOnline, opt => opt.MapFrom(src => src.IsOnline))
+                .ForMember(dest => dest.Roles, opt => opt.Ignore()); // Will be populated separately
 
-            CreateMap<CreateUserDto, User>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()) // Handle password hashing separately
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+            CreateMap<Role, RoleDto>();
+
+            CreateMap<PageAccess, PageAccessDto>()
+                .ForMember(dest => dest.CanView, opt => opt.Ignore())
+                .ForMember(dest => dest.CanCreate, opt => opt.Ignore())
+                .ForMember(dest => dest.CanEdit, opt => opt.Ignore())
+                .ForMember(dest => dest.CanDelete, opt => opt.Ignore())
+                .ForMember(dest => dest.CanExport, opt => opt.Ignore());
+
+
+
 
             // Chat Room mappings
             CreateMap<ChatRoom, ChatRoomDto>()
@@ -90,7 +54,7 @@ namespace AvyyanBackend.Extensions
             // Chat Message mappings
             CreateMap<ChatMessage, ChatMessageDto>()
                 .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => $"{src.Sender.FirstName} {src.Sender.LastName}"))
-                .ForMember(dest => dest.SenderProfileImage, opt => opt.MapFrom(src => src.Sender.ProfileImageUrl));
+                .ForMember(dest => dest.SenderProfileImage, opt => opt.MapFrom(src => src.Sender.ProfilePicture));
 
             CreateMap<SendMessageDto, ChatMessage>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -103,7 +67,7 @@ namespace AvyyanBackend.Extensions
             CreateMap<ChatRoomMember, ChatRoomMemberDto>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => $"{src.User.FirstName} {src.User.LastName}"))
                 .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
-                .ForMember(dest => dest.UserProfileImage, opt => opt.MapFrom(src => src.User.ProfileImageUrl))
+                .ForMember(dest => dest.UserProfileImage, opt => opt.MapFrom(src => src.User.ProfilePicture))
                 .ForMember(dest => dest.IsOnline, opt => opt.MapFrom(src => src.User.IsOnline));
 
             // Message Reaction mappings
