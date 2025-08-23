@@ -1,10 +1,12 @@
 using AvyyanBackend.Extensions;
 using AvyyanBackend.Data;
-using AvyyanBackend.Hubs;
 using AvyyanBackend.Middleware;
 using AvyyanBackend.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+
+// Add the new using statement for WebSockets
+using AvyyanBackend.WebSockets;
 
 // Configure Serilog early
 var builder = WebApplication.CreateBuilder(args);
@@ -21,7 +23,10 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddValidationServices();
 builder.Services.AddAutoMapperServices();
 builder.Services.AddCorsServices();
-builder.Services.AddSignalRServices();
+
+// Add WebSocket services
+builder.Services.AddSingleton<AvyyanBackend.WebSockets.WebSocketManager>();
+builder.Services.AddSingleton<ChatWebSocketManager>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -78,6 +83,9 @@ app.UseHttpsRedirection();
 // Use Serilog request logging
 app.UseSerilogRequestLogging();
 
+// Enable WebSockets
+app.UseWebSockets();
+
 // Use CORS
 app.UseCors("AllowAll");
 
@@ -87,16 +95,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Map SignalR Hubs
-app.MapHub<ChatHub>("/hubs/chat");
-app.MapHub<NotificationHub>("/hubs/notifications");
-
 // Ensure database is created and seeded (for development)
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await context.Database.EnsureCreatedAsync();
+    await context.Database.MigrateAsync();
 
     // Seed initial data
     var dataSeedService = scope.ServiceProvider.GetRequiredService<DataSeedService>();

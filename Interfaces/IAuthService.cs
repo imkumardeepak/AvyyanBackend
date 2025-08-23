@@ -6,9 +6,7 @@ namespace AvyyanBackend.Interfaces
     {
         // Authentication
         Task<LoginResponseDto?> LoginAsync(LoginDto loginDto);
-        Task<LoginResponseDto?> RefreshTokenAsync(RefreshTokenDto refreshTokenDto);
         Task<bool> LogoutAsync(int userId);
-        Task<bool> RevokeRefreshTokenAsync(string refreshToken);
 
         // Registration
         Task<UserDto> RegisterAsync(RegisterDto registerDto);
@@ -20,11 +18,8 @@ namespace AvyyanBackend.Interfaces
 
         // Token Management
         string GenerateJwtToken(UserDto user, IEnumerable<string> roles);
-        string GenerateRefreshToken();
-        Task<bool> ValidateRefreshTokenAsync(string refreshToken);
 
         // Authentication Helpers
-        Task<UserDto?> GetUserByUsernameOrEmailAsync(string usernameOrEmail);
         Task<bool> ValidatePasswordAsync(string password, string hash);
         string HashPassword(string password);
     }

@@ -124,7 +124,6 @@ namespace AvyyanBackend.Controllers
                 return StatusCode(500, "An error occurred while processing your request");
             }
         }
-
         /// <summary>
         /// Delete a machine (soft delete)
         /// </summary>

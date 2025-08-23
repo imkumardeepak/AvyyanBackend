@@ -5,7 +5,8 @@ namespace AvyyanBackend.DTOs
     public class LoginDto
     {
         [Required]
-        public string Username { get; set; } = string.Empty;
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
 
         [Required]
         public string Password { get; set; } = string.Empty;
@@ -78,10 +79,6 @@ namespace AvyyanBackend.DTOs
         public string LastName { get; set; } = string.Empty;
 
         [Required]
-        [MaxLength(50)]
-        public string Username { get; set; } = string.Empty;
-
-        [Required]
         [EmailAddress]
         [MaxLength(255)]
         public string Email { get; set; } = string.Empty;
@@ -103,44 +100,60 @@ namespace AvyyanBackend.DTOs
         public int Id { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
-        public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
-        public string? ProfilePicture { get; set; }
-        public bool IsEmailVerified { get; set; }
-        public bool IsLocked { get; set; }
         public DateTime? LastLoginAt { get; set; }
         public DateTime CreatedAt { get; set; }
-        public bool IsOnline { get; set; }
-        public string FullName { get; set; } = string.Empty;
-        public IEnumerable<string> Roles { get; set; } = new List<string>();
+        public string RoleName { get; set; } = string.Empty;
     }
 
     public class RoleDto
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string RoleName { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public bool IsSystemRole { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public bool IsActive { get; set; }
     }
 
     public class PageAccessDto
     {
         public int Id { get; set; }
+        public int RoleId { get; set; }
         public string PageName { get; set; } = string.Empty;
-        public string PageUrl { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public string? Category { get; set; }
-        public string? Icon { get; set; }
-        public int SortOrder { get; set; }
-        public bool IsMenuItem { get; set; }
-        public bool CanView { get; set; }
-        public bool CanCreate { get; set; }
-        public bool CanEdit { get; set; }
-        public bool CanDelete { get; set; }
-        public bool CanExport { get; set; }
+        public bool IsView { get; set; }
+        public bool IsAdd { get; set; }
+        public bool IsEdit { get; set; }
+        public bool IsDelete { get; set; }
+    }
+
+    public class CreatePageAccessDto
+    {
+        [Required]
+        public int RoleId { get; set; }
+
+        [Required]
+        public string PageName { get; set; } = string.Empty;
+
+        public bool IsView { get; set; }
+        public bool IsAdd { get; set; }
+        public bool IsEdit { get; set; }
+        public bool IsDelete { get; set; }
+    }
+
+    public class UpdatePageAccessDto
+    {
+        [Required]
+        public int Id { get; set; }
+
+        [Required]
+        public int RoleId { get; set; }
+
+        [Required]
+        public string PageName { get; set; } = string.Empty;
+
+        public bool IsView { get; set; }
+        public bool IsAdd { get; set; }
+        public bool IsEdit { get; set; }
+        public bool IsDelete { get; set; }
     }
 
     public class CreateUserDto
@@ -154,10 +167,6 @@ namespace AvyyanBackend.DTOs
         public string LastName { get; set; } = string.Empty;
 
         [Required]
-        [MaxLength(50)]
-        public string Username { get; set; } = string.Empty;
-
-        [Required]
         [EmailAddress]
         [MaxLength(255)]
         public string Email { get; set; } = string.Empty;
@@ -169,7 +178,7 @@ namespace AvyyanBackend.DTOs
         [MaxLength(20)]
         public string? PhoneNumber { get; set; }
 
-        public IEnumerable<int> RoleIds { get; set; } = new List<int>();
+        public string RoleName { get; set; } = string.Empty;
     }
 
     public class UpdateUserDto
@@ -192,18 +201,7 @@ namespace AvyyanBackend.DTOs
 
         public bool IsActive { get; set; } = true;
 
-        public IEnumerable<int> RoleIds { get; set; } = new List<int>();
-    }
-
-    public class AssignRoleDto
-    {
-        [Required]
-        public int UserId { get; set; }
-
-        [Required]
-        public int RoleId { get; set; }
-
-        public DateTime? ExpiresAt { get; set; }
+        public string RoleName { get; set; } = string.Empty;
     }
 
     public class CreateRoleDto
@@ -226,68 +224,4 @@ namespace AvyyanBackend.DTOs
         public string? Description { get; set; }
     }
 
-    public class CreatePageAccessDto
-    {
-        [Required]
-        [MaxLength(100)]
-        public string PageName { get; set; } = string.Empty;
-
-        [Required]
-        [MaxLength(200)]
-        public string PageUrl { get; set; } = string.Empty;
-
-        [MaxLength(500)]
-        public string? Description { get; set; }
-
-        [MaxLength(50)]
-        public string? Category { get; set; }
-
-        [MaxLength(50)]
-        public string? Icon { get; set; }
-
-        public int SortOrder { get; set; } = 0;
-
-        public bool IsMenuItem { get; set; } = true;
-    }
-
-    public class UpdatePageAccessDto
-    {
-        [Required]
-        [MaxLength(100)]
-        public string PageName { get; set; } = string.Empty;
-
-        [Required]
-        [MaxLength(200)]
-        public string PageUrl { get; set; } = string.Empty;
-
-        [MaxLength(500)]
-        public string? Description { get; set; }
-
-        [MaxLength(50)]
-        public string? Category { get; set; }
-
-        [MaxLength(50)]
-        public string? Icon { get; set; }
-
-        public int SortOrder { get; set; } = 0;
-
-        public bool IsMenuItem { get; set; } = true;
-    }
-
-    public class GrantPageAccessDto
-    {
-        public bool CanView { get; set; } = true;
-        public bool CanCreate { get; set; } = false;
-        public bool CanEdit { get; set; } = false;
-        public bool CanDelete { get; set; } = false;
-        public bool CanExport { get; set; } = false;
-    }
-
-    public class AssignRoleToUserDto
-    {
-        [Required]
-        public int UserId { get; set; }
-
-        public DateTime? ExpiresAt { get; set; }
-    }
 }

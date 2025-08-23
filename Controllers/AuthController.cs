@@ -43,29 +43,6 @@ namespace AvyyanBackend.Controllers
         }
 
         /// <summary>
-        /// Refresh JWT token
-        /// </summary>
-        [HttpPost("refresh")]
-        public async Task<ActionResult<LoginResponseDto>> RefreshToken(RefreshTokenDto refreshTokenDto)
-        {
-            try
-            {
-                var result = await _authService.RefreshTokenAsync(refreshTokenDto);
-                if (result == null)
-                {
-                    return Unauthorized("Invalid refresh token");
-                }
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred during token refresh");
-                return StatusCode(500, "An error occurred while processing your request");
-            }
-        }
-
-        /// <summary>
         /// User logout
         /// </summary>
         [HttpPost("logout")]
@@ -155,13 +132,6 @@ namespace AvyyanBackend.Controllers
                 return StatusCode(500, "An error occurred while processing your request");
             }
         }
-
-
-
-
-
-
-
         private int? GetUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

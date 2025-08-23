@@ -9,8 +9,7 @@ namespace AvyyanBackend.DTOs
         public int Needle { get; set; }
         public int Feeder { get; set; }
         public decimal Rpm { get; set; }
-        public int Slit { get; set; }
-        public string? Constat { get; set; }
+        public decimal? Constat { get; set; }
         public decimal Efficiency { get; set; }
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -26,8 +25,7 @@ namespace AvyyanBackend.DTOs
         public int Needle { get; set; }
         public int Feeder { get; set; }
         public decimal Rpm { get; set; }
-        public int Slit { get; set; }
-        public string? Constat { get; set; }
+        public decimal? Constat { get; set; }
         public decimal Efficiency { get; set; }
         public string? Description { get; set; }
     }
@@ -40,8 +38,7 @@ namespace AvyyanBackend.DTOs
         public int Needle { get; set; }
         public int Feeder { get; set; }
         public decimal Rpm { get; set; }
-        public int Slit { get; set; }
-        public string? Constat { get; set; }
+        public decimal? Constat { get; set; }
         public decimal Efficiency { get; set; }
         public string? Description { get; set; }
         public bool IsActive { get; set; }

@@ -2,30 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AvyyanBackend.Models
 {
-    public class PageAccess : BaseEntity
+    public class PageAccess
     {
-        [Required]
-        [MaxLength(100)]
-        public string PageName { get; set; } = string.Empty;
-
-        [Required]
-        [MaxLength(200)]
-        public string PageUrl { get; set; } = string.Empty;
-
-        [MaxLength(200)]
-        public string? Description { get; set; }
-
-        [MaxLength(50)]
-        public string? Category { get; set; }
-
-        [MaxLength(50)]
-        public string? Icon { get; set; }
-
-        public int SortOrder { get; set; } = 0;
-
-        public bool IsMenuItem { get; set; } = true;
-
-        // Navigation Properties
-        public ICollection<RolePageAccess> RolePageAccesses { get; set; } = new List<RolePageAccess>();
+        public int Id { get; set; }
+        public int RoleId { get; set; }
+        public string? PageName { get; set; }
+        public bool IsView { get; set; } = false;
+        public bool IsAdd { get; set; } = false;
+        public bool IsEdit { get; set; } = false;
+        public bool IsDelete { get; set; } = false;
+        public RoleMaster Role { get; set; } = null!;
     }
 }

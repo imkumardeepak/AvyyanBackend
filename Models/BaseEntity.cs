@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AvyyanBackend.Models
 {
@@ -6,12 +7,13 @@ namespace AvyyanBackend.Models
     {
         [Key]
         public int Id { get; set; }
-        
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        
-        public DateTime? UpdatedAt { get; set; }
-        
-        public bool IsActive { get; set; } = true;
+
+        [Column(TypeName = "timestamp without time zone")]
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+		[Column(TypeName = "timestamp without time zone")]
+		public DateTime? UpdatedAt { get; set; }= DateTime.Now;
+
+		public bool IsActive { get; set; } = true;
         
         public string? CreatedBy { get; set; }
         

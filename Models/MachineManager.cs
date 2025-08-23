@@ -19,16 +19,14 @@ namespace AvyyanBackend.Models
 
         public int Feeder { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
+        [Column(TypeName = "decimal(18,5)")]
         public decimal Rpm { get; set; }
 
-        public int Slit { get; set; }
+		[Column(TypeName = "decimal(18,5)")]
+		public decimal Efficiency { get; set; } 
 
-        [MaxLength(100)]
-        public string? Constat { get; set; }
-
-        [Column(TypeName = "decimal(5,2)")]
-        public decimal Efficiency { get; set; }
+		[Column(TypeName = "decimal(18,5)")]
+		public decimal? Constat { get; set; }
 
         [MaxLength(500)]
         public string? Description { get; set; }

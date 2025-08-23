@@ -26,12 +26,6 @@ namespace AvyyanBackend.Extensions
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            // Add specific repository registrations here as you create them
-            // services.AddScoped<IProductRepository, ProductRepository>();
-            // services.AddScoped<ICategoryRepository, CategoryRepository>();
-            // services.AddScoped<ICustomerRepository, CustomerRepository>();
-            // services.AddScoped<IOrderRepository, OrderRepository>();
-
             return services;
         }
 
@@ -39,8 +33,7 @@ namespace AvyyanBackend.Extensions
         {
             // Add your business service registrations here
             services.AddScoped<IMachineManagerService, MachineManagerService>();
-            services.AddScoped<IChatService, ChatService>();
-            services.AddScoped<INotificationService, NotificationService>();
+
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
@@ -110,19 +103,6 @@ namespace AvyyanBackend.Extensions
                         .AllowAnyMethod()
                         .AllowAnyHeader();
                 });
-            });
-
-            return services;
-        }
-
-        public static IServiceCollection AddSignalRServices(this IServiceCollection services)
-        {
-            services.AddSignalR(options =>
-            {
-                options.EnableDetailedErrors = true;
-                options.KeepAliveInterval = TimeSpan.FromSeconds(15);
-                options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
-                options.HandshakeTimeout = TimeSpan.FromSeconds(15);
             });
 
             return services;

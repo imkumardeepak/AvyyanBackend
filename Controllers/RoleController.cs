@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using AvyyanBackend.DTOs;
+
 using AvyyanBackend.Interfaces;
+using AvyyanBackend.DTOs;
 
 namespace AvyyanBackend.Controllers
 {
@@ -66,7 +67,8 @@ namespace AvyyanBackend.Controllers
         {
             try
             {
-                var role = await _roleService.CreateRoleAsync(createRoleDto.Name, createRoleDto.Description);
+                var roleDto = new RoleDto { RoleName = createRoleDto.Name, Description = createRoleDto.Description };
+                var role = await _roleService.CreateRoleAsync(roleDto);
                 return CreatedAtAction(nameof(GetRole), new { id = role.Id }, role);
             }
             catch (InvalidOperationException ex)
@@ -88,7 +90,8 @@ namespace AvyyanBackend.Controllers
         {
             try
             {
-                var role = await _roleService.UpdateRoleAsync(id, updateRoleDto.Name, updateRoleDto.Description);
+                var roleDto = new RoleDto { Id = id, RoleName = updateRoleDto.Name, Description = updateRoleDto.Description };
+                var role = await _roleService.UpdateRoleAsync(roleDto);
                 if (role == null)
                     return NotFound("Role not found");
 
@@ -173,14 +176,7 @@ namespace AvyyanBackend.Controllers
         {
             try
             {
-                var pageAccess = await _roleService.CreatePageAccessAsync(
-                    createPageAccessDto.PageName,
-                    createPageAccessDto.PageUrl,
-                    createPageAccessDto.Description,
-                    createPageAccessDto.Category,
-                    createPageAccessDto.Icon,
-                    createPageAccessDto.SortOrder,
-                    createPageAccessDto.IsMenuItem);
+                var pageAccess = await _roleService.CreatePageAccessAsync(createPageAccessDto);
 
                 return CreatedAtAction(nameof(GetPageAccess), new { id = pageAccess.Id }, pageAccess);
             }
@@ -203,15 +199,10 @@ namespace AvyyanBackend.Controllers
         {
             try
             {
-                var pageAccess = await _roleService.UpdatePageAccessAsync(
-                    id,
-                    updatePageAccessDto.PageName,
-                    updatePageAccessDto.PageUrl,
-                    updatePageAccessDto.Description,
-                    updatePageAccessDto.Category,
-                    updatePageAccessDto.Icon,
-                    updatePageAccessDto.SortOrder,
-                    updatePageAccessDto.IsMenuItem);
+                if (id != updatePageAccessDto.Id)
+                    return BadRequest("ID mismatch");
+
+                var pageAccess = await _roleService.UpdatePageAccessAsync(updatePageAccessDto);
 
                 if (pageAccess == null)
                     return NotFound("Page access not found");
@@ -228,159 +219,42 @@ namespace AvyyanBackend.Controllers
                 return StatusCode(500, "An error occurred while processing your request");
             }
         }
-
         /// <summary>
-        /// Delete page access
+        /// Delete a page access
         /// </summary>
-        [HttpDelete("page-accesses/{id}")]
+        [HttpDelete("page-access/{id}")]
         public async Task<ActionResult> DeletePageAccess(int id)
         {
             try
             {
                 var result = await _roleService.DeletePageAccessAsync(id);
                 if (!result)
-                    return NotFound("Page access not found");
-
+                {
+                    return NotFound($"Page access with ID {id} not found");
+                }
                 return NoContent();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while deleting page access");
+                _logger.LogError(ex, "Error occurred while deleting page access {PageAccessId}", id);
                 return StatusCode(500, "An error occurred while processing your request");
             }
         }
 
         /// <summary>
-        /// Get role page accesses
+        /// Get all page accesses for a specific role
         /// </summary>
-        [HttpGet("{id}/page-accesses")]
-        public async Task<ActionResult<IEnumerable<PageAccessDto>>> GetRolePageAccesses(int id)
+        [HttpGet("{roleId}/page-accesses")]
+        public async Task<ActionResult<IEnumerable<PageAccessDto>>> GetRolePageAccesses(int roleId)
         {
             try
             {
-                var pageAccesses = await _roleService.GetRolePageAccessesAsync(id);
+                var pageAccesses = await _roleService.GetRolePageAccessesAsync(roleId);
                 return Ok(pageAccesses);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while getting role page accesses");
-                return StatusCode(500, "An error occurred while processing your request");
-            }
-        }
-
-        /// <summary>
-        /// Grant page access to role
-        /// </summary>
-        [HttpPost("{id}/page-accesses/{pageAccessId}")]
-        public async Task<ActionResult> GrantPageAccess(int id, int pageAccessId, [FromBody] GrantPageAccessDto grantPageAccessDto)
-        {
-            try
-            {
-                var result = await _roleService.GrantPageAccessToRoleAsync(
-                    id,
-                    pageAccessId,
-                    grantPageAccessDto.CanView,
-                    grantPageAccessDto.CanCreate,
-                    grantPageAccessDto.CanEdit,
-                    grantPageAccessDto.CanDelete,
-                    grantPageAccessDto.CanExport);
-
-                if (!result)
-                    return BadRequest("Failed to grant page access");
-
-                return Ok(new { message = "Page access granted successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while granting page access");
-                return StatusCode(500, "An error occurred while processing your request");
-            }
-        }
-
-        /// <summary>
-        /// Revoke page access from role
-        /// </summary>
-        [HttpDelete("{id}/page-accesses/{pageAccessId}")]
-        public async Task<ActionResult> RevokePageAccess(int id, int pageAccessId)
-        {
-            try
-            {
-                var result = await _roleService.RevokePageAccessFromRoleAsync(id, pageAccessId);
-                if (!result)
-                    return NotFound("Page access assignment not found");
-
-                return Ok(new { message = "Page access revoked successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while revoking page access");
-                return StatusCode(500, "An error occurred while processing your request");
-            }
-        }
-
-        /// <summary>
-        /// Get users in role
-        /// </summary>
-        [HttpGet("{id}/users")]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsersInRole(int id)
-        {
-            try
-            {
-                var users = await _roleService.GetUsersInRoleAsync(id);
-                return Ok(users);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while getting users in role");
-                return StatusCode(500, "An error occurred while processing your request");
-            }
-        }
-
-        /// <summary>
-        /// Assign role to user
-        /// </summary>
-        [HttpPost("{id}/users")]
-        public async Task<ActionResult> AssignRoleToUser(int id, [FromBody] AssignRoleToUserDto assignRoleToUserDto)
-        {
-            try
-            {
-                var assignRoleDto = new AssignRoleDto
-                {
-                    UserId = assignRoleToUserDto.UserId,
-                    RoleId = id,
-                    ExpiresAt = assignRoleToUserDto.ExpiresAt
-                };
-
-                var result = await _roleService.AssignRoleToUserAsync(assignRoleDto);
-                if (!result)
-                    return BadRequest("Failed to assign role to user");
-
-                return Ok(new { message = "Role assigned to user successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while assigning role to user");
-                return StatusCode(500, "An error occurred while processing your request");
-            }
-        }
-
-        /// <summary>
-        /// Remove role from user
-        /// </summary>
-        [HttpDelete("{id}/users/{userId}")]
-        public async Task<ActionResult> RemoveRoleFromUser(int id, int userId)
-        {
-            try
-            {
-                var result = await _roleService.RemoveRoleFromUserAsync(userId, id);
-                if (!result)
-                    return NotFound("Role assignment not found");
-
-                return Ok(new { message = "Role removed from user successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while removing role from user");
+                _logger.LogError(ex, "Error occurred while getting page accesses for role {RoleId}", roleId);
                 return StatusCode(500, "An error occurred while processing your request");
             }
         }

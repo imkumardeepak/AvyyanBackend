@@ -121,27 +121,7 @@ namespace AvyyanBackend.Controllers
             }
         }
 
-        /// <summary>
-        /// Check if current user has specific page access
-        /// </summary>
-        [HttpGet("permissions/check")]
-        public async Task<ActionResult<bool>> CheckPermission([FromQuery] string pageUrl, [FromQuery] string permission = "View")
-        {
-            try
-            {
-                var userId = GetUserId();
-                if (!userId.HasValue)
-                    return Unauthorized();
 
-                var hasAccess = await _userService.HasPageAccessAsync(userId.Value, pageUrl, permission);
-                return Ok(hasAccess);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while checking permission");
-                return StatusCode(500, "An error occurred while processing your request");
-            }
-        }
 
         /// <summary>
         /// Get all users (Admin only)
@@ -234,7 +214,7 @@ namespace AvyyanBackend.Controllers
         }
 
         /// <summary>
-        /// Delete user (Admin only)
+        /// Delete a user
         /// </summary>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
@@ -244,121 +224,14 @@ namespace AvyyanBackend.Controllers
             {
                 var result = await _userService.DeleteUserAsync(id);
                 if (!result)
-                    return NotFound("User not found");
-
+                {
+                    return NotFound($"User with ID {id} not found");
+                }
                 return NoContent();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while deleting user");
-                return StatusCode(500, "An error occurred while processing your request");
-            }
-        }
-
-        /// <summary>
-        /// Lock user account (Admin only)
-        /// </summary>
-        [HttpPost("{id}/lock")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> LockUser(int id)
-        {
-            try
-            {
-                var result = await _userService.LockUserAsync(id);
-                if (!result)
-                    return NotFound("User not found");
-
-                return Ok(new { message = "User locked successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while locking user");
-                return StatusCode(500, "An error occurred while processing your request");
-            }
-        }
-
-        /// <summary>
-        /// Unlock user account (Admin only)
-        /// </summary>
-        [HttpPost("{id}/unlock")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> UnlockUser(int id)
-        {
-            try
-            {
-                var result = await _userService.UnlockUserAsync(id);
-                if (!result)
-                    return NotFound("User not found");
-
-                return Ok(new { message = "User unlocked successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while unlocking user");
-                return StatusCode(500, "An error occurred while processing your request");
-            }
-        }
-
-        /// <summary>
-        /// Assign role to user (Admin only)
-        /// </summary>
-        [HttpPost("{id}/roles")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> AssignRole(int id, AssignRoleDto assignRoleDto)
-        {
-            try
-            {
-                assignRoleDto.UserId = id; // Ensure the user ID matches the route
-                var result = await _userService.AssignRoleToUserAsync(assignRoleDto);
-                if (!result)
-                    return BadRequest("Failed to assign role");
-
-                return Ok(new { message = "Role assigned successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while assigning role");
-                return StatusCode(500, "An error occurred while processing your request");
-            }
-        }
-
-        /// <summary>
-        /// Remove role from user (Admin only)
-        /// </summary>
-        [HttpDelete("{id}/roles/{roleId}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> RemoveRole(int id, int roleId)
-        {
-            try
-            {
-                var result = await _userService.RemoveRoleFromUserAsync(id, roleId);
-                if (!result)
-                    return NotFound("Role assignment not found");
-
-                return Ok(new { message = "Role removed successfully" });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while removing role");
-                return StatusCode(500, "An error occurred while processing your request");
-            }
-        }
-
-        /// <summary>
-        /// Get user roles (Admin only)
-        /// </summary>
-        [HttpGet("{id}/roles")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<string>>> GetUserRoles(int id)
-        {
-            try
-            {
-                var roles = await _userService.GetUserRolesAsync(id);
-                return Ok(roles);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while getting user roles");
+                _logger.LogError(ex, "Error occurred while deleting user {UserId}", id);
                 return StatusCode(500, "An error occurred while processing your request");
             }
         }

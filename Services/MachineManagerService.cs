@@ -83,7 +83,7 @@ namespace AvyyanBackend.Services
             }
 
             _mapper.Map(updateMachineDto, machine);
-            machine.UpdatedAt = DateTime.UtcNow;
+            machine.UpdatedAt = DateTime.Now;
 
             _machineRepository.Update(machine);
             await _unitOfWork.SaveChangesAsync();
@@ -102,19 +102,9 @@ namespace AvyyanBackend.Services
                 _logger.LogWarning("Machine {MachineId} not found for deletion", id);
                 return false;
             }
-
-            machine.IsActive = false;
-            machine.UpdatedAt = DateTime.UtcNow;
-
-            _machineRepository.Update(machine);
-            var result = await _unitOfWork.SaveChangesAsync() > 0;
-
-            if (result)
-            {
-                _logger.LogInformation("Deleted machine {MachineId}", id);
-            }
-
-            return result;
+            _machineRepository.Remove(machine);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
         }
 
         public async Task<IEnumerable<MachineManagerDto>> SearchMachinesAsync(string? machineName, decimal? dia)
