@@ -8,6 +8,7 @@ using AvyyanBackend.Repositories;
 using AvyyanBackend.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using AvyyanBackend.WebSockets;
 
 namespace AvyyanBackend.Extensions
 {
@@ -33,11 +34,21 @@ namespace AvyyanBackend.Extensions
         {
             // Add your business service registrations here
             services.AddScoped<IMachineManagerService, MachineManagerService>();
+            services.AddScoped<IFabricStructureService, FabricStructureService>();
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<DataSeedService>();
+
+            // Custom WebSocket services
+            services.AddSingleton<CustomWebSocketManager>();
+            services.AddSingleton<ChatWebSocketManager>();
+
+            // Remove legacy WebSocket services
+            // services.AddSingleton<AvyyanBackend.WebSockets.EnhancedWebSocketManager>();
+            // services.AddSingleton<AvyyanBackend.WebSockets.WebSocketManager>();
+            // services.AddSingleton<AvyyanBackend.WebSockets.ChatWebSocketManager>();
 
             return services;
         }

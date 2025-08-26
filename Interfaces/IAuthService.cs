@@ -1,23 +1,24 @@
-using AvyyanBackend.DTOs;
+using AvyyanBackend.DTOs.Auth;
+using AvyyanBackend.DTOs.User;
 
 namespace AvyyanBackend.Interfaces
 {
     public interface IAuthService
     {
         // Authentication
-        Task<LoginResponseDto?> LoginAsync(LoginDto loginDto);
+        Task<LoginResponseDto?> LoginAsync(LoginRequestDto loginDto);
         Task<bool> LogoutAsync(int userId);
 
         // Registration
-        Task<UserDto> RegisterAsync(RegisterDto registerDto);
+        Task<UserProfileResponseDto> RegisterAsync(RegisterRequestDto registerDto);
 
         // Password Management
-        Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto);
-        Task<bool> ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
-        Task<bool> SetPasswordAsync(SetPasswordDto setPasswordDto);
+        Task<bool> ChangePasswordAsync(int userId, ChangePasswordRequestDto changePasswordDto);
+        Task<bool> ResetPasswordAsync(ResetPasswordRequestDto resetPasswordDto);
+        Task<bool> SetPasswordAsync(SetPasswordRequestDto setPasswordDto);
 
         // Token Management
-        string GenerateJwtToken(UserDto user, IEnumerable<string> roles);
+        string GenerateJwtToken(AuthUserDto user, IEnumerable<string> roles);
 
         // Authentication Helpers
         Task<bool> ValidatePasswordAsync(string password, string hash);

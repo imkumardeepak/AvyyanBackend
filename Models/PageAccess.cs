@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace AvyyanBackend.Models
 {
@@ -11,6 +12,7 @@ namespace AvyyanBackend.Models
         public bool IsAdd { get; set; } = false;
         public bool IsEdit { get; set; } = false;
         public bool IsDelete { get; set; } = false;
-        public RoleMaster Role { get; set; } = null!;
+		[JsonIgnore]
+		public RoleMaster Role { get; set; } = null!;
     }
 }

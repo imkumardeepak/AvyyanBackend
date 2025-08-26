@@ -2,11 +2,10 @@ using AvyyanBackend.Extensions;
 using AvyyanBackend.Data;
 using AvyyanBackend.Middleware;
 using AvyyanBackend.Services;
+using AvyyanBackend.WebSockets;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-
-// Add the new using statement for WebSockets
-using AvyyanBackend.WebSockets;
+using System.Net.WebSockets;
 
 // Configure Serilog early
 var builder = WebApplication.CreateBuilder(args);
@@ -24,9 +23,6 @@ builder.Services.AddValidationServices();
 builder.Services.AddAutoMapperServices();
 builder.Services.AddCorsServices();
 
-// Add WebSocket services
-builder.Services.AddSingleton<AvyyanBackend.WebSockets.WebSocketManager>();
-builder.Services.AddSingleton<ChatWebSocketManager>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -83,7 +79,7 @@ app.UseHttpsRedirection();
 // Use Serilog request logging
 app.UseSerilogRequestLogging();
 
-// Enable WebSockets
+// Enable WebSockets (before CORS)
 app.UseWebSockets();
 
 // Use CORS
@@ -92,6 +88,58 @@ app.UseCors("AllowAll");
 // Use Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Custom WebSocket Middleware
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path == "/ws")
+    {
+        if (context.WebSockets.IsWebSocketRequest)
+        {
+            var webSocketManager = context.RequestServices.GetRequiredService<CustomWebSocketManager>();
+            var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+            await webSocketManager.HandleWebSocketConnection(webSocket);
+            return; // WebSocket connection handled, no need to call next middleware
+        }
+        else
+        {
+            context.Response.StatusCode = 400;
+            return;
+        }
+    }
+    else if (context.Request.Path.StartsWithSegments("/ws/chat"))
+    {
+        if (context.WebSockets.IsWebSocketRequest)
+        {
+            var path = context.Request.Path.ToString();
+            var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            
+            // Expecting path like /ws/chat/{employeeId}
+            if (segments.Length >= 3)
+            {
+                var employeeId = segments[2];
+                if (!string.IsNullOrEmpty(employeeId))
+                {
+                    var chatWebSocketManager = context.RequestServices.GetRequiredService<ChatWebSocketManager>();
+                    var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                    await chatWebSocketManager.HandleWebSocketConnection(employeeId, webSocket);
+                    return; // WebSocket connection handled
+                }
+            }
+            
+            context.Response.StatusCode = 400;
+            return;
+        }
+        else
+        {
+            context.Response.StatusCode = 400;
+            return;
+        }
+    }
+    
+    // Not a WebSocket request for our custom endpoints, continue with normal pipeline
+    await next();
+});
 
 app.MapControllers();
 

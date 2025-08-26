@@ -1,7 +1,9 @@
-using AutoMapper;
-using AvyyanBackend.DTOs;
+﻿using AutoMapper;
+using AvyyanBackend.Data;
+using AvyyanBackend.DTOs.Role;
 using AvyyanBackend.Interfaces;
 using AvyyanBackend.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AvyyanBackend.Services
 {
@@ -13,14 +15,16 @@ namespace AvyyanBackend.Services
         private readonly IRepository<PageAccess> _pageAccessRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<RoleService> _logger;
+		protected readonly ApplicationDbContext _context;
 
-        public RoleService(
+		public RoleService(
             IUnitOfWork unitOfWork,
             IRepository<RoleMaster> roleRepository,
             IRepository<User> userRepository,
             IRepository<PageAccess> pageAccessRepository,
             IMapper mapper,
-            ILogger<RoleService> logger)
+            ILogger<RoleService> logger,
+			ApplicationDbContext context)
         {
             _unitOfWork = unitOfWork;
             _roleRepository = roleRepository;
@@ -28,50 +32,80 @@ namespace AvyyanBackend.Services
             _pageAccessRepository = pageAccessRepository;
             _mapper = mapper;
             _logger = logger;
+            _context = context;
         }
 
-        public async Task<IEnumerable<RoleDto>> GetAllRolesAsync()
+        public async Task<IEnumerable<RoleResponseDto>> GetAllRolesAsync()
         {
-            var roles = await _roleRepository.GetAllAsync();
-            return _mapper.Map<IEnumerable<RoleDto>>(roles);
+            var roles = await _context.RoleMasters.Include(a => a.PageAccesses).ToListAsync();
+            return _mapper.Map<IEnumerable<RoleResponseDto>>(roles);
         }
 
-        public async Task<RoleDto?> GetRoleByIdAsync(int roleId)
+        public async Task<RoleResponseDto?> GetRoleByIdAsync(int roleId)
         {
-            var role = await _roleRepository.GetByIdAsync(roleId);
-            return role != null ? _mapper.Map<RoleDto>(role) : null;
+            var role = await _context.RoleMasters.Include(a => a.PageAccesses).Where(a => a.Id == roleId).FirstOrDefaultAsync();
+            return role != null ? _mapper.Map<RoleResponseDto>(role) : null;
         }
 
-        public async Task<RoleDto> CreateRoleAsync(RoleDto roleDto)
+        public async Task<RoleResponseDto> CreateRoleAsync(CreateRoleRequestDto createRoleDto)
         {
-            if (!await IsRoleNameUniqueAsync(roleDto.RoleName))
+            if (!await IsRoleNameUniqueAsync(createRoleDto.Name))
                 throw new InvalidOperationException("Role already exists");
 
-            var role = _mapper.Map<RoleMaster>(roleDto);
+            var role = _mapper.Map<RoleMaster>(createRoleDto);
 
             await _roleRepository.AddAsync(role);
             await _unitOfWork.SaveChangesAsync();
 
-            return _mapper.Map<RoleDto>(role);
+            return _mapper.Map<RoleResponseDto>(role);
         }
 
-        public async Task<RoleDto?> UpdateRoleAsync(RoleDto roleDto)
-        {
-            var role = await _roleRepository.GetByIdAsync(roleDto.Id);
-            if (role == null) return null;
+		public async Task<RoleResponseDto?> UpdateRoleAsync(int roleId, UpdateRoleRequestDto updateRoleDto)
+		{
+			var role = await _context.RoleMasters
+				.Include(r => r.PageAccesses)
+				.FirstOrDefaultAsync(r => r.Id == roleId);
 
-            if (role.RoleName != roleDto.RoleName && !await IsRoleNameUniqueAsync(roleDto.RoleName, roleDto.Id))
-                throw new InvalidOperationException("Role name already exists");
+			if (role == null) return null;
 
-            _mapper.Map(roleDto, role);
+			// ✅ Check role name uniqueness
+			if (role.RoleName != updateRoleDto.Name &&
+				!await IsRoleNameUniqueAsync(updateRoleDto.Name, roleId))
+			{
+				throw new InvalidOperationException("Role name already exists");
+			}
 
-            _roleRepository.Update(role);
-            await _unitOfWork.SaveChangesAsync();
+			// ✅ Remove old page accesses
+			_context.PageAccesses.RemoveRange(role.PageAccesses);
 
-            return _mapper.Map<RoleDto>(role);
-        }
+			// ✅ Add new page accesses (ensure distinct)
+			var distinctPageAccesses = updateRoleDto.PageAccesses
+				.GroupBy(p => p.PageName)
+				.Select(g => g.First())
+				.Select(pa => new PageAccess
+				{
+					PageName = pa.PageName,
+					IsView = pa.IsView,
+					IsEdit = pa.IsEdit,
+                    IsAdd = pa.IsAdd,
+					IsDelete = pa.IsDelete,
+					RoleId = role.Id
+				}).ToList();
 
-        public async Task<bool> DeleteRoleAsync(int roleId)
+			role.PageAccesses = distinctPageAccesses;
+
+			// ✅ Update role info
+			role.RoleName = updateRoleDto.Name;
+			role.Description = updateRoleDto.Description;
+			role.IsActive = updateRoleDto.IsActive;
+
+			_roleRepository.Update(role);
+			await _unitOfWork.SaveChangesAsync();
+
+			return _mapper.Map<RoleResponseDto>(role);
+		}
+
+		public async Task<bool> DeleteRoleAsync(int roleId)
         {
             var role = await _roleRepository.GetByIdAsync(roleId);
             if (role == null) return false;
@@ -79,73 +113,12 @@ namespace AvyyanBackend.Services
             _roleRepository.Remove(role);
             return await _unitOfWork.SaveChangesAsync() > 0;
         }
-
-        public async Task<IEnumerable<PageAccessDto>> GetAllPageAccessesAsync()
-        {
-            var pageAccesses = await _pageAccessRepository.GetAllAsync();
-            return _mapper.Map<IEnumerable<PageAccessDto>>(pageAccesses);
-        }
-
-        public async Task<PageAccessDto?> GetPageAccessByIdAsync(int pageAccessId)
-        {
-            var pageAccess = await _pageAccessRepository.GetByIdAsync(pageAccessId);
-            return pageAccess != null ? _mapper.Map<PageAccessDto>(pageAccess) : null;
-        }
-
-        public async Task<PageAccessDto> CreatePageAccessAsync(CreatePageAccessDto createPageAccessDto)
-        {
-            var pageAccess = _mapper.Map<PageAccess>(createPageAccessDto);
-
-            await _pageAccessRepository.AddAsync(pageAccess);
-            await _unitOfWork.SaveChangesAsync();
-
-            return _mapper.Map<PageAccessDto>(pageAccess);
-        }
-
-        public async Task<PageAccessDto?> UpdatePageAccessAsync(UpdatePageAccessDto updatePageAccessDto)
-        {
-            var pageAccess = await _pageAccessRepository.GetByIdAsync(updatePageAccessDto.Id);
-            if (pageAccess == null) return null;
-
-            _mapper.Map(updatePageAccessDto, pageAccess);
-
-            _pageAccessRepository.Update(pageAccess);
-            await _unitOfWork.SaveChangesAsync();
-
-            return _mapper.Map<PageAccessDto>(pageAccess);
-        }
-
-        public async Task<bool> DeletePageAccessAsync(int pageAccessId)
-        {
-            var pageAccess = await _pageAccessRepository.GetByIdAsync(pageAccessId);
-            if (pageAccess == null) return false;
-
-            _pageAccessRepository.Remove(pageAccess);
-            return await _unitOfWork.SaveChangesAsync() > 0;
-        }
-
-        public async Task<IEnumerable<PageAccessDto>> GetRolePageAccessesAsync(int roleId)
-        {
-            var pageAccesses = await _pageAccessRepository.FindAsync(pa => pa.RoleId == roleId);
-            return _mapper.Map<IEnumerable<PageAccessDto>>(pageAccesses);
-        }
-
         public async Task<bool> IsRoleNameUniqueAsync(string name, int? excludeRoleId = null)
         {
             var query = await _roleRepository.FindAsync(r => r.RoleName == name);
             if (excludeRoleId.HasValue)
             {
                 query = query.Where(r => r.Id != excludeRoleId.Value);
-            }
-            return !query.Any();
-        }
-
-        public async Task<bool> IsPageNameUniqueAsync(string pageName, int? excludePageAccessId = null)
-        {
-            var query = await _pageAccessRepository.FindAsync(p => p.PageName == pageName);
-            if (excludePageAccessId.HasValue)
-            {
-                query = query.Where(p => p.Id != excludePageAccessId.Value);
             }
             return !query.Any();
         }

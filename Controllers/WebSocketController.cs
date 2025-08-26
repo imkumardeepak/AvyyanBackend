@@ -1,28 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using System.Net.WebSockets;
 using AvyyanBackend.WebSockets;
 
 namespace AvyyanBackend.Controllers
 {
     [ApiController]
-    [Route("/ws")]
+    [Route("api/[controller]")]
     public class WebSocketController : ControllerBase
     {
-        private readonly AvyyanBackend.WebSockets.WebSocketManager _webSocketManager;
+        private readonly CustomWebSocketManager _webSocketManager;
         private readonly ChatWebSocketManager _chatWebSocketManager;
 
-        public WebSocketController(AvyyanBackend.WebSockets.WebSocketManager webSocketManager, ChatWebSocketManager chatWebSocketManager)
+        public WebSocketController(CustomWebSocketManager webSocketManager, ChatWebSocketManager chatWebSocketManager)
         {
             _webSocketManager = webSocketManager;
             _chatWebSocketManager = chatWebSocketManager;
         }
 
-        [HttpGet]
-        public async Task Get()
+        [HttpGet("/ws")]
+        public async Task GetWebSocket()
         {
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
                 await _webSocketManager.HandleWebSocketConnection(webSocket);
             }
             else
@@ -31,18 +32,32 @@ namespace AvyyanBackend.Controllers
             }
         }
 
-        [HttpGet("chat/{employeeId}")]
-        public async Task GetChat(string employeeId)
+        [HttpGet("/ws/chat/{employeeId}")]
+        public async Task GetChatWebSocket(string employeeId)
         {
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                await _chatWebSocketManager.HandleWebSocketConnection(employeeId, webSocket);
+                if (!string.IsNullOrEmpty(employeeId))
+                {
+                    var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                    await _chatWebSocketManager.HandleWebSocketConnection(employeeId, webSocket);
+                }
+                else
+                {
+                    HttpContext.Response.StatusCode = 400;
+                }
             }
             else
             {
                 HttpContext.Response.StatusCode = 400;
             }
+        }
+
+        [HttpGet("/api/notification")]
+        public async Task<IActionResult> SendNotification()
+        {
+            await _webSocketManager.SendNotification("Hello from the API!");
+            return Ok("Notification sent.");
         }
     }
 }

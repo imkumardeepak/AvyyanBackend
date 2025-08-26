@@ -1,5 +1,6 @@
 using AutoMapper;
-using AvyyanBackend.DTOs;
+using AvyyanBackend.DTOs.User;
+using AvyyanBackend.DTOs.Auth;
 using AvyyanBackend.Interfaces;
 using AvyyanBackend.Models;
 
@@ -30,7 +31,7 @@ namespace AvyyanBackend.Services
             _logger = logger;
         }
 
-        public async Task<UserDto> CreateUserAsync(CreateUserDto createUserDto)
+        public async Task<AdminUserResponseDto> CreateUserAsync(CreateUserRequestDto createUserDto)
         {
             if (!await IsEmailUniqueAsync(createUserDto.Email))
                 throw new InvalidOperationException("Email already exists");
@@ -48,43 +49,43 @@ namespace AvyyanBackend.Services
             await _userRepository.AddAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
-            var userDto = _mapper.Map<UserDto>(user);
+            var userDto = _mapper.Map<AdminUserResponseDto>(user);
             return userDto;
         }
 
-        public async Task<UserDto?> GetUserByIdAsync(int userId)
+        public async Task<UserProfileResponseDto?> GetUserByIdAsync(int userId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null || !user.IsActive) return null;
 
-            var userDto = _mapper.Map<UserDto>(user);
+            var userDto = _mapper.Map<UserProfileResponseDto>(user);
             return userDto;
         }
 
-        public async Task<UserDto?> GetUserByEmailAsync(string email)
+        public async Task<UserProfileResponseDto?> GetUserByEmailAsync(string email)
         {
             var user = await _userRepository.FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
             if (user == null) return null;
 
-            var userDto = _mapper.Map<UserDto>(user);
+            var userDto = _mapper.Map<UserProfileResponseDto>(user);
             return userDto;
         }
 
-        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        public async Task<IEnumerable<AdminUserResponseDto>> GetAllUsersAsync()
         {
             var users = await _userRepository.GetAllAsync();
-            var userDtos = new List<UserDto>();
+            var userDtos = new List<AdminUserResponseDto>();
 
             foreach (var user in users)
             {
-                var userDto = _mapper.Map<UserDto>(user);
+                var userDto = _mapper.Map<AdminUserResponseDto>(user);
                 userDtos.Add(userDto);
             }
 
             return userDtos;
         }
 
-        public async Task<UserDto?> UpdateUserAsync(int userId, UpdateUserDto updateUserDto)
+        public async Task<AdminUserResponseDto?> UpdateUserAsync(int userId, UpdateUserRequestDto updateUserDto)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null || !user.IsActive) return null;
@@ -103,11 +104,11 @@ namespace AvyyanBackend.Services
             _userRepository.Update(user);
             await _unitOfWork.SaveChangesAsync();
 
-            var userDto = _mapper.Map<UserDto>(user);
+            var userDto = _mapper.Map<AdminUserResponseDto>(user);
             return userDto;
         }
 
-        public async Task<UserDto?> UpdateProfileAsync(int userId, UpdateUserDto updateUserDto)
+        public async Task<UserProfileResponseDto?> UpdateProfileAsync(int userId, UpdateUserProfileRequestDto updateUserDto)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null || !user.IsActive) return null;
@@ -124,7 +125,7 @@ namespace AvyyanBackend.Services
             _userRepository.Update(user);
             await _unitOfWork.SaveChangesAsync();
 
-            var userDto = _mapper.Map<UserDto>(user);
+            var userDto = _mapper.Map<UserProfileResponseDto>(user);
             return userDto;
         }
 
@@ -136,7 +137,7 @@ namespace AvyyanBackend.Services
             return await _unitOfWork.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto)
+        public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordRequestDto changePasswordDto)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null || !user.IsActive) return false;
@@ -151,18 +152,25 @@ namespace AvyyanBackend.Services
             return await _unitOfWork.SaveChangesAsync() > 0;
         }
 
-        public async Task<IEnumerable<PageAccessDto>> GetUserPageAccessesAsync(int userId)
+        public async Task<UserPermissionsResponseDto> GetUserPermissionsAsync(int userId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null) return new List<PageAccessDto>();
+            if (user == null) 
+                return new UserPermissionsResponseDto { UserId = userId, PageAccesses = new List<UserPageAccessDto>() };
 
             var role = await _roleRepository.FirstOrDefaultAsync(r => r.RoleName == user.RoleName);
-            if (role == null) return new List<PageAccessDto>();
+            if (role == null) 
+                return new UserPermissionsResponseDto { UserId = userId, RoleName = user.RoleName, PageAccesses = new List<UserPageAccessDto>() };
 
             var pageAccesses = await _pageAccessRepository.FindAsync(pa =>
                 pa.RoleId == role.Id);
 
-            return _mapper.Map<IEnumerable<PageAccessDto>>(pageAccesses.OrderBy(pa => pa.PageName));
+            return new UserPermissionsResponseDto
+            {
+                UserId = userId,
+                RoleName = user.RoleName,
+                PageAccesses = _mapper.Map<IEnumerable<UserPageAccessDto>>(pageAccesses.OrderBy(pa => pa.PageName))
+            };
         }
 
         public async Task<bool> HasPageAccessAsync(int userId, string pageName)

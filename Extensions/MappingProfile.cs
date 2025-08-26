@@ -1,5 +1,10 @@
 using AutoMapper;
-using AvyyanBackend.DTOs;
+using AvyyanBackend.DTOs.Auth;
+using AvyyanBackend.DTOs.User;
+using AvyyanBackend.DTOs.Role;
+using AvyyanBackend.DTOs.Machine;
+using AvyyanBackend.DTOs.WebSocket;
+using AvyyanBackend.DTOs.FabricStructure;
 using AvyyanBackend.Models;
 
 namespace AvyyanBackend.Extensions
@@ -8,26 +13,87 @@ namespace AvyyanBackend.Extensions
     {
         public MappingProfile()
         {
-            // User and Auth mappings
-            CreateMap<User, UserDto>();
+            // Auth Controller mappings
+            CreateMap<User, AuthUserDto>();
+            CreateMap<RegisterRequestDto, User>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true))
+                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => "User"));
+            CreateMap<PageAccess, AuthPageAccessDto>();
 
-            CreateMap<RegisterDto, User>();
-            CreateMap<CreateUserDto, User>();
-            CreateMap<UpdateUserDto, User>();
+            // User Controller mappings
+            CreateMap<User, UserProfileResponseDto>();
+            CreateMap<User, AdminUserResponseDto>();
+            CreateMap<CreateUserRequestDto, User>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+            CreateMap<UpdateUserRequestDto, User>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.LastLoginAt, opt => opt.Ignore());
+            CreateMap<UpdateUserProfileRequestDto, User>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.LastLoginAt, opt => opt.Ignore())
+                .ForMember(dest => dest.RoleName, opt => opt.Ignore())
+                .ForMember(dest => dest.IsActive, opt => opt.Ignore());
+            CreateMap<PageAccess, UserPageAccessDto>();
 
-            // Role and PageAccess mappings
-            CreateMap<RoleMaster, RoleDto>().ReverseMap();
-            CreateMap<CreateRoleDto, RoleMaster>();
-            CreateMap<UpdateRoleDto, RoleMaster>();
+            // Role Controller mappings
+            CreateMap<RoleMaster, RoleResponseDto>()
+                .ForMember(dest => dest.PageAccesses, opt => opt.MapFrom(src => src.PageAccesses));
+            CreateMap<CreateRoleRequestDto, RoleMaster>()
+                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+            CreateMap<UpdateRoleRequestDto, RoleMaster>()
+                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.PageAccesses, opt => opt.Ignore());
+            CreateMap<PageAccess, PageAccessResponseDto>()
+                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.RoleName));
+            CreateMap<PageAccess, RolePageAccessDto>();
+            CreateMap<CreatePageAccessRequestDto, PageAccess>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Role, opt => opt.Ignore());
+            CreateMap<UpdatePageAccessRequestDto, PageAccess>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Role, opt => opt.Ignore());
 
-            CreateMap<PageAccess, PageAccessDto>().ReverseMap();
-            CreateMap<CreatePageAccessDto, PageAccess>();
-            CreateMap<UpdatePageAccessDto, PageAccess>();
+            // Machine Controller mappings
+            CreateMap<MachineManager, MachineResponseDto>();
+			CreateMap<User, AuthUserDto>();
+			CreateMap<UserPageAccessDto, AuthPageAccessDto>();
+			CreateMap<CreateMachineRequestDto, MachineManager>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+            CreateMap<UpdateMachineRequestDto, MachineManager>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
 
-            // MachineManager mappings
-            CreateMap<MachineManager, MachineManagerDto>().ReverseMap();
-            CreateMap<CreateMachineManagerDto, MachineManager>();
-            CreateMap<UpdateMachineManagerDto, MachineManager>();
+            // Fabric Structure mappings
+            CreateMap<FabricStructureMaster, FabricStructureResponseDto>();
+            CreateMap<CreateFabricStructureRequestDto, FabricStructureMaster>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+            CreateMap<UpdateFabricStructureRequestDto, FabricStructureMaster>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+
+            // Complex mappings for user permissions
+            CreateMap<User, UserPermissionsResponseDto>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.PageAccesses, opt => opt.Ignore()); // Will be mapped separately
         }
     }
 }

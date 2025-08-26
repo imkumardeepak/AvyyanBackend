@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using AvyyanBackend.DTOs;
+using AvyyanBackend.DTOs.Auth;
+using AvyyanBackend.DTOs.User;
 using AvyyanBackend.Interfaces;
 using System.Security.Claims;
 
@@ -23,7 +24,7 @@ namespace AvyyanBackend.Controllers
         /// User login
         /// </summary>
         [HttpPost("login")]
-        public async Task<ActionResult<LoginResponseDto>> Login(LoginDto loginDto)
+        public async Task<ActionResult<LoginResponseDto>> Login(LoginRequestDto loginDto)
         {
             try
             {
@@ -46,7 +47,6 @@ namespace AvyyanBackend.Controllers
         /// User logout
         /// </summary>
         [HttpPost("logout")]
-        [Authorize]
         public async Task<ActionResult> Logout()
         {
             try
@@ -69,7 +69,7 @@ namespace AvyyanBackend.Controllers
         /// Register new user
         /// </summary>
         [HttpPost("register")]
-        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<UserProfileResponseDto>> Register(RegisterRequestDto registerDto)
         {
             try
             {
@@ -93,8 +93,7 @@ namespace AvyyanBackend.Controllers
         /// Change password
         /// </summary>
         [HttpPost("change-password")]
-        [Authorize]
-        public async Task<ActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
+        public async Task<ActionResult> ChangePassword(ChangePasswordRequestDto changePasswordDto)
         {
             try
             {
@@ -119,7 +118,7 @@ namespace AvyyanBackend.Controllers
         /// Reset password request
         /// </summary>
         [HttpPost("reset-password")]
-        public async Task<ActionResult> ResetPassword(ResetPasswordDto resetPasswordDto)
+        public async Task<ActionResult> ResetPassword(ResetPasswordRequestDto resetPasswordDto)
         {
             try
             {

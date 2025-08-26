@@ -1,21 +1,21 @@
-using AvyyanBackend.DTOs;
+using AvyyanBackend.DTOs.Machine;
 
 namespace AvyyanBackend.Interfaces
 {
     public interface IMachineManagerService
     {
         // Basic CRUD Operations
-        Task<IEnumerable<MachineManagerDto>> GetAllMachinesAsync();
-        Task<MachineManagerDto?> GetMachineByIdAsync(int id);
-        Task<MachineManagerDto> CreateMachineAsync(CreateMachineManagerDto createMachineDto);
-        Task<MachineManagerDto?> UpdateMachineAsync(int id, UpdateMachineManagerDto updateMachineDto);
+        Task<IEnumerable<MachineResponseDto>> GetAllMachinesAsync();
+        Task<MachineResponseDto?> GetMachineByIdAsync(int id);
+        Task<MachineResponseDto> CreateMachineAsync(CreateMachineRequestDto createMachineDto);
+        Task<MachineResponseDto?> UpdateMachineAsync(int id, UpdateMachineRequestDto updateMachineDto);
         Task<bool> DeleteMachineAsync(int id);
 
         // Search Operations
-        Task<IEnumerable<MachineManagerDto>> SearchMachinesAsync(string? machineName, decimal? dia);
+        Task<IEnumerable<MachineResponseDto>> SearchMachinesAsync(MachineSearchRequestDto searchDto);
 
         // Bulk Operations
-        Task<IEnumerable<MachineManagerDto>> CreateMultipleMachinesAsync(IEnumerable<CreateMachineManagerDto> createMachineDtos);
+        Task<IEnumerable<MachineResponseDto>> CreateMultipleMachinesAsync(BulkCreateMachineRequestDto bulkCreateDto);
 
         // Validation
         Task<bool> IsMachineNameUniqueAsync(string machineName, int? excludeId = null);

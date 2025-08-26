@@ -1,17 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
-using AvyyanBackend.DTOs;
+using AvyyanBackend.DTOs.Machine;
 using AvyyanBackend.Interfaces;
 
 namespace AvyyanBackend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class MachineManagerController : ControllerBase
+    public class MachineController : ControllerBase
     {
         private readonly IMachineManagerService _machineManagerService;
-        private readonly ILogger<MachineManagerController> _logger;
+        private readonly ILogger<MachineController> _logger;
 
-        public MachineManagerController(IMachineManagerService machineManagerService, ILogger<MachineManagerController> logger)
+        public MachineController(IMachineManagerService machineManagerService, ILogger<MachineController> logger)
         {
             _machineManagerService = machineManagerService;
             _logger = logger;
@@ -21,7 +21,7 @@ namespace AvyyanBackend.Controllers
         /// Get all machines
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MachineManagerDto>>> GetMachines()
+        public async Task<ActionResult<IEnumerable<MachineResponseDto>>> GetMachines()
         {
             try
             {
@@ -39,7 +39,7 @@ namespace AvyyanBackend.Controllers
         /// Get machine by ID
         /// </summary>
         [HttpGet("{id}")]
-        public async Task<ActionResult<MachineManagerDto>> GetMachine(int id)
+        public async Task<ActionResult<MachineResponseDto>> GetMachine(int id)
         {
             try
             {
@@ -61,13 +61,20 @@ namespace AvyyanBackend.Controllers
         /// Search machines by name and/or dia
         /// </summary>
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<MachineManagerDto>>> SearchMachines(
+        public async Task<ActionResult<IEnumerable<MachineResponseDto>>> SearchMachines(
             [FromQuery] string? machineName,
-            [FromQuery] decimal? dia)
+            [FromQuery] decimal? dia,
+            [FromQuery] bool? isActive)
         {
             try
             {
-                var machines = await _machineManagerService.SearchMachinesAsync(machineName, dia);
+                var searchDto = new MachineSearchRequestDto
+                {
+                    MachineName = machineName,
+                    Dia = dia,
+                    IsActive = isActive
+                };
+                var machines = await _machineManagerService.SearchMachinesAsync(searchDto);
                 return Ok(machines);
             }
             catch (Exception ex)
@@ -81,7 +88,7 @@ namespace AvyyanBackend.Controllers
         /// Create a new machine
         /// </summary>
         [HttpPost]
-        public async Task<ActionResult<MachineManagerDto>> CreateMachine(CreateMachineManagerDto createMachineDto)
+        public async Task<ActionResult<MachineResponseDto>> CreateMachine(CreateMachineRequestDto createMachineDto)
         {
             try
             {
@@ -103,7 +110,7 @@ namespace AvyyanBackend.Controllers
         /// Update a machine
         /// </summary>
         [HttpPut("{id}")]
-        public async Task<ActionResult<MachineManagerDto>> UpdateMachine(int id, UpdateMachineManagerDto updateMachineDto)
+        public async Task<ActionResult<MachineResponseDto>> UpdateMachine(int id, UpdateMachineRequestDto updateMachineDto)
         {
             try
             {
@@ -150,11 +157,11 @@ namespace AvyyanBackend.Controllers
         /// Create multiple machines (bulk upload)
         /// </summary>
         [HttpPost("bulk")]
-        public async Task<ActionResult<IEnumerable<MachineManagerDto>>> CreateMultipleMachines(IEnumerable<CreateMachineManagerDto> createMachineDtos)
+        public async Task<ActionResult<IEnumerable<MachineResponseDto>>> CreateMultipleMachines(BulkCreateMachineRequestDto bulkCreateDto)
         {
             try
             {
-                var machines = await _machineManagerService.CreateMultipleMachinesAsync(createMachineDtos);
+                var machines = await _machineManagerService.CreateMultipleMachinesAsync(bulkCreateDto);
                 return Ok(machines);
             }
             catch (Exception ex)

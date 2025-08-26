@@ -11,6 +11,7 @@ namespace AvyyanBackend.Data
 
         // DbSets for Knitfab business models
         public DbSet<MachineManager> MachineManagers { get; set; }
+        public DbSet<FabricStructureMaster> FabricStructureMasters { get; set; }
 
         // DbSets for Authentication
         public DbSet<User> Users { get; set; }
@@ -38,8 +39,7 @@ namespace AvyyanBackend.Data
                 .IsUnique();
 
             modelBuilder.Entity<PageAccess>()
-                .HasIndex(p => p.PageName)
-                .IsUnique();
+                .HasIndex(p => p.RoleId);
 
             // PageAccess relationship
             modelBuilder.Entity<PageAccess>()

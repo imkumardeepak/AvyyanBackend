@@ -1,23 +1,24 @@
-using AvyyanBackend.DTOs;
+using AvyyanBackend.DTOs.User;
+using AvyyanBackend.DTOs.Auth;
 
 namespace AvyyanBackend.Interfaces
 {
     public interface IUserService
     {
         // User Management
-        Task<UserDto> CreateUserAsync(CreateUserDto createUserDto);
-        Task<UserDto?> GetUserByIdAsync(int userId);
-        Task<UserDto?> GetUserByEmailAsync(string email);
-        Task<IEnumerable<UserDto>> GetAllUsersAsync();
-        Task<UserDto?> UpdateUserAsync(int userId, UpdateUserDto updateUserDto);
+        Task<AdminUserResponseDto> CreateUserAsync(CreateUserRequestDto createUserDto);
+        Task<UserProfileResponseDto?> GetUserByIdAsync(int userId);
+        Task<UserProfileResponseDto?> GetUserByEmailAsync(string email);
+        Task<IEnumerable<AdminUserResponseDto>> GetAllUsersAsync();
+        Task<AdminUserResponseDto?> UpdateUserAsync(int userId, UpdateUserRequestDto updateUserDto);
         Task<bool> DeleteUserAsync(int userId);
 
         // Profile Management
-        Task<UserDto?> UpdateProfileAsync(int userId, UpdateUserDto updateUserDto);
-        Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto);
+        Task<UserProfileResponseDto?> UpdateProfileAsync(int userId, UpdateUserProfileRequestDto updateUserDto);
+        Task<bool> ChangePasswordAsync(int userId, ChangePasswordRequestDto changePasswordDto);
 
         // User Permissions
-        Task<IEnumerable<PageAccessDto>> GetUserPageAccessesAsync(int userId);
+        Task<UserPermissionsResponseDto> GetUserPermissionsAsync(int userId);
         Task<bool> HasPageAccessAsync(int userId, string pageName);
 
         // Validation

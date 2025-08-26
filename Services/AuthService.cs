@@ -1,5 +1,6 @@
 using AutoMapper;
-using AvyyanBackend.DTOs;
+using AvyyanBackend.DTOs.Auth;
+using AvyyanBackend.DTOs.User;
 using AvyyanBackend.Interfaces;
 using AvyyanBackend.Models;
 using Microsoft.IdentityModel.Tokens;
@@ -38,7 +39,7 @@ namespace AvyyanBackend.Services
             _logger = logger;
         }
 
-        public async Task<LoginResponseDto?> LoginAsync(LoginDto loginDto)
+        public async Task<LoginResponseDto?> LoginAsync(LoginRequestDto loginDto)
         {
             _logger.LogDebug("Attempting login for email: {Email}", loginDto.Email);
 
@@ -62,10 +63,11 @@ namespace AvyyanBackend.Services
             _userRepository.Update(userEntity);
             await _unitOfWork.SaveChangesAsync();
 
-            var pageAccesses = await _userService.GetUserPageAccessesAsync(user.Id);
+            var permissions = await _userService.GetUserPermissionsAsync(user.Id);
+            var authUser = _mapper.Map<AuthUserDto>(userEntity);
 
             var roles = new List<string> { user.RoleName };
-            var token = GenerateJwtToken(user, roles);
+            var token = GenerateJwtToken(authUser, roles);
 
             _logger.LogInformation("User {Email} logged in successfully", loginDto.Email);
 
@@ -73,9 +75,9 @@ namespace AvyyanBackend.Services
             {
                 Token = token,
                 ExpiresAt = DateTime.Now.AddHours(1),
-                User = user,
+                User = authUser,
                 Roles = roles,
-                PageAccesses = pageAccesses
+                PageAccesses = _mapper.Map<IEnumerable<AuthPageAccessDto>>(permissions.PageAccesses)
             };
         }
 
@@ -85,7 +87,7 @@ namespace AvyyanBackend.Services
             return await Task.FromResult(true);
         }
 
-        public async Task<UserDto> RegisterAsync(RegisterDto registerDto)
+        public async Task<UserProfileResponseDto> RegisterAsync(RegisterRequestDto registerDto)
         {
             if (!await _userService.IsEmailUniqueAsync(registerDto.Email))
                 throw new InvalidOperationException("Email already exists");
@@ -103,15 +105,15 @@ namespace AvyyanBackend.Services
             await _userRepository.AddAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
-            return _mapper.Map<UserDto>(user);
+            return _mapper.Map<UserProfileResponseDto>(user);
         }
 
-        public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto)
+        public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordRequestDto changePasswordDto)
         {
             return await _userService.ChangePasswordAsync(userId, changePasswordDto);
         }
 
-        public async Task<bool> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
+        public async Task<bool> ResetPasswordAsync(ResetPasswordRequestDto resetPasswordDto)
         {
             var user = await _userRepository.FirstOrDefaultAsync(u => u.Email == resetPasswordDto.Email && u.IsActive);
             if (user == null) return false;
@@ -120,12 +122,12 @@ namespace AvyyanBackend.Services
             return true;
         }
 
-        public Task<bool> SetPasswordAsync(SetPasswordDto setPasswordDto)
+        public Task<bool> SetPasswordAsync(SetPasswordRequestDto setPasswordDto)
         {
             return Task.FromResult(true);
         }
 
-        public string GenerateJwtToken(UserDto user, IEnumerable<string> roles)
+        public string GenerateJwtToken(AuthUserDto user, IEnumerable<string> roles)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"] ?? "YourSecretKeyHere");
@@ -154,12 +156,6 @@ namespace AvyyanBackend.Services
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
-        }
-
-        public async Task<UserDto?> GetUserByEmailAsync(string email)
-        {
-            var user = await _userRepository.FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
-            return user != null ? _mapper.Map<UserDto>(user) : null;
         }
 
         public Task<bool> ValidatePasswordAsync(string password, string hash)

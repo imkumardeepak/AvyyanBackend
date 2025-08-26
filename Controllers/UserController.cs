@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using AvyyanBackend.DTOs;
+using AvyyanBackend.DTOs.User;
+using AvyyanBackend.DTOs.Auth;
 using AvyyanBackend.Interfaces;
 using System.Security.Claims;
 
@@ -24,7 +25,7 @@ namespace AvyyanBackend.Controllers
         /// Get current user profile
         /// </summary>
         [HttpGet("profile")]
-        public async Task<ActionResult<UserDto>> GetProfile()
+        public async Task<ActionResult<UserProfileResponseDto>> GetProfile()
         {
             try
             {
@@ -49,7 +50,7 @@ namespace AvyyanBackend.Controllers
         /// Update current user profile
         /// </summary>
         [HttpPut("profile")]
-        public async Task<ActionResult<UserDto>> UpdateProfile(UpdateUserDto updateUserDto)
+        public async Task<ActionResult<UserProfileResponseDto>> UpdateProfile(UpdateUserProfileRequestDto updateUserDto)
         {
             try
             {
@@ -78,7 +79,7 @@ namespace AvyyanBackend.Controllers
         /// Change current user password
         /// </summary>
         [HttpPost("change-password")]
-        public async Task<ActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
+        public async Task<ActionResult> ChangePassword(ChangePasswordRequestDto changePasswordDto)
         {
             try
             {
@@ -103,7 +104,7 @@ namespace AvyyanBackend.Controllers
         /// Get user's page access permissions
         /// </summary>
         [HttpGet("permissions")]
-        public async Task<ActionResult<IEnumerable<PageAccessDto>>> GetPermissions()
+        public async Task<ActionResult<UserPermissionsResponseDto>> GetPermissions()
         {
             try
             {
@@ -111,7 +112,7 @@ namespace AvyyanBackend.Controllers
                 if (!userId.HasValue)
                     return Unauthorized();
 
-                var permissions = await _userService.GetUserPageAccessesAsync(userId.Value);
+                var permissions = await _userService.GetUserPermissionsAsync(userId.Value);
                 return Ok(permissions);
             }
             catch (Exception ex)
@@ -127,8 +128,7 @@ namespace AvyyanBackend.Controllers
         /// Get all users (Admin only)
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
+        public async Task<ActionResult<IEnumerable<AdminUserResponseDto>>> GetAllUsers()
         {
             try
             {
@@ -146,8 +146,7 @@ namespace AvyyanBackend.Controllers
         /// Create new user (Admin only)
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto createUserDto)
+        public async Task<ActionResult<AdminUserResponseDto>> CreateUser(CreateUserRequestDto createUserDto)
         {
             try
             {
@@ -169,8 +168,7 @@ namespace AvyyanBackend.Controllers
         /// Get user by ID (Admin only)
         /// </summary>
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<UserDto>> GetUser(int id)
+        public async Task<ActionResult<AdminUserResponseDto>> GetUser(int id)
         {
             try
             {
@@ -191,8 +189,7 @@ namespace AvyyanBackend.Controllers
         /// Update user (Admin only)
         /// </summary>
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<UserDto>> UpdateUser(int id, UpdateUserDto updateUserDto)
+        public async Task<ActionResult<AdminUserResponseDto>> UpdateUser(int id, UpdateUserRequestDto updateUserDto)
         {
             try
             {
@@ -217,7 +214,6 @@ namespace AvyyanBackend.Controllers
         /// Delete a user
         /// </summary>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteUser(int id)
         {
             try
