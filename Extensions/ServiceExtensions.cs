@@ -35,6 +35,7 @@ namespace AvyyanBackend.Extensions
             // Add your business service registrations here
             services.AddScoped<IMachineManagerService, MachineManagerService>();
             services.AddScoped<IFabricStructureService, FabricStructureService>();
+            services.AddScoped<ILocationService, LocationService>();
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();

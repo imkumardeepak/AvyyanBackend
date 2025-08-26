@@ -12,6 +12,7 @@ namespace AvyyanBackend.Data
         // DbSets for Knitfab business models
         public DbSet<MachineManager> MachineManagers { get; set; }
         public DbSet<FabricStructureMaster> FabricStructureMasters { get; set; }
+        public DbSet<LocationMaster> LocationMasters { get; set; }
 
         // DbSets for Authentication
         public DbSet<User> Users { get; set; }

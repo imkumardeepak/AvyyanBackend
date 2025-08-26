@@ -5,6 +5,7 @@ using AvyyanBackend.DTOs.Role;
 using AvyyanBackend.DTOs.Machine;
 using AvyyanBackend.DTOs.WebSocket;
 using AvyyanBackend.DTOs.FabricStructure;
+using AvyyanBackend.DTOs.Location;
 using AvyyanBackend.Models;
 
 namespace AvyyanBackend.Extensions
@@ -94,6 +95,17 @@ namespace AvyyanBackend.Extensions
             CreateMap<User, UserPermissionsResponseDto>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.PageAccesses, opt => opt.Ignore()); // Will be mapped separately
+
+            // Location mappings
+            CreateMap<LocationMaster, LocationResponseDto>();
+            CreateMap<CreateLocationRequestDto, LocationMaster>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+            CreateMap<UpdateLocationRequestDto, LocationMaster>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
         }
     }
 }
