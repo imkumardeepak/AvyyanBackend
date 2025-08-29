@@ -14,6 +14,9 @@ builder.ConfigureSerilog();
 // Add services to the container.
 builder.Services.AddControllers();
 
+// Add SignalR
+builder.Services.AddSignalR();
+
 // Add custom services using extension methods
 builder.Services.AddDatabaseServices(builder.Configuration);
 builder.Services.AddRepositoryServices();
@@ -22,7 +25,6 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddValidationServices();
 builder.Services.AddAutoMapperServices();
 builder.Services.AddCorsServices();
-
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -79,67 +81,16 @@ app.UseHttpsRedirection();
 // Use Serilog request logging
 app.UseSerilogRequestLogging();
 
-// Enable WebSockets (before CORS)
-app.UseWebSockets();
-
-// Use CORS
+// Use CORS (must be before UseAuthentication and UseAuthorization)
 app.UseCors("AllowAll");
 
 // Use Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Custom WebSocket Middleware
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path == "/ws")
-    {
-        if (context.WebSockets.IsWebSocketRequest)
-        {
-            var webSocketManager = context.RequestServices.GetRequiredService<CustomWebSocketManager>();
-            var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-            await webSocketManager.HandleWebSocketConnection(webSocket);
-            return; // WebSocket connection handled, no need to call next middleware
-        }
-        else
-        {
-            context.Response.StatusCode = 400;
-            return;
-        }
-    }
-    else if (context.Request.Path.StartsWithSegments("/ws/chat"))
-    {
-        if (context.WebSockets.IsWebSocketRequest)
-        {
-            var path = context.Request.Path.ToString();
-            var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            
-            // Expecting path like /ws/chat/{employeeId}
-            if (segments.Length >= 3)
-            {
-                var employeeId = segments[2];
-                if (!string.IsNullOrEmpty(employeeId))
-                {
-                    var chatWebSocketManager = context.RequestServices.GetRequiredService<ChatWebSocketManager>();
-                    var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                    await chatWebSocketManager.HandleWebSocketConnection(employeeId, webSocket);
-                    return; // WebSocket connection handled
-                }
-            }
-            
-            context.Response.StatusCode = 400;
-            return;
-        }
-        else
-        {
-            context.Response.StatusCode = 400;
-            return;
-        }
-    }
-    
-    // Not a WebSocket request for our custom endpoints, continue with normal pipeline
-    await next();
-});
+// Map SignalR hubs
+app.MapHub<NotificationHub>("/notificationhub");
+app.MapHub<ChatHub>("/chathub");
 
 app.MapControllers();
 

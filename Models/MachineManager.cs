@@ -23,9 +23,6 @@ namespace AvyyanBackend.Models
         public decimal Rpm { get; set; }
 
 		[Column(TypeName = "decimal(18,5)")]
-		public decimal Efficiency { get; set; } 
-
-		[Column(TypeName = "decimal(18,5)")]
 		public decimal? Constat { get; set; }
 
         [MaxLength(500)]

@@ -10,6 +10,7 @@ namespace AvyyanBackend.DTOs.FabricStructure
         public int Id { get; set; }
         public string Fabricstr { get; set; } = string.Empty;
         public decimal Standardeffencny { get; set; }
+        public string? FabricCode { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool IsActive { get; set; }
@@ -27,6 +28,9 @@ namespace AvyyanBackend.DTOs.FabricStructure
         [Required]
         [Range(0.01, 100, ErrorMessage = "Standard efficiency must be between 0.01 and 100")]
         public decimal Standardeffencny { get; set; }
+
+        [MaxLength(50)]
+        public string? FabricCode { get; set; }
     }
 
     /// <summary>
@@ -42,6 +46,9 @@ namespace AvyyanBackend.DTOs.FabricStructure
         [Range(0.01, 100, ErrorMessage = "Standard efficiency must be between 0.01 and 100")]
         public decimal Standardeffencny { get; set; }
 
+        [MaxLength(50)]
+        public string? FabricCode { get; set; }
+
         public bool IsActive { get; set; } = true;
     }
 
@@ -52,6 +59,9 @@ namespace AvyyanBackend.DTOs.FabricStructure
     {
         [MaxLength(200)]
         public string? Fabricstr { get; set; }
+
+        [MaxLength(50)]
+        public string? FabricCode { get; set; }
 
         public bool? IsActive { get; set; }
     }

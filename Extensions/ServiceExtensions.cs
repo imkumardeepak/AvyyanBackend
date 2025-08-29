@@ -9,6 +9,7 @@ using AvyyanBackend.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using AvyyanBackend.WebSockets;
+using TallyERPWebApi.Service;
 
 namespace AvyyanBackend.Extensions
 {
@@ -42,14 +43,23 @@ namespace AvyyanBackend.Extensions
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<DataSeedService>();
 
-            // Custom WebSocket services
-            services.AddSingleton<CustomWebSocketManager>();
-            services.AddSingleton<ChatWebSocketManager>();
+            // Register HttpClient for Tally services
+            services.AddHttpClient<TallyService>();
+            services.AddHttpClient<PostTallyService>();
+            
+            // Register IHttpClientFactory
+            services.AddHttpClient();
+            
+            // Register Tally services
+            services.AddSingleton<TallyService>();
+            services.AddSingleton<PostTallyService>();
+           // services.AddHostedService<TallyBackgroundService>();
 
-            // Remove legacy WebSocket services
-            // services.AddSingleton<AvyyanBackend.WebSockets.EnhancedWebSocketManager>();
-            // services.AddSingleton<AvyyanBackend.WebSockets.WebSocketManager>();
-            // services.AddSingleton<AvyyanBackend.WebSockets.ChatWebSocketManager>();
+            // Register Log Cleanup service
+            services.AddHostedService<LogCleanupService>();
+
+            // Register SignalR notification service
+            services.AddScoped<ISignalRNotificationService, SignalRNotificationService>();
 
             return services;
         }
@@ -82,6 +92,25 @@ namespace AvyyanBackend.Extensions
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
                     ClockSkew = TimeSpan.Zero
                 };
+                
+                // We have to add this to inform SignalR about the user
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+
+                        // If the request is for our hub...
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            (path.StartsWithSegments("/notificationhub") || path.StartsWithSegments("/chathub")))
+                        {
+                            // Read the token out of the query string
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             return services;
@@ -111,9 +140,10 @@ namespace AvyyanBackend.Extensions
                 options.AddPolicy("AllowAll", builder =>
                 {
                     builder
-                        .AllowAnyOrigin()
+                        .SetIsOriginAllowed(origin => true) // Allow any origin
                         .AllowAnyMethod()
-                        .AllowAnyHeader();
+                        .AllowAnyHeader()
+                        .AllowCredentials(); // Required for SignalR
                 });
             });
 

@@ -11,5 +11,8 @@ namespace AvyyanBackend.Models
 
         [Column(TypeName = "decimal(18,5)")]
         public decimal Standardeffencny { get; set; }
+
+        [MaxLength(50)]
+        public string? FabricCode { get; set; }
     }
 }

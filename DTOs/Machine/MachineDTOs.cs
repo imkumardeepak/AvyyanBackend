@@ -15,7 +15,6 @@ namespace AvyyanBackend.DTOs.Machine
         public int Feeder { get; set; }
         public decimal Rpm { get; set; }
         public decimal? Constat { get; set; }
-        public decimal Efficiency { get; set; }
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
@@ -54,10 +53,6 @@ namespace AvyyanBackend.DTOs.Machine
         [Range(0, double.MaxValue, ErrorMessage = "Constat must be greater than or equal to 0")]
         public decimal? Constat { get; set; }
 
-        [Required]
-        [Range(0.01, 100, ErrorMessage = "Efficiency must be between 0.01 and 100")]
-        public decimal Efficiency { get; set; }
-
         [MaxLength(500)]
         public string? Description { get; set; }
     }
@@ -93,10 +88,6 @@ namespace AvyyanBackend.DTOs.Machine
 
         [Range(0, double.MaxValue, ErrorMessage = "Constat must be greater than or equal to 0")]
         public decimal? Constat { get; set; }
-
-        [Required]
-        [Range(0.01, 100, ErrorMessage = "Efficiency must be between 0.01 and 100")]
-        public decimal Efficiency { get; set; }
 
         [MaxLength(500)]
         public string? Description { get; set; }

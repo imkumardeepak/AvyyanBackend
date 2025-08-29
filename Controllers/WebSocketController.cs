@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System.Net.WebSockets;
-using AvyyanBackend.WebSockets;
+using AvyyanBackend.Services;
 
 namespace AvyyanBackend.Controllers
 {
@@ -9,55 +8,30 @@ namespace AvyyanBackend.Controllers
     [Route("api/[controller]")]
     public class WebSocketController : ControllerBase
     {
-        private readonly CustomWebSocketManager _webSocketManager;
-        private readonly ChatWebSocketManager _chatWebSocketManager;
+        private readonly ISignalRNotificationService _signalRNotificationService;
 
-        public WebSocketController(CustomWebSocketManager webSocketManager, ChatWebSocketManager chatWebSocketManager)
+        public WebSocketController(ISignalRNotificationService signalRNotificationService)
         {
-            _webSocketManager = webSocketManager;
-            _chatWebSocketManager = chatWebSocketManager;
+            _signalRNotificationService = signalRNotificationService;
         }
 
-        [HttpGet("/ws")]
-        public async Task GetWebSocket()
+        [HttpPost("/api/notification")]
+        public async Task<IActionResult> SendNotification([FromBody] NotificationRequest request)
         {
-            if (HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                await _webSocketManager.HandleWebSocketConnection(webSocket);
-            }
-            else
-            {
-                HttpContext.Response.StatusCode = 400;
-            }
-        }
-
-        [HttpGet("/ws/chat/{employeeId}")]
-        public async Task GetChatWebSocket(string employeeId)
-        {
-            if (HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                if (!string.IsNullOrEmpty(employeeId))
-                {
-                    var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                    await _chatWebSocketManager.HandleWebSocketConnection(employeeId, webSocket);
-                }
-                else
-                {
-                    HttpContext.Response.StatusCode = 400;
-                }
-            }
-            else
-            {
-                HttpContext.Response.StatusCode = 400;
-            }
-        }
-
-        [HttpGet("/api/notification")]
-        public async Task<IActionResult> SendNotification()
-        {
-            await _webSocketManager.SendNotification("Hello from the API!");
+            await _signalRNotificationService.SendNotificationAsync(request.Message);
             return Ok("Notification sent.");
         }
+
+        [HttpPost("/api/notification/user/{userId}")]
+        public async Task<IActionResult> SendNotificationToUser(string userId, [FromBody] NotificationRequest request)
+        {
+            await _signalRNotificationService.SendNotificationToUserAsync(userId, request.Message);
+            return Ok($"Notification sent to user {userId}.");
+        }
+    }
+
+    public class NotificationRequest
+    {
+        public string Message { get; set; } = string.Empty;
     }
 }

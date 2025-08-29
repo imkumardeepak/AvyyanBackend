@@ -13,6 +13,7 @@ namespace AvyyanBackend.Data
         public DbSet<MachineManager> MachineManagers { get; set; }
         public DbSet<FabricStructureMaster> FabricStructureMasters { get; set; }
         public DbSet<LocationMaster> LocationMasters { get; set; }
+        public DbSet<YarnTypeMaster> YarnTypeMasters { get; set; }
 
         // DbSets for Authentication
         public DbSet<User> Users { get; set; }

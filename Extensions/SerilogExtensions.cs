@@ -39,7 +39,7 @@ namespace AvyyanBackend.Extensions
                     .WriteTo.File(
                         path: "logs/avyyan-knitfab-.log",
                         rollingInterval: RollingInterval.Day,
-                        retainedFileCountLimit: 30,
+                        retainedFileCountLimit: 2,
                         fileSizeLimitBytes: 10_000_000,
                         rollOnFileSizeLimit: true,
                         formatter: new JsonFormatter(),
@@ -47,7 +47,7 @@ namespace AvyyanBackend.Extensions
                     .WriteTo.File(
                         path: "logs/avyyan-knitfab-errors-.log",
                         rollingInterval: RollingInterval.Day,
-                        retainedFileCountLimit: 90,
+                        retainedFileCountLimit: 2,
                         fileSizeLimitBytes: 10_000_000,
                         rollOnFileSizeLimit: true,
                         restrictedToMinimumLevel: LogEventLevel.Error,

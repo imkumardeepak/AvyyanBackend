@@ -36,6 +36,10 @@ namespace AvyyanBackend.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
+                    b.Property<string>("FabricCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<string>("Fabricstr")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -129,9 +133,6 @@ namespace AvyyanBackend.Migrations
 
                     b.Property<decimal>("Dia")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Efficiency")
-                        .HasColumnType("decimal(18,5)");
 
                     b.Property<int>("Feeder")
                         .HasColumnType("integer");
@@ -286,6 +287,48 @@ namespace AvyyanBackend.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("AvyyanBackend.Models.YarnTypeMaster", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ShortCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("ShortCode");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("YarnCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("YarnType")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("YarnTypeMasters");
                 });
 
             modelBuilder.Entity("AvyyanBackend.Models.PageAccess", b =>

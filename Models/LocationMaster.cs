@@ -13,7 +13,6 @@ namespace AvyyanBackend.Models
         [MaxLength(200)]
         public string Location { get; set; } = string.Empty;
 
-        [Required]
         [MaxLength(200)]
         public string Sublocation { get; set; } = string.Empty;
 

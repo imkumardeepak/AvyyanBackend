@@ -6,6 +6,7 @@ using AvyyanBackend.DTOs.Machine;
 using AvyyanBackend.DTOs.WebSocket;
 using AvyyanBackend.DTOs.FabricStructure;
 using AvyyanBackend.DTOs.Location;
+using AvyyanBackend.DTOs.YarnType;
 using AvyyanBackend.Models;
 
 namespace AvyyanBackend.Extensions
@@ -104,6 +105,17 @@ namespace AvyyanBackend.Extensions
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
             CreateMap<UpdateLocationRequestDto, LocationMaster>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+                
+            // Yarn Type mappings
+            CreateMap<YarnTypeMaster, YarnTypeResponseDto>();
+            CreateMap<CreateYarnTypeRequestDto, YarnTypeMaster>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+            CreateMap<UpdateYarnTypeRequestDto, YarnTypeMaster>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
         }
