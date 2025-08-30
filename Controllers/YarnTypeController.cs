@@ -8,7 +8,7 @@ namespace AvyyanBackend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // Require authentication for all endpoints
+    [Authorize] 
     public class YarnTypeController : ControllerBase
     {
         private readonly IYarnTypeService _yarnTypeService;

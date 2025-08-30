@@ -1217,7 +1217,7 @@ public class TallyService
 			}
 
 			xmlContent = xmlContent.Replace("{Cname}", companyName);
-            xmlContent = xmlContent.Replace("{fromdate}", "20250331");
+            xmlContent = xmlContent.Replace("{fromdate}", "20220331");
 			xmlContent = xmlContent.Replace("{todate}", "20250331");
 
 			// Create HTTP request

@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using AvyyanBackend.DTOs.Machine;
 using AvyyanBackend.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AvyyanBackend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class MachineController : ControllerBase
     {
         private readonly IMachineManagerService _machineManagerService;

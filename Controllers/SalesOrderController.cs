@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using AvyyanBackend.DTOs.SalesOrder;
 using AvyyanBackend.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AvyyanBackend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class SalesOrderController : ControllerBase
+    [Authorize]
+	public class SalesOrderController : ControllerBase
     {
         private readonly ISalesOrderService _salesOrderService;
         private readonly ILogger<SalesOrderController> _logger;

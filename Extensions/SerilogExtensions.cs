@@ -12,7 +12,6 @@ namespace AvyyanBackend.Extensions
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
-
             services.AddSerilog();
             return services;
         }

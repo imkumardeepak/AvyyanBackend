@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using AvyyanBackend.Data;
+using AvyyanBackend.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
@@ -11,12 +15,18 @@ public class TallyBackgroundService : BackgroundService
 	private readonly ILogger<TallyBackgroundService> _logger;
 	private readonly IHttpClientFactory _httpClientFactory;
 	private readonly TallyService _tallyService;
+	private readonly IServiceScopeFactory _serviceScopeFactory;
 
-	public TallyBackgroundService(ILogger<TallyBackgroundService> logger, IHttpClientFactory httpClientFactory, TallyService tallyService)
+	public TallyBackgroundService(
+		ILogger<TallyBackgroundService> logger,
+		IHttpClientFactory httpClientFactory,
+		TallyService tallyService,
+		IServiceScopeFactory serviceScopeFactory)
 	{
 		_logger = logger;
 		_httpClientFactory = httpClientFactory;
 		_tallyService = tallyService;
+		_serviceScopeFactory = serviceScopeFactory;
 	}
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,7 +45,7 @@ public class TallyBackgroundService : BackgroundService
 				_logger.LogError(ex, "An error occurred while fetching data from Tally.");
 			}
 
-			// Wait before running the task again (e.g., 2 minutes)
+			// Wait before running the task again (e.g., 30 minutes)
 			await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
 		}
 
@@ -44,33 +54,71 @@ public class TallyBackgroundService : BackgroundService
 
 	private async Task FetchDataFromTally()
 	{
+		// Create a new scope for each execution
+		using var scope = _serviceScopeFactory.CreateScope();
+		var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
 		bool result = await _tallyService.GetTestConnection();
 		if (!result)
 		{
 			_logger.LogWarning("Tally Server is not running");
+			return;
 		}
 
 		// Path to the XML file
 		string xmlFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "TallyXML", "GetVoucher.xml");
 
-
 		// Check if the XML file exists
 		if (!System.IO.File.Exists(xmlFilePath))
 		{
 			_logger.LogWarning("The specified XML file does not exist: {FilePath}", xmlFilePath);
+			return;
 		}
 
 		// Get the current company from Tally
 		List<Voucher> vouchers = await _tallyService.GetVoucherAsync(xmlFilePath);
 
-		// Check if the result is valid
-		if (vouchers.Count == 0)
+		if (vouchers == null || !vouchers.Any())
 		{
-			_logger.LogWarning("The current company returned by Tally is null or empty.");
+			_logger.LogInformation("No vouchers found to process.");
+			return;
 		}
 
-		_logger.LogInformation("Successfully fetched current vouchers: {vouchers}", vouchers);
+		// Get existing voucher numbers in bulk for faster checking
+		var existingVoucherNumbers = await context.SalesOrders
+			.Where(so => vouchers.Select(v => v.VoucherNumber).Contains(so.VoucherNumber))
+			.Select(so => so.VoucherNumber)
+			.ToListAsync();
 
+		var newVouchers = new List<SalesOrder>();
+		int processedCount = 0;
+		int skippedCount = 0;
+
+		foreach (var voucher in vouchers)
+		{
+			// Skip if voucher number already exists
+			if (existingVoucherNumbers.Contains(voucher.VoucherNumber))
+			{
+				skippedCount++;
+				continue;
+			}
+
+			var dbVoucher = VoucherMapper.MapToDatabaseModel(voucher);
+			if (dbVoucher != null)
+			{
+				newVouchers.Add(dbVoucher);
+				existingVoucherNumbers.Add(dbVoucher.VoucherNumber);
+			}
+		}
+
+		if (newVouchers.Any())
+		{
+			await context.SalesOrders.AddRangeAsync(newVouchers);
+			var savedCount = await context.SaveChangesAsync();
+			processedCount = savedCount;
+		}
+
+		_logger.LogInformation("Voucher processing completed. Processed: {Processed}, Skipped: {Skipped}, Total: {Total}",
+			processedCount, skippedCount, vouchers.Count);
 	}
 }

@@ -59,7 +59,7 @@ namespace AvyyanBackend.Extensions
             // Register Tally services
             services.AddSingleton<TallyService>();
             services.AddSingleton<PostTallyService>();
-           // services.AddHostedService<TallyBackgroundService>();
+            services.AddHostedService<TallyBackgroundService>();
 
             // Register Log Cleanup service
             services.AddHostedService<LogCleanupService>();
@@ -126,10 +126,6 @@ namespace AvyyanBackend.Extensions
         {
             services.AddFluentValidationAutoValidation();
             services.AddFluentValidationClientsideAdapters();
-
-            // Add validators here as you create them
-            // services.AddValidatorsFromAssemblyContaining<ProductValidator>();
-
             return services;
         }
 
