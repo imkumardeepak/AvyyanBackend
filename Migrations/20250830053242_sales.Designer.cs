@@ -3,6 +3,7 @@ using System;
 using AvyyanBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AvyyanBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250830053242_sales")]
+    partial class sales
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -283,12 +286,6 @@ namespace AvyyanBackend.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<DateTime>("ProcessDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("ProcessFlag")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Reference")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -322,8 +319,6 @@ namespace AvyyanBackend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PartyName");
-
-                    b.HasIndex("ProcessFlag");
 
                     b.HasIndex("SalesDate");
 

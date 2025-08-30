@@ -252,7 +252,7 @@ namespace TallyERPWebApi.Service
             }
         }
 
-        public async Task<string> SaveVoucher(string xmlFilePath, Voucher voucher)
+        public async Task<string> SaveVoucher(string xmlFilePath, VoucherSO voucher)
         {
             try
             {

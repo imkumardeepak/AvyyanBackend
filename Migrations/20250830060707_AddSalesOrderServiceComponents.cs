@@ -1,0 +1,41 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace AvyyanBackend.Migrations
+{
+    /// <inheritdoc />
+    public partial class AddSalesOrderServiceComponents : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn<DateTime>(
+                name: "ProcessDate",
+                table: "SalesOrders",
+                type: "timestamp without time zone",
+                nullable: false,
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+
+            migrationBuilder.AddColumn<int>(
+                name: "ProcessFlag",
+                table: "SalesOrders",
+                type: "integer",
+                nullable: false,
+                defaultValue: 0);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "ProcessDate",
+                table: "SalesOrders");
+
+            migrationBuilder.DropColumn(
+                name: "ProcessFlag",
+                table: "SalesOrders");
+        }
+    }
+}

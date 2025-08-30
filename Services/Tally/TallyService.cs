@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -8,11 +13,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using TallyERPWebApi.Model;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -1077,7 +1077,7 @@ public class TallyService
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while communicating with Tally.");
-            throw;
+            throw new Exception("An error occurred while communicating with Tally.", ex);
         }
     }
     public async Task<List<Ledger>> GetAllLedger(string xmlFilePath)
@@ -1188,7 +1188,7 @@ public class TallyService
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while communicating with Tally.");
-            throw;
+            throw new Exception("An error occurred while communicating with Tally.", ex);
         }
     }
 	public async Task<List<Voucher>> GetVoucherAsync(string xmlFilePath)
@@ -1217,7 +1217,7 @@ public class TallyService
 			}
 
 			xmlContent = xmlContent.Replace("{Cname}", companyName);
-            xmlContent = xmlContent.Replace("{fromdate}", "20220331");
+            xmlContent = xmlContent.Replace("{fromdate}", "20250331");
 			xmlContent = xmlContent.Replace("{todate}", "20250331");
 
 			// Create HTTP request
@@ -1230,151 +1230,25 @@ public class TallyService
 			var response = await _httpClient.SendAsync(request);
 			response.EnsureSuccessStatusCode();
 
+
 			var responseContent = await response.Content.ReadAsStringAsync();
-			responseContent = RemoveInvalidCharacters(responseContent);
-			// Parse the cleaned XML response
-			var xmlDocument = new XmlDocument();
-			xmlDocument.LoadXml(responseContent);
 
-			// Convert XML to JSON
-			string jsonData = JsonConvert.SerializeXmlNode(xmlDocument, Newtonsoft.Json.Formatting.Indented);
+			// TallyXmlHelper.SaveXmlForDebugging(responseContent, "tally_response.xml");
 
-			// Deserialize JSON into a JObject for manipulation
-			var jsonObject = JsonConvert.DeserializeObject<JObject>(jsonData);
+			List<Voucher> voucherList = new List<Voucher>();
+			var envelope = TallyXmlHelper.DeserializeTallyXml(responseContent);
 
-			// Remove empty or invalid values recursively
-			RemoveEmptyValues(jsonObject);
-
-			// Navigate to the TALLYMESSAGE array
-			var tallyMessageArray = jsonObject["ENVELOPE"]?["BODY"]?["IMPORTDATA"]?["REQUESTDATA"]?["TALLYMESSAGE"];
-
-
-			// Convert the TALLYMESSAGE array to a formatted JSON string
-			string tallyMessageJson = JsonConvert.SerializeObject(tallyMessageArray, Newtonsoft.Json.Formatting.Indented);
-			var data = JsonConvert.DeserializeObject<List<Dictionary<string, dynamic>>>(tallyMessageJson);
-
-			// List to store processed vouchers
-			var voucherList = new List<Voucher>();
-			if (data != null)
+			if (envelope != null &&
+				envelope.Body?.ImportData?.RequestData?.TallyMessages != null)
 			{
-				foreach (var entry in data)
+				foreach (var tallyMessage in envelope.Body.ImportData.RequestData.TallyMessages)
 				{
-					// Check if the entry contains the "VOUCHER" key
-					if (entry.ContainsKey("VOUCHER"))
+					if (tallyMessage.Voucher != null)
 					{
-						var voucherData = entry["VOUCHER"];
-						var itemData = voucherData["ALLINVENTORYENTRIES.LIST"];
-
-						// Initialize variables to store accounting allocation details
-						string voucherTypeName = "NA";
-						string voucherAMOUNT = "NA";
-						string voucherledgername = "NA";
-						string voucherPLACEOFSUPPLY = "NA";
-						string voucherPERSISTEDVIEW = "NA";
-						string voucherISGSTOVERRIDDEN = "NA";
-						string voucherISINVOICE = "NA";
-						string voucherUSEFORGAINLOSS = "NA";
-
-						// Check if ACCOUNTINGALLOCATIONS.LIST exists and is valid
-						if (itemData is JObject itemDataObject &&
-							itemDataObject["ACCOUNTINGALLOCATIONS.LIST"] is JArray accountingArray)
-						{
-							// Handle multiple accounting allocations
-							var firstAccountingEntry = accountingArray.FirstOrDefault() as JObject;
-							if (firstAccountingEntry != null)
-							{
-								voucherTypeName = firstAccountingEntry["LEDGERNAME"]?.ToString() ?? "NA";
-							}
-						}
-						else if (itemData is JObject singleAccountingEntry &&
-								 singleAccountingEntry["ACCOUNTINGALLOCATIONS.LIST"] is JObject singleAccountingObject)
-						{
-							// Handle single accounting allocation
-							voucherTypeName = singleAccountingObject["LEDGERNAME"]?.ToString() ?? "NA";
-						}
-
-						// Check if ACCOUNTINGALLOCATIONS.LIST exists and is valid
-						if (voucherData is JObject voucherDataObject &&
-							voucherDataObject["LEDGERENTRIES.LIST"] is JArray ledgerlistArray)
-						{
-							// Handle multiple accounting allocations
-							var ledgerlistArrayEntry = ledgerlistArray.FirstOrDefault() as JObject;
-							if (ledgerlistArrayEntry != null)
-							{
-								voucherAMOUNT = ledgerlistArrayEntry["AMOUNT"]?.ToString().Replace("-", "") ?? "NA";
-								voucherledgername = ledgerlistArrayEntry["LEDGERNAME"]?.ToString() ?? "NA";
-								voucherPLACEOFSUPPLY = ledgerlistArrayEntry["PLACEOFSUPPLY"]?.ToString() ?? "NA";
-								voucherPERSISTEDVIEW = ledgerlistArrayEntry["PERSISTEDVIEW"]?.ToString() ?? "NA";
-								voucherISGSTOVERRIDDEN = ledgerlistArrayEntry["ISGSTOVERRIDDEN"]?.ToString() ?? "NA";
-								voucherISINVOICE = ledgerlistArrayEntry["ISINVOICE"]?.ToString() ?? "NA";
-								voucherUSEFORGAINLOSS = ledgerlistArrayEntry["USEFORGAINLOSS"]?.ToString() ?? "NA";
-							}
-						}
-
-						//var vochNode = voucherData["LEDGERENTRIES.LIST"];
-
-
-						// Create a new Voucher object and handle null fields by assigning "NA"
-						var voucher = new Voucher
-						{
-							RemoteID = voucherData["@REMOTEID"]?.ToString() ?? "NA",
-							VoucherType = voucherData["@VCHTYPE"]?.ToString() ?? "NA",
-							Date = voucherData["DATE"]?.ToString() ?? "NA",
-							PartyName = voucherData["PARTYNAME"]?.ToString() ?? "NA",
-							AccountType = voucherTypeName,
-							partymailingname = voucherData["PARTYMAILINGNAME"]?.ToString() ?? "NA",
-							//ledgername = voucherData["@LEDGERNAME"]?.ToString() ?? "NA",
-							ledgername = voucherledgername,
-							overallamount = voucherAMOUNT,
-							Items = new List<ItemDetails>() // Initialize the Items list
-						};
-
-						// Check if the item data is a JArray or JObject
-						if (itemData is JArray itemArray)
-						{
-							// Handle multiple items
-							foreach (var item in itemArray)
-							{
-								var basicUserDescList = item["BASICUSERDESCRIPTION.LIST"]?["BASICUSERDESCRIPTION"] as JArray;
-
-								var newItem = new ItemDetails
-								{
-									StockItemName = item["STOCKITEMNAME"]?.ToString() ?? "NA",
-									Rate = item["RATE"]?.ToString() ?? "NA",
-									Amount = item["AMOUNT"]?.ToString() ?? "NA",
-									ActualQty = item["ACTUALQTY"]?.ToString() ?? "NA",
-									StockItemDescription = basicUserDescList?.ToString() ?? "NA",
-									HSN = item["GSTHSNNAME"]?.ToString() ?? "NA",
-								};
-								voucher.Items.Add(newItem);
-							}
-						}
-						else if (itemData is JObject singleItem)
-						{
-							var basicUserDescList = itemData["BASICUSERDESCRIPTION.LIST"]?["BASICUSERDESCRIPTION"] as JArray;
-
-							var descriptions = basicUserDescList != null
-								? string.Join(", ", basicUserDescList.Select(d => d.ToString()))
-								: "NA";
-							// Handle a single item
-							var newItem = new ItemDetails
-							{
-								StockItemName = singleItem["STOCKITEMNAME"]?.ToString() ?? "NA",
-								Rate = singleItem["RATE"]?.ToString() ?? "NA",
-								Amount = singleItem["AMOUNT"]?.ToString() ?? "NA",
-								ActualQty = singleItem["ACTUALQTY"]?.ToString() ?? "NA",
-								StockItemDescription = descriptions?.ToString() ?? "NA",
-								HSN = singleItem["GSTHSNNAME"]?.ToString() ?? "NA",
-							};
-							voucher.Items.Add(newItem);
-						}
-
-						voucherList.Add(voucher);
+					   voucherList.Add(tallyMessage.Voucher);
 					}
 				}
 			}
-
-
 
 			return voucherList;
 
@@ -1382,16 +1256,20 @@ public class TallyService
 		catch (Exception ex)
 		{
 			_logger.LogError(ex, "An error occurred while communicating with Tally.");
-			throw;
+			throw ex ?? new InvalidOperationException("An error occurred while communicating with Tally.");
 		}
 	}
 
-	public string RemoveInvalidCharacters(string input)
-    {
-        string pattern = @"[\u0000-\u001F]";
-        return Regex.Replace(input, pattern, string.Empty);
-    }
-    public string RemoveJunkCharacters(string input)
+	public static string RemoveInvalidCharacters(string xmlContent)
+	{
+		if (string.IsNullOrEmpty(xmlContent))
+			return xmlContent;
+
+		// Remove invalid XML characters (control characters except tab, newline, carriage return)
+		return Regex.Replace(xmlContent, @"[\x00-\x08\x0B\x0C\x0E-\x1F]", "");
+
+	}
+	public string RemoveJunkCharacters(string input)
     {
         // Remove all control characters except tab, newline, and carriage return
         string pattern = @"[\u0000-\u001F]"; // Matches all control characters (Unicode 0-31)

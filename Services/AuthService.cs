@@ -20,6 +20,7 @@ namespace AvyyanBackend.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly ILogger<AuthService> _logger;
+        private static readonly Dictionary<string, RefreshTokenInfo> _refreshTokens = new();
 
         public AuthService(
             IUnitOfWork unitOfWork,
@@ -68,12 +69,90 @@ namespace AvyyanBackend.Services
 
             var roles = new List<string> { user.RoleName };
             var token = GenerateJwtToken(authUser, roles);
+            var refreshToken = GenerateRefreshToken();
+
+            // Store refresh token with user info
+            _refreshTokens[refreshToken] = new RefreshTokenInfo
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                FullName = $"{user.FirstName} {user.LastName}",
+                RoleName = user.RoleName,
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddDays(7) // Refresh token valid for 7 days
+            };
 
             _logger.LogInformation("User {Email} logged in successfully", loginDto.Email);
 
             return new LoginResponseDto
             {
                 Token = token,
+                RefreshToken = refreshToken,
+                ExpiresAt = DateTime.Now.AddHours(1),
+                User = authUser,
+                Roles = roles,
+                PageAccesses = _mapper.Map<IEnumerable<AuthPageAccessDto>>(permissions.PageAccesses)
+            };
+        }
+
+        public async Task<LoginResponseDto?> RefreshTokenAsync(RefreshTokenRequestDto refreshTokenDto)
+        {
+            _logger.LogDebug("Attempting to refresh token");
+
+            // Check if refresh token exists and is valid
+            if (!_refreshTokens.TryGetValue(refreshTokenDto.RefreshToken, out var refreshTokenInfo))
+            {
+                _logger.LogWarning("Refresh token not found or invalid");
+                return null;
+            }
+
+            // Check if refresh token is expired
+            if (refreshTokenInfo.ExpiresAt < DateTime.UtcNow)
+            {
+                _logger.LogWarning("Refresh token expired");
+                // Remove expired token
+                _refreshTokens.Remove(refreshTokenDto.RefreshToken);
+                return null;
+            }
+
+            // Get user details
+            var user = await _userService.GetUserByIdAsync(refreshTokenInfo.UserId);
+            if (user == null)
+            {
+                _logger.LogWarning("User not found for refresh token");
+                return null;
+            }
+
+            var userEntity = await _userRepository.FirstOrDefaultAsync(u => u.Id == user.Id);
+            if (userEntity == null) return null;
+
+            var permissions = await _userService.GetUserPermissionsAsync(user.Id);
+            var authUser = _mapper.Map<AuthUserDto>(userEntity);
+
+            var roles = new List<string> { user.RoleName };
+            var token = GenerateJwtToken(authUser, roles);
+            
+            // Generate new refresh token
+            var newRefreshToken = GenerateRefreshToken();
+            
+            // Remove old refresh token and add new one
+            _refreshTokens.Remove(refreshTokenDto.RefreshToken);
+            _refreshTokens[newRefreshToken] = new RefreshTokenInfo
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                FullName = $"{user.FirstName} {user.LastName}",
+                RoleName = user.RoleName,
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddDays(7)
+            };
+
+            _logger.LogInformation("Token refreshed successfully for user {Email}", user.Email);
+
+            return new LoginResponseDto
+            {
+                Token = token,
+                RefreshToken = newRefreshToken,
                 ExpiresAt = DateTime.Now.AddHours(1),
                 User = authUser,
                 Roles = roles,
@@ -83,6 +162,17 @@ namespace AvyyanBackend.Services
 
         public async Task<bool> LogoutAsync(int userId)
         {
+            // Remove all refresh tokens for this user
+            var tokensToRemove = _refreshTokens
+                .Where(kv => kv.Value.UserId == userId)
+                .Select(kv => kv.Key)
+                .ToList();
+                
+            foreach (var token in tokensToRemove)
+            {
+                _refreshTokens.Remove(token);
+            }
+            
             // Nothing to do here anymore as we don't handle refresh tokens
             return await Task.FromResult(true);
         }
@@ -158,6 +248,14 @@ namespace AvyyanBackend.Services
             return tokenHandler.WriteToken(token);
         }
 
+        public string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
+
         public Task<bool> ValidatePasswordAsync(string password, string hash)
         {
             return Task.FromResult(BCrypt.Net.BCrypt.Verify(password, hash));
@@ -167,5 +265,16 @@ namespace AvyyanBackend.Services
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
+    }
+
+    // Helper class to store refresh token information
+    public class RefreshTokenInfo
+    {
+        public int UserId { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public string RoleName { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public DateTime ExpiresAt { get; set; }
     }
 }

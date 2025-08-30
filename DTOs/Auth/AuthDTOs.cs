@@ -31,6 +31,15 @@ namespace AvyyanBackend.DTOs.Auth
     }
 
     /// <summary>
+    /// DTO for refresh token request
+    /// </summary>
+    public class RefreshTokenRequestDto
+    {
+        [Required]
+        public string RefreshToken { get; set; } = string.Empty;
+    }
+
+    /// <summary>
     /// DTO for user registration request
     /// </summary>
     public class RegisterRequestDto

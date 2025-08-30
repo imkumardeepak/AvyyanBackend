@@ -10,6 +10,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using AvyyanBackend.WebSockets;
 using TallyERPWebApi.Service;
+using Microsoft.AspNetCore.Http;
 
 namespace AvyyanBackend.Extensions
 {
@@ -37,6 +38,8 @@ namespace AvyyanBackend.Extensions
             services.AddScoped<IMachineManagerService, MachineManagerService>();
             services.AddScoped<IFabricStructureService, FabricStructureService>();
             services.AddScoped<ILocationService, LocationService>();
+            services.AddScoped<IYarnTypeService, YarnTypeService>();
+            services.AddScoped<ISalesOrderService, SalesOrderService>();
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
@@ -49,6 +52,9 @@ namespace AvyyanBackend.Extensions
             
             // Register IHttpClientFactory
             services.AddHttpClient();
+            
+            // Register IHttpContextAccessor
+            services.AddHttpContextAccessor();
             
             // Register Tally services
             services.AddSingleton<TallyService>();

@@ -7,6 +7,7 @@ using AvyyanBackend.DTOs.WebSocket;
 using AvyyanBackend.DTOs.FabricStructure;
 using AvyyanBackend.DTOs.Location;
 using AvyyanBackend.DTOs.YarnType;
+using AvyyanBackend.DTOs.SalesOrder;
 using AvyyanBackend.Models;
 
 namespace AvyyanBackend.Extensions
@@ -118,6 +119,24 @@ namespace AvyyanBackend.Extensions
             CreateMap<UpdateYarnTypeRequestDto, YarnTypeMaster>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+
+            // Sales Order mappings
+            CreateMap<SalesOrder, SalesOrderResponseDto>();
+            CreateMap<SalesOrderItem, SalesOrderItemResponseDto>();
+            CreateMap<CreateSalesOrderRequestDto, SalesOrder>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.ProcessDate, opt => opt.Ignore());
+            CreateMap<CreateSalesOrderItemRequestDto, SalesOrderItem>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.SalesOrderId, opt => opt.Ignore());
+            CreateMap<UpdateSalesOrderRequestDto, SalesOrder>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+            CreateMap<UpdateSalesOrderItemRequestDto, SalesOrderItem>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.SalesOrderId, opt => opt.Ignore());
         }
     }
 }

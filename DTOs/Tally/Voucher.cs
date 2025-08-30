@@ -1,6 +1,6 @@
 ﻿namespace TallyERPWebApi.Model
 {
-	public class Voucher
+	public class VoucherSO
 	{
 		public string RemoteID { get; set; } = "NA";
 		public string VoucherType { get; set; }
