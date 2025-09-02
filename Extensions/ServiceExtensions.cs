@@ -59,7 +59,7 @@ namespace AvyyanBackend.Extensions
             // Register Tally services
             services.AddSingleton<TallyService>();
             services.AddSingleton<PostTallyService>();
-            services.AddHostedService<TallyBackgroundService>();
+            // services.AddHostedService<TallyBackgroundService>();
 
             // Register Log Cleanup service
             services.AddHostedService<LogCleanupService>();

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using AvyyanBackend.DTOs.Location;
 using AvyyanBackend.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AvyyanBackend.Controllers
 {
