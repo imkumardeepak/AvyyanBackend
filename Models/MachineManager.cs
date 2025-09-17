@@ -27,5 +27,6 @@ namespace AvyyanBackend.Models
 
         [MaxLength(500)]
         public string? Description { get; set; }
+      
     }
 }

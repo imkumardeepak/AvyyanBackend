@@ -15,5 +15,6 @@ namespace AvyyanBackend.Interfaces
 		Task<bool> IsVoucherNumberUniqueAsync(string voucherNumber, int? excludeId = null);
 		Task<IEnumerable<SalesOrderResponseDto>> GetUnprocessedSalesOrdersAsync();
 		Task<bool> MarkAsProcessedAsync(int id);
+		Task<bool> MarkSalesOrderItemAsProcessedAsync(int salesOrderId, int salesOrderItemId);
 	}
 }

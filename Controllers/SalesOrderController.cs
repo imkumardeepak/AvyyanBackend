@@ -218,5 +218,27 @@ namespace AvyyanBackend.Controllers
 				return StatusCode(500, "An error occurred while processing your request");
 			}
 		}
+
+		/// <summary>
+		/// Mark a sales order item as processed
+		/// </summary>
+		[HttpPut("{salesOrderId}/items/{salesOrderItemId}/process")]
+		public async Task<ActionResult> MarkSalesOrderItemAsProcessed(int salesOrderId, int salesOrderItemId)
+		{
+			try
+			{
+				var result = await _salesOrderService.MarkSalesOrderItemAsProcessedAsync(salesOrderId, salesOrderItemId);
+				if (!result)
+				{
+					return NotFound($"Sales order item with ID {salesOrderItemId} not found in sales order {salesOrderId}");
+				}
+				return Ok("Sales order item marked as processed successfully");
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error occurred while marking sales order item {SalesOrderItemId} as processed", salesOrderItemId);
+				return StatusCode(500, "An error occurred while processing your request");
+			}
+		}
 	}
 }

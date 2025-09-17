@@ -1,7 +1,9 @@
 using AvyyanBackend.Models;
+using AvyyanBackend.Models.ProAllot;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Text.Json;
 using TallyERPWebApi.Model;
 
 namespace AvyyanBackend.Data
@@ -14,6 +16,11 @@ namespace AvyyanBackend.Data
         {
             _httpContextAccessor = httpContextAccessor ?? null;
         }
+        public DbSet<ProductionAllotment> ProductionAllotments { get; set; }
+        public DbSet<MachineAllocation> MachineAllocations { get; set; }
+
+
+
 
         public DbSet<MachineManager> MachineManagers { get; set; }
         public DbSet<FabricStructureMaster> FabricStructureMasters { get; set; }
@@ -84,8 +91,43 @@ namespace AvyyanBackend.Data
 
 			modelBuilder.Entity<SalesOrderItem>()
 				.HasIndex(i => i.StockItemName);
-		}
 
+            // Configure relationships
+            modelBuilder.Entity<ProductionAllotment>()
+                .HasMany(pa => pa.MachineAllocations)
+                .WithOne(ma => ma.ProductionAllotment)
+                .HasForeignKey(ma => ma.ProductionAllotmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure decimal precision for all decimal properties
+            foreach (var property in modelBuilder.Model.GetEntityTypes()
+                .SelectMany(t => t.GetProperties())
+                .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?)))
+            {
+                property.SetPrecision(18);
+                property.SetScale(3);
+            }
+
+            // Specific configuration for Efficiency property
+            modelBuilder.Entity<ProductionAllotment>()
+                .Property(p => p.Efficiency)
+                .HasPrecision(5, 2);
+
+            // Specific configuration for TotalProductionTime and EstimatedProductionTime
+            modelBuilder.Entity<ProductionAllotment>()
+                .Property(p => p.TotalProductionTime)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<MachineAllocation>()
+                .Property(m => m.EstimatedProductionTime)
+                .HasPrecision(18, 2);
+        }
+
+
+
+       
+
+        
         public override int SaveChanges()
         {
             UpdateTimestampsAndUserFields();

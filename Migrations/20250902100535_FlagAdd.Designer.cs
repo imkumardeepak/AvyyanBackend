@@ -3,6 +3,7 @@ using System;
 using AvyyanBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AvyyanBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250902100535_FlagAdd")]
+    partial class FlagAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,7 +52,6 @@ namespace AvyyanBackend.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<decimal>("Standardeffencny")
-                        .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,5)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -120,7 +122,6 @@ namespace AvyyanBackend.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal?>("Constat")
-                        .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,5)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -134,14 +135,12 @@ namespace AvyyanBackend.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<decimal>("Dia")
-                        .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Feeder")
                         .HasColumnType("integer");
 
                     b.Property<decimal>("Gg")
-                        .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsActive")
@@ -156,7 +155,6 @@ namespace AvyyanBackend.Migrations
                         .HasColumnType("integer");
 
                     b.Property<decimal>("Rpm")
-                        .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,5)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -204,140 +202,6 @@ namespace AvyyanBackend.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("PageAccesses");
-                });
-
-            modelBuilder.Entity("AvyyanBackend.Models.ProAllot.MachineAllocation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("EstimatedProductionTime")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Feeders")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("MachineId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("MachineName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("NumberOfNeedles")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ProductionAllotmentId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RPM")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("RollBreakdown")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("RollPerKg")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<decimal>("TotalLoadWeight")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<decimal>("TotalRolls")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductionAllotmentId");
-
-                    b.ToTable("MachineAllocations");
-                });
-
-            modelBuilder.Entity("AvyyanBackend.Models.ProAllot.ProductionAllotment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("ActualQuantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<string>("AllotmentId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("Composition")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Diameter")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("Efficiency")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<string>("FabricType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("Gauge")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ItemName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<int>("SalesOrderId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SalesOrderItemId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("SlitLine")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<decimal>("StitchLength")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<decimal>("TotalProductionTime")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("VoucherNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("YarnCount")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ProductionAllotments");
                 });
 
             modelBuilder.Entity("AvyyanBackend.Models.RoleMaster", b =>
@@ -659,17 +523,6 @@ namespace AvyyanBackend.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("AvyyanBackend.Models.ProAllot.MachineAllocation", b =>
-                {
-                    b.HasOne("AvyyanBackend.Models.ProAllot.ProductionAllotment", "ProductionAllotment")
-                        .WithMany("MachineAllocations")
-                        .HasForeignKey("ProductionAllotmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ProductionAllotment");
-                });
-
             modelBuilder.Entity("AvyyanBackend.Models.SalesOrderItem", b =>
                 {
                     b.HasOne("AvyyanBackend.Models.SalesOrder", "Voucher")
@@ -679,11 +532,6 @@ namespace AvyyanBackend.Migrations
                         .IsRequired();
 
                     b.Navigation("Voucher");
-                });
-
-            modelBuilder.Entity("AvyyanBackend.Models.ProAllot.ProductionAllotment", b =>
-                {
-                    b.Navigation("MachineAllocations");
                 });
 
             modelBuilder.Entity("AvyyanBackend.Models.RoleMaster", b =>

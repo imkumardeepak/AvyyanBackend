@@ -42,6 +42,8 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public string BatchName { get; set; } = string.Empty;
         public string OrderNo { get; set; } = string.Empty;
         public string OrderDueDate { get; set; } = string.Empty;
+        public int ProcessFlag { get; set; }
+        public DateTime ProcessDate { get; set; }
     }
 
     // Request DTO for creating SalesOrder
@@ -127,6 +129,8 @@ namespace AvyyanBackend.DTOs.SalesOrder
 
         [MaxLength(50)]
         public string OrderDueDate { get; set; } = string.Empty;
+        public int ProcessFlag { get; set; }
+        public DateTime ProcessDate { get; set; }
     }
 
     // Request DTO for updating SalesOrder
@@ -214,6 +218,8 @@ namespace AvyyanBackend.DTOs.SalesOrder
 
         [MaxLength(50)]
         public string OrderDueDate { get; set; } = string.Empty;
+        public int ProcessFlag { get; set; }
+        public DateTime ProcessDate { get; set; }
     }
 
     // Request DTO for searching SalesOrders

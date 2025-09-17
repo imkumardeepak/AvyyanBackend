@@ -218,6 +218,47 @@ namespace AvyyanBackend.Services
 			return true;
 		}
 
+		public async Task<bool> MarkSalesOrderItemAsProcessedAsync(int salesOrderId, int salesOrderItemId)
+		{
+			_logger.LogDebug("Marking sales order item {SalesOrderItemId} as processed for sales order {SalesOrderId}", salesOrderItemId, salesOrderId);
+
+			var salesOrder = await _context.SalesOrders
+				.Include(so => so.Items)
+				.FirstOrDefaultAsync(so => so.Id == salesOrderId);
+
+			if (salesOrder == null)
+			{
+				_logger.LogWarning("Sales order {SalesOrderId} not found for processing item {SalesOrderItemId}", salesOrderId, salesOrderItemId);
+				return false;
+			}
+
+			var salesOrderItem = salesOrder.Items.FirstOrDefault(item => item.Id == salesOrderItemId);
+			if (salesOrderItem == null)
+			{
+				_logger.LogWarning("Sales order item {SalesOrderItemId} not found in sales order {SalesOrderId}", salesOrderItemId, salesOrderId);
+				return false;
+			}
+
+			// Update the item's process flag
+			salesOrderItem.ProcessFlag = 1;
+			salesOrderItem.ProcessDate = DateTime.Now;
+
+			// Check if all items are processed, then mark the entire order as processed
+			if (salesOrder.Items.All(item => item.ProcessFlag == 1))
+			{
+				salesOrder.ProcessFlag = 1;
+				salesOrder.ProcessDate = DateTime.Now;
+			}
+
+			salesOrder.UpdatedAt = DateTime.Now;
+
+			_salesOrderRepository.Update(salesOrder);
+			await _unitOfWork.SaveChangesAsync();
+
+			_logger.LogInformation("Marked sales order item {SalesOrderItemId} as processed for sales order {SalesOrderId}", salesOrderItemId, salesOrderId);
+			return true;
+		}
+
 		private void UpdateSalesOrderItems(SalesOrder salesOrder, ICollection<UpdateSalesOrderItemRequestDto> itemDtos)
 		{
 			// Remove items that are not in the update DTOs (if they have IDs)

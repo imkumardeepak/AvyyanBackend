@@ -1,7 +1,14 @@
-using Microsoft.AspNetCore.Mvc;
+using AvyyanBackend.Data;
 using AvyyanBackend.DTOs.Machine;
 using AvyyanBackend.Interfaces;
+using AvyyanBackend.Models.ProAllot;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Text;
 
 namespace AvyyanBackend.Controllers
 {
@@ -12,11 +19,14 @@ namespace AvyyanBackend.Controllers
     {
         private readonly IMachineManagerService _machineManagerService;
         private readonly ILogger<MachineController> _logger;
+       
+        private readonly IConfiguration _configuration;
 
-        public MachineController(IMachineManagerService machineManagerService, ILogger<MachineController> logger)
+        public MachineController(IMachineManagerService machineManagerService, ILogger<MachineController> logger, ApplicationDbContext context, IConfiguration configuration)
         {
             _machineManagerService = machineManagerService;
             _logger = logger;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -152,6 +162,78 @@ namespace AvyyanBackend.Controllers
             {
                 _logger.LogError(ex, "Error occurred while deleting machine {MachineId}", id);
                 return StatusCode(500, "An error occurred while processing your request");
+            }
+        }
+
+
+
+
+        ////  Sticker Printing Logic
+        [HttpPost("generate-qr/{id}")]
+        public async Task<IActionResult> GenerateQRCode(int id)
+        {
+            try
+            {
+                // Get machine details from database
+                var machine = await _machineManagerService.GetMachineByIdAsync(id);
+
+                if (machine == null)
+                {
+                    return NotFound($"Machine with ID {id} not found");
+                }
+
+                string filepath = Path.Combine("wwwroot", "Sticker", "MC_Sticker.prn");
+
+                if (!System.IO.File.Exists(filepath))
+                {
+                    return StatusCode(500, "QR template file not found");
+                }
+
+                string printerName = _configuration["Printers:Printer_IP"];
+                string fileContent = System.IO.File.ReadAllText(filepath);
+
+                // Replace placeholders with actual machine data
+                fileContent = fileContent
+                    .Replace("<MCCODE>", machine.MachineName.Trim())
+                    .Replace("<MCDIA>", string.Format("{0:0}", machine.Dia).Trim());
+
+               
+
+                // Send to printer
+                var printerIp = IPAddress.Parse(printerName);
+                var printerPort = 9100;
+
+                // Check if printer is reachable
+                Ping ping = new Ping();
+                PingReply reply = ping.Send(printerIp, 1000);
+
+                if (reply.Status != IPStatus.Success)
+                {
+                    return StatusCode(500, "Printer is not reachable");
+                }
+
+                // Send print job
+                using (var client = new TcpClient())
+                {
+                    client.Connect(printerIp, printerPort);
+                    byte[] prnData = Encoding.ASCII.GetBytes(fileContent);
+
+                    var stream = client.GetStream();
+                    await stream.WriteAsync(prnData, 0, prnData.Length);
+                    await stream.FlushAsync();
+                }
+
+                // Return success response with QR code image if needed
+                return Ok(new
+                {
+                    success = true,
+                    message = $"QR code generated for {machine.MachineName}",
+                  
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error generating QR code: {ex.Message}");
             }
         }
 

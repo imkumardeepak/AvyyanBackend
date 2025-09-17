@@ -98,6 +98,10 @@ namespace AvyyanBackend.Models
 
 		[MaxLength(50)]
 		public string OrderDueDate { get; set; }
+		public int ProcessFlag { get; set; } = 0;
+
+		[Column(TypeName = "timestamp without time zone")]
+		public DateTime ProcessDate { get; set; } = DateTime.Now;
 
 		[ForeignKey("SalesOrderId")]
 		[JsonIgnore]
