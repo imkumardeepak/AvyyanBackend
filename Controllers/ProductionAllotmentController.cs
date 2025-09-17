@@ -43,7 +43,7 @@ namespace AvyyanBackend.Controllers
                 {
                     currentYear = (DateTime.Now.Year - 1) % 100;
                 }
-                
+
                 // Format the current financial year as a string
                 var currentFinancialYear = currentYear.ToString("D2");
 
@@ -68,7 +68,7 @@ namespace AvyyanBackend.Controllers
                             {
                                 // Extract the financial year part (first 2 characters of the last segment)
                                 var financialYearPart = lastPart.Substring(0, 2);
-                                
+
                                 // Only consider allotments from the current financial year
                                 if (financialYearPart == currentFinancialYear)
                                 {

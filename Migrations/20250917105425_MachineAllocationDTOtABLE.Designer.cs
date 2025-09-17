@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AvyyanBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250911062124_AlT")]
-    partial class AlT
+    [Migration("20250917105425_MachineAllocationDTOtABLE")]
+    partial class MachineAllocationDTOtABLE
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,6 +52,7 @@ namespace AvyyanBackend.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<decimal>("Standardeffencny")
+                        .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,5)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -122,6 +123,7 @@ namespace AvyyanBackend.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal?>("Constat")
+                        .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,5)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -135,12 +137,14 @@ namespace AvyyanBackend.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<decimal>("Dia")
+                        .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Feeder")
                         .HasColumnType("integer");
 
                     b.Property<decimal>("Gg")
+                        .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsActive")
@@ -155,6 +159,7 @@ namespace AvyyanBackend.Migrations
                         .HasColumnType("integer");
 
                     b.Property<decimal>("Rpm")
+                        .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,5)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -212,23 +217,12 @@ namespace AvyyanBackend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("AllocatedWeight")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Constant")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Efficiency")
-                        .HasColumnType("decimal(5,2)");
-
                     b.Property<decimal>("EstimatedProductionTime")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Feeders")
                         .HasColumnType("integer");
-
-                    b.Property<decimal>("FractionalRollWeight")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("MachineId")
                         .HasColumnType("integer");
@@ -247,11 +241,21 @@ namespace AvyyanBackend.Migrations
                     b.Property<int>("RPM")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("TotalRolls")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<string>("RollBreakdown")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("WholeRolls")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("RollPerKg")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("TotalLoadWeight")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("TotalRolls")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
 
                     b.HasKey("Id");
 
@@ -269,7 +273,8 @@ namespace AvyyanBackend.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("ActualQuantity")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
 
                     b.Property<string>("AllotmentId")
                         .IsRequired()
@@ -288,6 +293,7 @@ namespace AvyyanBackend.Migrations
                         .HasColumnType("integer");
 
                     b.Property<decimal>("Efficiency")
+                        .HasPrecision(5, 2)
                         .HasColumnType("decimal(5,2)");
 
                     b.Property<string>("FabricType")
@@ -303,9 +309,6 @@ namespace AvyyanBackend.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<decimal>("RollPerKg")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<int>("SalesOrderId")
                         .HasColumnType("integer");
 
@@ -318,15 +321,17 @@ namespace AvyyanBackend.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<decimal>("StitchLength")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
 
                     b.Property<decimal>("TotalProductionTime")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("VoucherNumber")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("YarnCount")
                         .IsRequired()
