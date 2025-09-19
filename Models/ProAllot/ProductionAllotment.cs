@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AvyyanBackend.Models.ProAllot
@@ -51,6 +51,30 @@ namespace AvyyanBackend.Models.ProAllot
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalProductionTime { get; set; } // In hours
 
+        [MaxLength(50)]
+        public string YarnLotNo { get; set; }
+
+        [MaxLength(50)]
+        public string Counter { get; set; }
+
+        [MaxLength(50)]
+        public string ColourCode { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? ReqGreyGsm { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? ReqGreyWidth { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? ReqFinishGsm { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? ReqFinishWidth { get; set; }
+
+        [MaxLength(200)]
+        public string PartyName { get; set; }
+
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         // Navigation property
@@ -91,16 +115,16 @@ namespace AvyyanBackend.Models.ProAllot
         public virtual ProductionAllotment ProductionAllotment { get; set; }
     }
 
-   public class RollBreakdown
-{
-    public List<RollItem> WholeRolls { get; set; } = new List<RollItem>();
-    public RollItem FractionalRoll { get; set; }
-}
+//   public class RollBreakdown
+//{
+//    public List<RollItem> WholeRolls { get; set; } = new List<RollItem>();
+//    public RollItem FractionalRoll { get; set; }
+//}
 
-public class RollItem
-{
-    public int Quantity { get; set; }
-    public decimal WeightPerRoll { get; set; }
-    public decimal TotalWeight { get; set; }
-}
+//public class RollItem
+//{
+//    public int Quantity { get; set; }
+//    public decimal WeightPerRoll { get; set; }
+//    public decimal TotalWeight { get; set; }
+//}
 }

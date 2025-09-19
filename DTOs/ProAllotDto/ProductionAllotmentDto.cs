@@ -1,4 +1,4 @@
-﻿﻿using AvyyanBackend.Models.ProAllot;
+﻿﻿﻿﻿﻿﻿using AvyyanBackend.Models.ProAllot;
 using System.ComponentModel.DataAnnotations;
 
 namespace AvyyanBackend.DTOs.ProAllotDto
@@ -19,6 +19,14 @@ namespace AvyyanBackend.DTOs.ProAllotDto
         public decimal StitchLength { get; set; }
         public decimal Efficiency { get; set; }
         public string Composition { get; set; }
+        public string YarnLotNo { get; set; }
+        public string Counter { get; set; }
+        public string ColourCode { get; set; }
+        public decimal? ReqGreyGsm { get; set; }
+        public decimal? ReqGreyWidth { get; set; }
+        public decimal? ReqFinishGsm { get; set; }
+        public decimal? ReqFinishWidth { get; set; }
+        public string PartyName { get; set; }
         public List<MachineAllocationRequest> MachineAllocations { get; set; }
     }
 
@@ -69,6 +77,14 @@ namespace AvyyanBackend.DTOs.ProAllotDto
         public string Composition { get; set; }
         public decimal TotalProductionTime { get; set; }
         public DateTime CreatedDate { get; set; }
+        public string YarnLotNo { get; set; }
+        public string Counter { get; set; }
+        public string ColourCode { get; set; }
+        public decimal? ReqGreyGsm { get; set; }
+        public decimal? ReqGreyWidth { get; set; }
+        public decimal? ReqFinishGsm { get; set; }
+        public decimal? ReqFinishWidth { get; set; }
+        public string PartyName { get; set; }
         public List<MachineAllocationResponseDto> MachineAllocations { get; set; } = new List<MachineAllocationResponseDto>();
     }
 

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿﻿﻿using AutoMapper;
 using AvyyanBackend.Data;
 using AvyyanBackend.DTOs.ProAllotDto;
 using AvyyanBackend.Models.ProAllot;
@@ -99,7 +99,75 @@ namespace AvyyanBackend.Controllers
             }
         }
 
+        // GET api/productionallotment/by-allot-id/{allotId}
+        [HttpGet("by-allot-id/{allotId}")]
+        public async Task<ActionResult<ProductionAllotmentResponseDto>> GetProductionAllotmentByAllotId(string allotId)
+        {
+            try
+            {
+                var productionAllotment = await _context.ProductionAllotments
+                    .Include(pa => pa.MachineAllocations)
+                    .FirstOrDefaultAsync(pa => pa.AllotmentId == allotId);
 
+                if (productionAllotment == null)
+                {
+                    return NotFound($"Production allotment with ID {allotId} not found.");
+                }
+
+                var responseDto = new ProductionAllotmentResponseDto
+                {
+                    Id = productionAllotment.Id,
+                    AllotmentId = productionAllotment.AllotmentId,
+                    VoucherNumber = productionAllotment.VoucherNumber,
+                    ItemName = productionAllotment.ItemName,
+                    SalesOrderId = productionAllotment.SalesOrderId,
+                    SalesOrderItemId = productionAllotment.SalesOrderItemId,
+                    ActualQuantity = productionAllotment.ActualQuantity,
+                    YarnCount = productionAllotment.YarnCount,
+                    Diameter = productionAllotment.Diameter,
+                    Gauge = productionAllotment.Gauge,
+                    FabricType = productionAllotment.FabricType,
+                    SlitLine = productionAllotment.SlitLine,
+                    StitchLength = productionAllotment.StitchLength,
+                    Efficiency = productionAllotment.Efficiency,
+                    Composition = productionAllotment.Composition,
+                    TotalProductionTime = productionAllotment.MachineAllocations.Sum(ma => ma.EstimatedProductionTime),
+                    CreatedDate = productionAllotment.CreatedDate,
+                    YarnLotNo = productionAllotment.YarnLotNo,
+                    Counter = productionAllotment.Counter,
+                    ColourCode = productionAllotment.ColourCode,
+                    ReqGreyGsm = productionAllotment.ReqGreyGsm,
+                    ReqGreyWidth = productionAllotment.ReqGreyWidth,
+                    ReqFinishGsm = productionAllotment.ReqFinishGsm,
+                    ReqFinishWidth = productionAllotment.ReqFinishWidth,
+                    PartyName = productionAllotment.PartyName,
+                    MachineAllocations = productionAllotment.MachineAllocations.Select(ma => new MachineAllocationResponseDto
+                    {
+                        Id = ma.Id,
+                        ProductionAllotmentId = ma.ProductionAllotmentId,
+                        MachineName = ma.MachineName,
+                        MachineId = ma.MachineId,
+                        NumberOfNeedles = ma.NumberOfNeedles,
+                        Feeders = ma.Feeders,
+                        RPM = ma.RPM,
+                        RollPerKg = ma.RollPerKg,
+                        TotalLoadWeight = ma.TotalLoadWeight,
+                        TotalRolls = ma.TotalRolls,
+                        RollBreakdown = !string.IsNullOrEmpty(ma.RollBreakdown)
+                            ? System.Text.Json.JsonSerializer.Deserialize<DTOs.ProAllotDto.RollBreakdown>(ma.RollBreakdown)
+                            : new DTOs.ProAllotDto.RollBreakdown(),
+                        EstimatedProductionTime = ma.EstimatedProductionTime
+                    }).ToList()
+                };
+
+                return Ok(responseDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching production allotment by AllotmentId: {AllotmentId}", allotId);
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
         // GET api/productionallotment
         [HttpGet]
@@ -287,6 +355,14 @@ namespace AvyyanBackend.Controllers
                     StitchLength = request.StitchLength,
                     Efficiency = request.Efficiency,
                     Composition = request.Composition,
+                    YarnLotNo = request.YarnLotNo,
+                    Counter = request.Counter,
+                    ColourCode = request.ColourCode,
+                    ReqGreyGsm = request.ReqGreyGsm,
+                    ReqGreyWidth = request.ReqGreyWidth,
+                    ReqFinishGsm = request.ReqFinishGsm,
+                    ReqFinishWidth = request.ReqFinishWidth,
+                    PartyName = request.PartyName,
                     TotalProductionTime = request.MachineAllocations.Max(ma => ma.EstimatedProductionTime),
                     MachineAllocations = request.MachineAllocations.Select(ma => new MachineAllocation
                     {
