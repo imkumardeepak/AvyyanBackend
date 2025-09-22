@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using AutoMapper;
+﻿﻿﻿﻿﻿using AutoMapper;
 using AvyyanBackend.Data;
 using AvyyanBackend.DTOs.ProAllotDto;
 
@@ -33,76 +33,72 @@ namespace AvyyanBackend.Controllers
         }
 
         // GET api/productionallotment/next-serial-number
-[HttpGet("next-serial-number")]
-public async Task<ActionResult<string>> GetNextSerialNumber()
-{
-    try
-    {
-        // Get the current financial year (last two digits)
-        var currentYear = DateTime.Now.Year % 100;
-        if (DateTime.Now.Month < 4) // If before April, use previous financial year
+        [HttpGet("next-serial-number")]
+        public async Task<ActionResult<string>> GetNextSerialNumber()
         {
-            currentYear = (DateTime.Now.Year - 1) % 100;
-        }
-
-        // Format the current financial year as a string
-        var currentFinancialYear = currentYear.ToString("D2");
-
-        // Use a more precise query to get allotments from the current financial year
-        var startDate = new DateTime(DateTime.Now.Month < 4 ? DateTime.Now.Year - 1 : DateTime.Now.Year, 4, 1);
-        var endDate = startDate.AddYears(1).AddDays(-1);
-
-        // Get all existing production allotments for the current financial year
-        var existingAllotments = await _context.ProductionAllotments
-            .Where(pa => pa.CreatedDate >= startDate && pa.CreatedDate <= endDate)
-            .Select(pa => pa.AllotmentId)
-            .ToListAsync();
-
-        var maxSerialNumber = 0;
-        
-        foreach (var allotmentId in existingAllotments)
-        {
-            // Expected format: X{2}X{1}X{1}XX{2}C{2}{2}-{4}[SERIAL]{1}
-            // Example: ASJL-130C3028-250001N
-            var parts = allotmentId.Split('-');
-            if (parts.Length >= 3)
+            try
             {
-                var lastPart = parts[2]; // Get the last part (e.g., "250001N")
-                
-                // Check if it's at least 7 characters
-                if (lastPart.Length >= 7)
+                // Get the current financial year (last two digits)
+                var currentYear = DateTime.Now.Year % 100;
+                if (DateTime.Now.Month < 4) // If before April, use previous financial year
                 {
-                    // Extract the financial year part (first 2 characters)
-                    var financialYearPart = lastPart.Substring(0, 2);
-                    
-                    // Check if it matches current financial year
-                    if (financialYearPart == currentFinancialYear)
+                    currentYear = (DateTime.Now.Year - 1) % 100;
+                }
+
+                // Format the current financial year as a string
+                var currentFinancialYear = currentYear.ToString("D2");
+
+                // Get the maximum serial number from existing production allotments for the current financial year and add 1
+                var maxSerialNumber = 0;
+                var existingAllotments = await _context.ProductionAllotments
+                    .Select(pa => pa.AllotmentId)
+                    .ToListAsync();
+
+                if (existingAllotments.Any())
+                {
+                    foreach (var allotmentId in existingAllotments)
                     {
-                        // Extract the serial number part (positions 2-5: 4 digits)
-                        var serialPart = lastPart.Substring(2, 4);
-                        if (int.TryParse(serialPart, out int serial))
+                        // Extract serial number from allotment ID
+                        // Expected format: XXXX-XXXXXXXX-XX[SERIAL]X
+                        // We need to extract the numeric part from the last segment before the final character
+                        var parts = allotmentId.Split('-');
+                        if (parts.Length >= 3)
                         {
-                            if (serial > maxSerialNumber)
-                                maxSerialNumber = serial;
+                            var lastPart = parts[2]; // Get the last part (e.g., "25000001N")
+                            if (lastPart.Length >= 7) // At least 6 digits + 1 character
+                            {
+                                // Extract the financial year part (first 2 characters of the last segment)
+                                var financialYearPart = lastPart.Substring(0, 2);
+
+                                // Only consider allotments from the current financial year
+                                if (financialYearPart == currentFinancialYear)
+                                {
+                                    // Extract the numeric part (positions 2-7: "000001")
+                                    var numericPart = lastPart.Substring(4, lastPart.Length - 3); // Remove the first 2 characters (financial year) and last character (N/H/O)
+                                    if (int.TryParse(numericPart, out int serial))
+                                    {
+                                        if (serial > maxSerialNumber)
+                                            maxSerialNumber = serial;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+
+                var nextNumber = maxSerialNumber + 1;
+
+                // Format as 6-digit zero-padded string
+                var serialNumber = nextNumber.ToString("D6");
+
+                return Ok(serialNumber);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating next serial number");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
-        var nextNumber = maxSerialNumber + 1;
-
-        // Format as 4-digit zero-padded string
-        var serialNumber = nextNumber.ToString("D4");
-
-        return Ok(serialNumber);
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error generating next serial number");
-        return StatusCode(500, $"Internal server error: {ex.Message}");
-    }
-}
 
         // GET api/productionallotment/by-allot-id/{allotId}
         [HttpGet("by-allot-id/{allotId}")]
@@ -402,40 +398,6 @@ public async Task<ActionResult<string>> GetNextSerialNumber()
             }
         }
 
-        // GET api/productionallotment/generate-allotment-id
-[HttpGet("generate-allotment-id")]
-public async Task<ActionResult<string>> GenerateAllotmentId([FromQuery] string firstChar, [FromQuery] string fabricTypeCode, 
-    [FromQuery] string fourthChar, [FromQuery] string fifthChar, [FromQuery] string yarnCount, 
-    [FromQuery] string eighthChar, [FromQuery] string machineDiameter, [FromQuery] string machineGauge,
-    [FromQuery] string financialYear, [FromQuery] string twentyFirstChar)
-{
-    try
-    {
-        // Get next serial number
-        var serialNumberResponse = await GetNextSerialNumber();
-        if (serialNumberResponse.Result is OkObjectResult okResult)
-        {
-            var serialNumber = okResult.Value.ToString();
-            
-            // Format with hyphens: ASJL-130C3028-25000001N
-            // Hyphens after 4th and 12th characters
-            var part1 = $"{firstChar}{fabricTypeCode}{fourthChar}"; // First 4 characters
-            var part2 = $"{fifthChar}{yarnCount}{eighthChar}{machineDiameter}{machineGauge}"; // Next 8 characters (5-12)
-            var part3 = $"{financialYear}{serialNumber}{twentyFirstChar}"; // Remaining characters (13-21)
-
-            return Ok($"{part1}-{part2}-{part3}");
-        }
-        else
-        {
-            return serialNumberResponse.Result;
-        }
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error generating allotment ID");
-        return StatusCode(500, $"Internal server error: {ex.Message}");
-    }
-}
-
+     
     }
 }             
