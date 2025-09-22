@@ -7,18 +7,18 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AvyyanBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class addTConfirmation : Migration
+    public partial class rollCal : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "ProductionConfirmations",
+                name: "RollConfirmations",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    AllotId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    AllotmentId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     MachineName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     RollNo = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     GreyGsm = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 3, nullable: true),
@@ -32,7 +32,7 @@ namespace AvyyanBackend.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductionConfirmations", x => x.Id);
+                    table.PrimaryKey("PK_RollConfirmations", x => x.Id);
                 });
         }
 
@@ -40,7 +40,7 @@ namespace AvyyanBackend.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ProductionConfirmations");
+                name: "RollConfirmations");
         }
     }
 }

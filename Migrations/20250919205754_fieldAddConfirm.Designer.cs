@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AvyyanBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250918130302_addTConfirmation")]
-    partial class addTConfirmation
+    [Migration("20250919205754_fieldAddConfirm")]
+    partial class fieldAddConfirm
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -379,7 +379,7 @@ namespace AvyyanBackend.Migrations
                     b.ToTable("ProductionAllotments");
                 });
 
-            modelBuilder.Entity("AvyyanBackend.Models.ProAllot.ProductionConfirmation", b =>
+            modelBuilder.Entity("AvyyanBackend.Models.ProductionConfirmation.Inspection", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -387,55 +387,183 @@ namespace AvyyanBackend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("ActualWeight")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
                     b.Property<string>("AllotId")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<decimal?>("BlendPercent")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(5,2)");
+                    b.Property<int>("ColourFiber")
+                        .HasColumnType("integer");
 
-                    b.Property<decimal?>("Cotton")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal?>("GreyGsm")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("DoubleYarn")
+                        .HasColumnType("integer");
 
-                    b.Property<decimal?>("GreyWidth")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("DropStitch")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FFD")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Grade")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<int>("HairJute")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Hole")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("KnitFly")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LycraBreak")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LycraStitch")
+                        .HasColumnType("integer");
 
                     b.Property<string>("MachineName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<decimal?>("Polyester")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("NeedleBroken")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OilLines")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OilSpots")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Remarks")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("RollNo")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<decimal?>("Spandex")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("ThickLines")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ThickPlaces")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ThinLines")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ThinPlaces")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalFaults")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductionConfirmations");
+                    b.HasIndex("AllotId", "MachineName", "RollNo")
+                        .IsUnique();
+
+                    b.ToTable("Inspections");
+                });
+
+            modelBuilder.Entity("AvyyanBackend.Models.ProductionConfirmation.RollConfirmation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AllotId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<decimal>("BlendPercent")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("Cotton")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("GreyGsm")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("GreyWidth")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("MachineName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("Polyester")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("RollNo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<decimal>("RollPerKg")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("Spandex")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AllotId", "MachineName", "RollNo")
+                        .IsUnique();
+
+                    b.ToTable("RollConfirmations");
                 });
 
             modelBuilder.Entity("AvyyanBackend.Models.RoleMaster", b =>
