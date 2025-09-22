@@ -3,6 +3,7 @@ using System;
 using AvyyanBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AvyyanBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250919122342_rollCal")]
+    partial class rollCal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -384,27 +387,31 @@ namespace AvyyanBackend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AllotId")
+                    b.Property<decimal>("ActualWeight")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<string>("AllotmentId")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<decimal>("BlendPercent")
+                    b.Property<decimal?>("BlendPercent")
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(5,2)");
 
-                    b.Property<decimal>("Cotton")
+                    b.Property<decimal?>("Cotton")
                         .HasPrecision(18, 3)
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("GreyGsm")
+                    b.Property<decimal?>("GreyGsm")
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("GreyWidth")
+                    b.Property<decimal?>("GreyWidth")
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,2)");
 
@@ -413,27 +420,20 @@ namespace AvyyanBackend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<decimal>("Polyester")
+                    b.Property<decimal?>("Polyester")
                         .HasPrecision(18, 3)
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("RollNo")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<decimal>("RollPerKg")
+                    b.Property<decimal?>("Spandex")
                         .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<decimal>("Spandex")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AllotId", "MachineName", "RollNo")
-                        .IsUnique();
 
                     b.ToTable("RollConfirmations");
                 });

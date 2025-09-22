@@ -1,5 +1,6 @@
 using AvyyanBackend.Models;
 using AvyyanBackend.Models.ProAllot;
+using AvyyanBackend.Models.ProductionConfirmation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -18,6 +19,7 @@ namespace AvyyanBackend.Data
 		}
 		public DbSet<ProductionAllotment> ProductionAllotments { get; set; }
 		public DbSet<MachineAllocation> MachineAllocations { get; set; }
+		public DbSet<RollConfirmation> RollConfirmations { get; set; }
 
 
 
@@ -92,6 +94,10 @@ namespace AvyyanBackend.Data
 				.HasIndex(i => i.StockItemName);
 
 			// Configure relationships
+			modelBuilder.Entity<RollConfirmation>()
+				.HasIndex(r => new { r.AllotId, r.MachineName, r.RollNo })
+				.IsUnique();
+
 			modelBuilder.Entity<ProductionAllotment>()
 				.HasMany(pa => pa.MachineAllocations)
 				.WithOne(ma => ma.ProductionAllotment)
