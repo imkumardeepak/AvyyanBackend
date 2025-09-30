@@ -20,13 +20,14 @@ namespace AvyyanBackend.Data
 		public DbSet<ProductionAllotment> ProductionAllotments { get; set; }
 		public DbSet<MachineAllocation> MachineAllocations { get; set; }
 		public DbSet<RollConfirmation> RollConfirmations { get; set; }
-
-
+		public DbSet<Inspection> Inspections { get; set; }
 
 		public DbSet<MachineManager> MachineManagers { get; set; }
 		public DbSet<FabricStructureMaster> FabricStructureMasters { get; set; }
 		public DbSet<LocationMaster> LocationMasters { get; set; }
 		public DbSet<YarnTypeMaster> YarnTypeMasters { get; set; }
+
+		public DbSet<TapeColorMaster> TapeColorMasters { get; set; }
 
 		public DbSet<User> Users { get; set; }
 		public DbSet<RoleMaster> RoleMasters { get; set; }
@@ -35,6 +36,8 @@ namespace AvyyanBackend.Data
 		public DbSet<SalesOrder> SalesOrders { get; set; }
 
 		public DbSet<SalesOrderItem> SalesOrderItems { get; set; }
+
+		public DbSet<ShiftMaster> ShiftMasters { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -96,6 +99,10 @@ namespace AvyyanBackend.Data
 			// Configure relationships
 			modelBuilder.Entity<RollConfirmation>()
 				.HasIndex(r => new { r.AllotId, r.MachineName, r.RollNo })
+				.IsUnique();
+
+			modelBuilder.Entity<Inspection>()
+				.HasIndex(i => new { i.AllotId, i.MachineName, i.RollNo })
 				.IsUnique();
 
 			modelBuilder.Entity<ProductionAllotment>()

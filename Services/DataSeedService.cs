@@ -94,7 +94,7 @@ namespace AvyyanBackend.Services
 
             var pageAccesses = new List<PageAccess>();
 
-            var allPages = new[] { "Dashboard", "Machines", "Machine Details", "Chat", "Notifications", "Users", "Reports", "Machine Reports", "Settings", "Profile", "Production Allotment" };
+            var allPages = new[] { "Dashboard", "Machines", "Machine Details", "Chat", "Notifications", "Users", "Reports", "Machine Reports", "Settings", "Profile", "Production Allotment", "Tape Color", "Shift Master" };
 
             // Admin: Full access
             foreach (var page in allPages)

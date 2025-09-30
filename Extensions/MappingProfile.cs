@@ -9,6 +9,8 @@ using AvyyanBackend.DTOs.Location;
 using AvyyanBackend.DTOs.YarnType;
 using AvyyanBackend.DTOs.SalesOrder;
 using AvyyanBackend.Models;
+using AvyyanBackend.DTOs.TapeColor;
+using AvyyanBackend.DTOs.Shift;
 
 namespace AvyyanBackend.Extensions
 {
@@ -137,6 +139,28 @@ namespace AvyyanBackend.Extensions
             CreateMap<UpdateSalesOrderItemRequestDto, SalesOrderItem>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.SalesOrderId, opt => opt.Ignore());
+                
+            // Tape Color mappings
+            CreateMap<TapeColorMaster, TapeColorResponseDto>();
+            CreateMap<CreateTapeColorRequestDto, TapeColorMaster>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+            CreateMap<UpdateTapeColorRequestDto, TapeColorMaster>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+
+            // Shift mappings
+            CreateMap<ShiftMaster, ShiftResponseDto>();
+            CreateMap<CreateShiftRequestDto, ShiftMaster>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+            CreateMap<UpdateShiftRequestDto, ShiftMaster>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
         }
     }
 }

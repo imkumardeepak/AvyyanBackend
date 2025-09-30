@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿using AvyyanBackend.Models.ProAllot;
+﻿﻿using AvyyanBackend.Models.ProAllot;
 using System.ComponentModel.DataAnnotations;
 
 namespace AvyyanBackend.DTOs.ProAllotDto
@@ -27,6 +27,11 @@ namespace AvyyanBackend.DTOs.ProAllotDto
         public decimal? ReqFinishGsm { get; set; }
         public decimal? ReqFinishWidth { get; set; }
         public string PartyName { get; set; }
+        
+        // Packaging Details
+        public decimal TubeWeight { get; set; }
+        public string TapeColor { get; set; }
+        
         public List<MachineAllocationRequest> MachineAllocations { get; set; }
     }
 
@@ -85,6 +90,12 @@ namespace AvyyanBackend.DTOs.ProAllotDto
         public decimal? ReqFinishGsm { get; set; }
         public decimal? ReqFinishWidth { get; set; }
         public string PartyName { get; set; }
+        
+        // Packaging Details
+        public decimal TubeWeight { get; set; }
+        public string TapeColor { get; set; }
+        
+        public string SerialNo { get; set; } // New Serial Number field
         public List<MachineAllocationResponseDto> MachineAllocations { get; set; } = new List<MachineAllocationResponseDto>();
     }
 

@@ -1,4 +1,4 @@
-﻿﻿using System.ComponentModel.DataAnnotations;
+﻿﻿﻿﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AvyyanBackend.Models.ProAllot
@@ -75,6 +75,18 @@ namespace AvyyanBackend.Models.ProAllot
         [MaxLength(200)]
         public string PartyName { get; set; }
 
+        // Packaging Details
+        [Column(TypeName = "decimal(18,3)")]
+        public decimal TubeWeight { get; set; }
+
+        [MaxLength(100)]
+        public string TapeColor { get; set; }
+
+        // New Serial Number field
+        [Required]
+        [MaxLength(10)]
+        public string SerialNo { get; set; } // Format: "0001", "0002", etc."
+
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
 		// Navigation property
@@ -114,17 +126,4 @@ namespace AvyyanBackend.Models.ProAllot
         // Navigation property
         public virtual ProductionAllotment ProductionAllotment { get; set; }
     }
-
-//   public class RollBreakdown
-//{
-//    public List<RollItem> WholeRolls { get; set; } = new List<RollItem>();
-//    public RollItem FractionalRoll { get; set; }
-//}
-
-//public class RollItem
-//{
-//    public int Quantity { get; set; }
-//    public decimal WeightPerRoll { get; set; }
-//    public decimal TotalWeight { get; set; }
-//}
 }

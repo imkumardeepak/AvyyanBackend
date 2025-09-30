@@ -40,6 +40,8 @@ namespace AvyyanBackend.Extensions
             services.AddScoped<ILocationService, LocationService>();
             services.AddScoped<IYarnTypeService, YarnTypeService>();
             services.AddScoped<ISalesOrderService, SalesOrderService>();
+            services.AddScoped<ITapeColorService, TapeColorService>();
+            services.AddScoped<IShiftService, ShiftService>();
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
@@ -49,13 +51,13 @@ namespace AvyyanBackend.Extensions
             // Register HttpClient for Tally services
             services.AddHttpClient<TallyService>();
             services.AddHttpClient<PostTallyService>();
-            
+    
             // Register IHttpClientFactory
             services.AddHttpClient();
-            
+    
             // Register IHttpContextAccessor
             services.AddHttpContextAccessor();
-            
+    
             // Register Tally services
             services.AddSingleton<TallyService>();
             services.AddSingleton<PostTallyService>();

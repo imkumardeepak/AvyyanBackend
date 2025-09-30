@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿using AutoMapper;
+﻿﻿﻿﻿﻿﻿﻿﻿using AutoMapper;
 using AvyyanBackend.Data;
 using AvyyanBackend.DTOs.ProAllotDto;
 
@@ -38,58 +38,29 @@ namespace AvyyanBackend.Controllers
         {
             try
             {
-                // Get the current financial year (last two digits)
-                var currentYear = DateTime.Now.Year % 100;
-                if (DateTime.Now.Month < 4) // If before April, use previous financial year
-                {
-                    currentYear = (DateTime.Now.Year - 1) % 100;
-                }
-
-                // Format the current financial year as a string
-                var currentFinancialYear = currentYear.ToString("D2");
-
-                // Get the maximum serial number from existing production allotments for the current financial year and add 1
+                // Get the maximum serial number from existing production allotments and add 1
                 var maxSerialNumber = 0;
                 var existingAllotments = await _context.ProductionAllotments
-                    .Select(pa => pa.AllotmentId)
+                    .Select(pa => pa.SerialNo)
                     .ToListAsync();
 
                 if (existingAllotments.Any())
                 {
-                    foreach (var allotmentId in existingAllotments)
+                    foreach (var serialNo in existingAllotments)
                     {
-                        // Extract serial number from allotment ID
-                        // Expected format: XXXX-XXXXXXXX-XX[SERIAL]X
-                        // We need to extract the numeric part from the last segment before the final character
-                        var parts = allotmentId.Split('-');
-                        if (parts.Length >= 3)
+                        // Parse the serial number (format: "0001", "0002", etc.)
+                        if (int.TryParse(serialNo, out int serial))
                         {
-                            var lastPart = parts[2]; // Get the last part (e.g., "25000001N")
-                            if (lastPart.Length >= 7) // At least 6 digits + 1 character
-                            {
-                                // Extract the financial year part (first 2 characters of the last segment)
-                                var financialYearPart = lastPart.Substring(0, 2);
-
-                                // Only consider allotments from the current financial year
-                                if (financialYearPart == currentFinancialYear)
-                                {
-                                    // Extract the numeric part (positions 2-7: "000001")
-                                    var numericPart = lastPart.Substring(4, lastPart.Length - 3); // Remove the first 2 characters (financial year) and last character (N/H/O)
-                                    if (int.TryParse(numericPart, out int serial))
-                                    {
-                                        if (serial > maxSerialNumber)
-                                            maxSerialNumber = serial;
-                                    }
-                                }
-                            }
+                            if (serial > maxSerialNumber)
+                                maxSerialNumber = serial;
                         }
                     }
                 }
 
                 var nextNumber = maxSerialNumber + 1;
 
-                // Format as 6-digit zero-padded string
-                var serialNumber = nextNumber.ToString("D6");
+                // Format as 4-digit zero-padded string
+                var serialNumber = nextNumber.ToString("D4");
 
                 return Ok(serialNumber);
             }
@@ -142,6 +113,9 @@ namespace AvyyanBackend.Controllers
                     ReqFinishGsm = productionAllotment.ReqFinishGsm,
                     ReqFinishWidth = productionAllotment.ReqFinishWidth,
                     PartyName = productionAllotment.PartyName,
+                    TubeWeight = productionAllotment.TubeWeight,
+                    TapeColor = productionAllotment.TapeColor,
+                    SerialNo = productionAllotment.SerialNo,
                     MachineAllocations = productionAllotment.MachineAllocations.Select(ma => new MachineAllocationResponseDto
                     {
                         Id = ma.Id,
@@ -199,6 +173,17 @@ namespace AvyyanBackend.Controllers
                     Composition = pa.Composition,
                     TotalProductionTime = pa.TotalProductionTime,
                     CreatedDate = pa.CreatedDate,
+                    YarnLotNo = pa.YarnLotNo,
+                    Counter = pa.Counter,
+                    ColourCode = pa.ColourCode,
+                    ReqGreyGsm = pa.ReqGreyGsm,
+                    ReqGreyWidth = pa.ReqGreyWidth,
+                    ReqFinishGsm = pa.ReqFinishGsm,
+                    ReqFinishWidth = pa.ReqFinishWidth,
+                    PartyName = pa.PartyName,
+                    TubeWeight = pa.TubeWeight,
+                    TapeColor = pa.TapeColor,
+                    SerialNo = pa.SerialNo,
                     MachineAllocations = pa.MachineAllocations.Select(ma => new MachineAllocationResponseDto
                     {
                         Id = ma.Id,
@@ -333,6 +318,9 @@ namespace AvyyanBackend.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+                // Generate the next serial number
+                var nextSerialNumber = await GenerateNextSerialNumber();
+                
                 // Check if allotment ID already exists (optional duplicate check)
                 if (await _context.ProductionAllotments.AnyAsync(pa => pa.AllotmentId == request.AllotmentId))
                 {
@@ -364,6 +352,9 @@ namespace AvyyanBackend.Controllers
                     ReqFinishGsm = request.ReqFinishGsm,
                     ReqFinishWidth = request.ReqFinishWidth,
                     PartyName = request.PartyName,
+                    TubeWeight = request.TubeWeight,
+                    TapeColor = request.TapeColor,
+                    SerialNo = nextSerialNumber, // Assign the generated serial number
                     TotalProductionTime = request.MachineAllocations.Max(ma => ma.EstimatedProductionTime),
                     MachineAllocations = request.MachineAllocations.Select(ma => new MachineAllocation
                     {
@@ -388,7 +379,8 @@ namespace AvyyanBackend.Controllers
                 {
                     Success = true,
                     AllotmentId = request.AllotmentId,
-                    ProductionAllotmentId = productionAllotment.Id
+                    ProductionAllotmentId = productionAllotment.Id,
+                    SerialNo = nextSerialNumber
                 });
             }
             catch (Exception ex)
@@ -398,6 +390,32 @@ namespace AvyyanBackend.Controllers
             }
         }
 
-     
+        // Helper method to generate the next serial number
+        private async Task<string> GenerateNextSerialNumber()
+        {
+            // Get the maximum serial number from existing production allotments and add 1
+            var maxSerialNumber = 0;
+            var existingAllotments = await _context.ProductionAllotments
+                .Select(pa => pa.SerialNo)
+                .ToListAsync();
+
+            if (existingAllotments.Any())
+            {
+                foreach (var serialNo in existingAllotments)
+                {
+                    // Parse the serial number (format: "0001", "0002", etc.)
+                    if (int.TryParse(serialNo, out int serial))
+                    {
+                        if (serial > maxSerialNumber)
+                            maxSerialNumber = serial;
+                    }
+                }
+            }
+
+            var nextNumber = maxSerialNumber + 1;
+
+            // Format as 4-digit zero-padded string
+            return nextNumber.ToString("D4");
+        }
     }
-}             
+}

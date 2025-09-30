@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using AvyyanBackend.Data;
 using AvyyanBackend.Interfaces;
+using AvyyanBackend.Models;
 
 namespace AvyyanBackend.Repositories
 {
@@ -8,25 +9,18 @@ namespace AvyyanBackend.Repositories
     {
         private readonly ApplicationDbContext _context;
         private IDbContextTransaction? _transaction;
+        
+        // Add repository properties here as you create specific repositories
+        private IRepository<TapeColorMaster>? _tapeColors;
+        public IRepository<TapeColorMaster> TapeColors => _tapeColors ??= new Repository<TapeColorMaster>(_context);
+
+        private IRepository<ShiftMaster>? _shifts;
+        public IRepository<ShiftMaster> Shifts => _shifts ??= new Repository<ShiftMaster>(_context);
 
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
         }
-
-        // Add repository properties here as you create specific repositories
-        // Example:
-        // private IProductRepository? _products;
-        // public IProductRepository Products => _products ??= new ProductRepository(_context);
-
-        // private ICategoryRepository? _categories;
-        // public ICategoryRepository Categories => _categories ??= new CategoryRepository(_context);
-
-        // private ICustomerRepository? _customers;
-        // public ICustomerRepository Customers => _customers ??= new CustomerRepository(_context);
-
-        // private IOrderRepository? _orders;
-        // public IOrderRepository Orders => _orders ??= new OrderRepository(_context);
 
         public async Task<int> SaveChangesAsync()
         {

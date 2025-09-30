@@ -153,7 +153,7 @@ namespace AvyyanBackend.Services
             {
                 Token = token,
                 RefreshToken = newRefreshToken,
-                ExpiresAt = DateTime.Now.AddHours(1),
+                ExpiresAt = DateTime.Now.AddHours(2),
                 User = authUser,
                 Roles = roles,
                 PageAccesses = _mapper.Map<IEnumerable<AuthPageAccessDto>>(permissions.PageAccesses)
