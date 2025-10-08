@@ -14,6 +14,6 @@ namespace AvyyanBackend.Models
 
         public int DurationInHours { get; set; }
 
-        // Removed CompanyId field as requested
+
     }
 }

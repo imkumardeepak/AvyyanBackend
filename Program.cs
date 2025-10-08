@@ -57,6 +57,7 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+builder.Services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();
 

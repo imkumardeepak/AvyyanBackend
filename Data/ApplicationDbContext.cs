@@ -19,6 +19,8 @@ namespace AvyyanBackend.Data
 		}
 		public DbSet<ProductionAllotment> ProductionAllotments { get; set; }
 		public DbSet<MachineAllocation> MachineAllocations { get; set; }
+		public DbSet<RollAssignment> RollAssignments { get; set; }
+		public DbSet<GeneratedBarcode> GeneratedBarcodes { get; set; }
 		public DbSet<RollConfirmation> RollConfirmations { get; set; }
 		public DbSet<Inspection> Inspections { get; set; }
 
@@ -133,6 +135,20 @@ namespace AvyyanBackend.Data
 			modelBuilder.Entity<MachineAllocation>()
 				.Property(m => m.EstimatedProductionTime)
 				.HasPrecision(18, 2);
+
+			// Configure RollAssignment relationship
+			modelBuilder.Entity<RollAssignment>()
+				.HasOne(ra => ra.MachineAllocation)
+				.WithMany(ma => ma.RollAssignments)
+				.HasForeignKey(ra => ra.MachineAllocationId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			// Configure GeneratedBarcode relationship
+			modelBuilder.Entity<GeneratedBarcode>()
+				.HasOne(gb => gb.RollAssignment)
+				.WithMany(ra => ra.GeneratedBarcodes)
+				.HasForeignKey(gb => gb.RollAssignmentId)
+				.OnDelete(DeleteBehavior.Cascade);
 		}
 
 

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AvyyanBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250929121117_entityFTAlotment")]
-    partial class entityFTAlotment
+    [Migration("20251003060908_rolShiftAssign")]
+    partial class rolShiftAssign
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -391,6 +391,70 @@ namespace AvyyanBackend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ProductionAllotments");
+                });
+
+            modelBuilder.Entity("AvyyanBackend.Models.ProAllot.ShiftRollAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AllotmentId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("AssignedRolls")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("GeneratedStickers")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MachineId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("OperatorName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("RemainingRolls")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ShiftId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MachineId");
+
+                    b.HasIndex("ShiftId");
+
+                    b.ToTable("ShiftRollAssignments");
                 });
 
             modelBuilder.Entity("AvyyanBackend.Models.ProductionConfirmation.Inspection", b =>
@@ -974,6 +1038,25 @@ namespace AvyyanBackend.Migrations
                         .IsRequired();
 
                     b.Navigation("ProductionAllotment");
+                });
+
+            modelBuilder.Entity("AvyyanBackend.Models.ProAllot.ShiftRollAssignment", b =>
+                {
+                    b.HasOne("AvyyanBackend.Models.MachineManager", "Machine")
+                        .WithMany()
+                        .HasForeignKey("MachineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AvyyanBackend.Models.ShiftMaster", "Shift")
+                        .WithMany()
+                        .HasForeignKey("ShiftId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Machine");
+
+                    b.Navigation("Shift");
                 });
 
             modelBuilder.Entity("AvyyanBackend.Models.SalesOrderItem", b =>

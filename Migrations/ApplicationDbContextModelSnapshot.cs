@@ -206,6 +206,34 @@ namespace AvyyanBackend.Migrations
                     b.ToTable("PageAccesses");
                 });
 
+            modelBuilder.Entity("AvyyanBackend.Models.ProAllot.GeneratedBarcode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Barcode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("GeneratedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("RollAssignmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RollNumber")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RollAssignmentId");
+
+                    b.ToTable("GeneratedBarcodes");
+                });
+
             modelBuilder.Entity("AvyyanBackend.Models.ProAllot.MachineAllocation", b =>
                 {
                     b.Property<int>("Id")
@@ -388,6 +416,46 @@ namespace AvyyanBackend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ProductionAllotments");
+                });
+
+            modelBuilder.Entity("AvyyanBackend.Models.ProAllot.RollAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AssignedRolls")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("GeneratedStickers")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<int>("MachineAllocationId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("OperatorName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("RemainingRolls")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<int>("ShiftId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MachineAllocationId");
+
+                    b.ToTable("RollAssignments");
                 });
 
             modelBuilder.Entity("AvyyanBackend.Models.ProductionConfirmation.Inspection", b =>
@@ -962,6 +1030,17 @@ namespace AvyyanBackend.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("AvyyanBackend.Models.ProAllot.GeneratedBarcode", b =>
+                {
+                    b.HasOne("AvyyanBackend.Models.ProAllot.RollAssignment", "RollAssignment")
+                        .WithMany("GeneratedBarcodes")
+                        .HasForeignKey("RollAssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RollAssignment");
+                });
+
             modelBuilder.Entity("AvyyanBackend.Models.ProAllot.MachineAllocation", b =>
                 {
                     b.HasOne("AvyyanBackend.Models.ProAllot.ProductionAllotment", "ProductionAllotment")
@@ -971,6 +1050,17 @@ namespace AvyyanBackend.Migrations
                         .IsRequired();
 
                     b.Navigation("ProductionAllotment");
+                });
+
+            modelBuilder.Entity("AvyyanBackend.Models.ProAllot.RollAssignment", b =>
+                {
+                    b.HasOne("AvyyanBackend.Models.ProAllot.MachineAllocation", "MachineAllocation")
+                        .WithMany("RollAssignments")
+                        .HasForeignKey("MachineAllocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MachineAllocation");
                 });
 
             modelBuilder.Entity("AvyyanBackend.Models.SalesOrderItem", b =>
@@ -984,9 +1074,19 @@ namespace AvyyanBackend.Migrations
                     b.Navigation("Voucher");
                 });
 
+            modelBuilder.Entity("AvyyanBackend.Models.ProAllot.MachineAllocation", b =>
+                {
+                    b.Navigation("RollAssignments");
+                });
+
             modelBuilder.Entity("AvyyanBackend.Models.ProAllot.ProductionAllotment", b =>
                 {
                     b.Navigation("MachineAllocations");
+                });
+
+            modelBuilder.Entity("AvyyanBackend.Models.ProAllot.RollAssignment", b =>
+                {
+                    b.Navigation("GeneratedBarcodes");
                 });
 
             modelBuilder.Entity("AvyyanBackend.Models.RoleMaster", b =>

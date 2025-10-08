@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using System.ComponentModel.DataAnnotations;
+﻿﻿﻿﻿﻿﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AvyyanBackend.Models.ProAllot
@@ -125,5 +125,8 @@ namespace AvyyanBackend.Models.ProAllot
 
         // Navigation property
         public virtual ProductionAllotment ProductionAllotment { get; set; }
+        
+        // Navigation property for roll assignments
+        public virtual ICollection<RollAssignment> RollAssignments { get; set; } = new List<RollAssignment>();
     }
 }

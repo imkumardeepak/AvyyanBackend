@@ -272,6 +272,68 @@ namespace AvyyanBackend.Controllers
             }
         }
 
+        // New endpoint to generate stickers for specific roll numbers based on roll assignment
+        [HttpPost("stkprint/roll-assignment/{id}")]
+        public IActionResult GenerateStickersForRollAssignment(int id, [FromBody] GenerateStickersForRollsRequest request)
+        {
+            try
+            {
+                // Get the specific roll assignment with its machine allocation and production allotment
+                var rollAssignment = _context.RollAssignments
+                    .Include(ra => ra.MachineAllocation)
+                    .ThenInclude(ma => ma.ProductionAllotment)
+                    .FirstOrDefault(ra => ra.Id == id);
+
+                if (rollAssignment == null)
+                {
+                    return NotFound($"Roll assignment with ID {id} not found.");
+                }
+
+                // Validate request
+                if (request.RollNumbers == null || request.RollNumbers.Count == 0)
+                {
+                    return BadRequest("Roll numbers must be provided.");
+                }
+
+                string filepath = Path.Combine("wwwroot", "Sticker", "MLRoll.prn");
+                string printerName = _configuration["Printers:Printer_IP"];
+
+                if (!System.IO.File.Exists(filepath))
+                {
+                    return StatusCode(500, "PRN template file not found.");
+                }
+
+                // Read the PRN file content
+                string fileContent = System.IO.File.ReadAllText(filepath);
+
+                // Generate QR codes for each specified roll number
+                foreach (int rollNumber in request.RollNumbers)
+                {
+                    string currentFileContent = fileContent;
+
+                    // Replace placeholders with actual values
+                    currentFileContent = currentFileContent
+                        .Replace("<MCCODE>", rollAssignment.MachineAllocation.MachineName.Trim())
+                        .Replace("<LCODE>", rollAssignment.MachineAllocation.ProductionAllotment.AllotmentId.Trim())
+                        .Replace("<ROLLNO>", rollNumber.ToString())
+                        .Replace("<YCOUNT>", rollAssignment.MachineAllocation.ProductionAllotment.YarnCount?.Trim() ?? "")
+                        .Replace("<DIAGG>", $"{rollAssignment.MachineAllocation.ProductionAllotment.Diameter} X {rollAssignment.MachineAllocation.ProductionAllotment.Gauge}")
+                        .Replace("<STICHLEN>", rollAssignment.MachineAllocation.ProductionAllotment.StitchLength.ToString("F2"))
+                        .Replace("<FEBTYP>", rollAssignment.MachineAllocation.ProductionAllotment.FabricType?.Trim() ?? "")
+                        .Replace("<COMP>", rollAssignment.MachineAllocation.ProductionAllotment.Composition?.Trim() ?? "");
+
+                    // Send to printer
+                    PrintToNetworkPrinter(printerName, currentFileContent);
+                }
+
+                return Ok(new { message = $"{request.RollNumbers.Count} QR codes printed successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error printing QR codes: {ex.Message}");
+            }
+        }
+
         private void PrintToNetworkPrinter(string printerIp, string content)
         {
             try

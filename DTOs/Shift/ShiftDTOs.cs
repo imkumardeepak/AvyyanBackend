@@ -56,9 +56,9 @@ namespace AvyyanBackend.DTOs.Shift
         public bool IsActive { get; set; } = true;
     }
 
-    /// <summary>
-    /// DTO for ShiftMaster search request
-    /// </summary>
+    // <summary>
+    // DTO for ShiftMaster search request
+    // </summary>
     public class ShiftSearchRequestDto
     {
         [MaxLength(100)]
