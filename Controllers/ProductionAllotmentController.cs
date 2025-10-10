@@ -1,8 +1,8 @@
-﻿﻿﻿﻿﻿﻿﻿﻿using AutoMapper;
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using AutoMapper;
 using AvyyanBackend.Data;
 using AvyyanBackend.DTOs.ProAllotDto;
-
 using AvyyanBackend.Models.ProAllot;
+using AvyyanBackend.Models.ProductionConfirmation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -331,6 +331,93 @@ namespace AvyyanBackend.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Error printing QR codes: {ex.Message}");
+            }
+        }
+
+        // New endpoint for FG Roll Sticker Printing
+        [HttpPost("fgsticker/{id}")]
+        public IActionResult PrintFGRollSticker(int id) // RollConfirmation id
+        {
+            try
+            {
+                // Get the specific roll confirmation
+                var rollConfirmation = _context.RollConfirmations
+                    .FirstOrDefault(rc => rc.Id == id);
+
+                if (rollConfirmation == null)
+                {
+                    return NotFound($"Roll confirmation with ID {id} not found.");
+                }
+
+                // Get the related production allotment
+                var productionAllotment = _context.ProductionAllotments
+                    .FirstOrDefault(pa => pa.AllotmentId == rollConfirmation.AllotId);
+
+                if (productionAllotment == null)
+                {
+                    return NotFound($"Production allotment with AllotId {rollConfirmation.AllotId} not found.");
+                }
+
+                string filepath = Path.Combine("wwwroot", "Sticker", "FGRoll.prn");
+                string printerName = _configuration["Printers:Printer_IP"];
+
+                if (!System.IO.File.Exists(filepath))
+                {
+                    return StatusCode(500, "FG Roll PRN template file not found.");
+                }
+
+                // Read the PRN file content
+                string fileContent = System.IO.File.ReadAllText(filepath);
+
+                // Prepare customer name (split at word boundaries for the two customer fields)
+                string customerName = productionAllotment.PartyName?.Trim() ?? "";
+                string customer1 = customerName;
+                string customer2 = "";
+                
+                // If customer name is long, split it between the two fields at word boundaries
+                if (customerName.Length > 20)
+                {
+                    // Find the last space within the first 20 characters
+                    int splitIndex = customerName.Substring(0, 20).LastIndexOf(' ');
+                    
+                    // If no space found or it's at the beginning, split at position 20
+                    if (splitIndex <= 0)
+                    {
+                        splitIndex = 20;
+                    }
+                    
+                    customer1 = customerName.Substring(0, splitIndex).Trim();
+                    customer2 = customerName.Substring(splitIndex).Trim();
+                }
+
+                // Replace placeholders with actual values from roll confirmation and related data
+                string currentFileContent = fileContent
+                    .Replace("<CUSTOMER1>", customer1)
+                    .Replace("<CUSTOMER2>", customer2)
+                    .Replace("<MCCODE>", rollConfirmation.MachineName.Trim())
+                    .Replace("<YCOUNT>", productionAllotment.YarnCount?.Trim() ?? "")
+                    .Replace("<DIAGG>", $"{productionAllotment.Diameter} X {productionAllotment.Gauge}")
+                    .Replace("<STICHLEN>", productionAllotment.StitchLength.ToString("F2"))
+                    .Replace("<FGSM>", rollConfirmation.GreyGsm.ToString("F2"))
+                    .Replace("<WIDTH>", rollConfirmation.GreyWidth.ToString("F2"))
+                    .Replace("<SLITLINE>", productionAllotment.SlitLine?.Trim() ?? "")
+                    .Replace("<TAPE>", productionAllotment.TapeColor?.Trim() ?? "")
+                    .Replace("<GROSSWT>", rollConfirmation.GrossWeight?.ToString("F2") ?? "")
+                    .Replace("<NETWT>", rollConfirmation.NetWeight?.ToString("F2") ?? "")
+                    .Replace("<LCODE>", rollConfirmation.AllotId.Trim())
+                    .Replace("<ROLLNO>", rollConfirmation.RollNo.Trim())
+                    .Replace("<FGROLLNO>", rollConfirmation.RollNo.Trim()) // Same as ROLLNO in this context
+                    .Replace("<FEBTYP>", productionAllotment.FabricType?.Trim() ?? "")
+                    .Replace("<COMP>", productionAllotment.Composition?.Trim() ?? "");
+
+                // Send to printer
+                PrintToNetworkPrinter(printerName, currentFileContent);
+
+                return Ok(new { message = "FG Roll sticker printed successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error printing FG Roll sticker: {ex.Message}");
             }
         }
 

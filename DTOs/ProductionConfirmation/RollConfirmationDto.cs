@@ -45,6 +45,19 @@ namespace AvyyanBackend.DTOs.ProductionConfirmation
         [MaxLength(50)]
         public string RollNo { get; set; }
 
+        // Weight fields for FG Sticker Confirmation
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? GrossWeight { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? TareWeight { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? NetWeight { get; set; }
+
+        // Flag to indicate if FG Sticker has been generated
+        public bool IsFGStickerGenerated { get; set; } = false;
+
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     }
 
@@ -61,6 +74,30 @@ namespace AvyyanBackend.DTOs.ProductionConfirmation
         public decimal Polyester { get; set; }
         public decimal Spandex { get; set; }
         public string RollNo { get; set; }
+        
+        // Weight fields for FG Sticker Confirmation
+        public decimal? GrossWeight { get; set; }
+        public decimal? TareWeight { get; set; }
+        public decimal? NetWeight { get; set; }
+        
+        // Flag to indicate if FG Sticker has been generated
+        public bool IsFGStickerGenerated { get; set; }
+
         public DateTime CreatedDate { get; set; }
+    }
+
+    public class RollConfirmationUpdateDto
+    {
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? GrossWeight { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? TareWeight { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? NetWeight { get; set; }
+        
+        // Flag to indicate if FG Sticker has been generated
+        public bool? IsFGStickerGenerated { get; set; }
     }
 }

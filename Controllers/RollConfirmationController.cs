@@ -150,6 +150,9 @@ namespace AvyyanBackend.Controllers
                     Polyester = roll.Polyester,
                     Spandex = roll.Spandex,
                     RollNo = roll.RollNo,
+                    GrossWeight = roll.GrossWeight,
+                    TareWeight = roll.TareWeight,
+                    NetWeight = roll.NetWeight,
                     CreatedDate = roll.CreatedDate
                 }).ToList();
 
@@ -158,6 +161,68 @@ namespace AvyyanBackend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching roll confirmations for Allot ID {AllotId}", allotId);
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // PUT api/rollconfirmation/{id} - Update roll confirmation with weight data
+        [HttpPut("{id}")]
+        public async Task<ActionResult<RollConfirmationResponseDto>> UpdateRollConfirmation(int id, [FromBody] RollConfirmationUpdateDto updateData)
+        {
+            try
+            {
+                var rollConfirmation = await _context.RollConfirmations.FindAsync(id);
+                
+                if (rollConfirmation == null)
+                {
+                    return NotFound($"Roll confirmation with ID {id} not found.");
+                }
+
+                // Check if FG sticker has already been generated
+                if (rollConfirmation.IsFGStickerGenerated && updateData.IsFGStickerGenerated.HasValue && updateData.IsFGStickerGenerated.Value)
+                {
+                    return Conflict("FG Sticker has already been generated for this roll. Please scan next roll.");
+                }
+
+                // Update weight fields
+                rollConfirmation.GrossWeight = updateData.GrossWeight;
+                rollConfirmation.TareWeight = updateData.TareWeight;
+                rollConfirmation.NetWeight = updateData.NetWeight;
+                
+                // Update FG Sticker generated flag if provided
+                if (updateData.IsFGStickerGenerated.HasValue)
+                {
+                    rollConfirmation.IsFGStickerGenerated = updateData.IsFGStickerGenerated.Value;
+                }
+
+                await _context.SaveChangesAsync();
+
+                // Create response DTO
+                var responseDto = new RollConfirmationResponseDto
+                {
+                    Id = rollConfirmation.Id,
+                    AllotId = rollConfirmation.AllotId,
+                    MachineName = rollConfirmation.MachineName,
+                    RollPerKg = rollConfirmation.RollPerKg,
+                    GreyGsm = rollConfirmation.GreyGsm,
+                    GreyWidth = rollConfirmation.GreyWidth,
+                    BlendPercent = rollConfirmation.BlendPercent,
+                    Cotton = rollConfirmation.Cotton,
+                    Polyester = rollConfirmation.Polyester,
+                    Spandex = rollConfirmation.Spandex,
+                    RollNo = rollConfirmation.RollNo,
+                    GrossWeight = rollConfirmation.GrossWeight,
+                    TareWeight = rollConfirmation.TareWeight,
+                    NetWeight = rollConfirmation.NetWeight,
+                    IsFGStickerGenerated = rollConfirmation.IsFGStickerGenerated,
+                    CreatedDate = rollConfirmation.CreatedDate
+                };
+
+                return Ok(responseDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating roll confirmation with ID {Id}", id);
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
