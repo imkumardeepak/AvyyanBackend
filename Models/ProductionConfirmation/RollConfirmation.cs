@@ -50,6 +50,9 @@ namespace AvyyanBackend.Models.ProductionConfirmation
         [Column(TypeName = "decimal(18,2)")]
         public decimal? NetWeight { get; set; }
 
+        // FG Roll Number - Auto-incremented per AllotId
+        public int? FgRollNo { get; set; }
+
         // Flag to indicate if FG Sticker has been generated
         public bool IsFGStickerGenerated { get; set; } = false;
 

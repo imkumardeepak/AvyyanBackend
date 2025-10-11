@@ -25,6 +25,7 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddValidationServices();
 builder.Services.AddAutoMapperServices();
 builder.Services.AddCorsServices();
+builder.Services.AddSignalR();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -92,6 +93,7 @@ app.UseAuthorization();
 // Map SignalR hubs
 app.MapHub<NotificationHub>("/notificationhub");
 app.MapHub<ChatHub>("/chathub");
+app.MapHub<WeightHub>("/weighthub"); // Add the WeightHub endpoint
 
 app.MapControllers();
 

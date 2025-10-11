@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using AutoMapper;
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using AutoMapper;
 using AvyyanBackend.Data;
 using AvyyanBackend.DTOs.ProAllotDto;
 using AvyyanBackend.Models.ProAllot;
@@ -406,7 +406,7 @@ namespace AvyyanBackend.Controllers
                     .Replace("<NETWT>", rollConfirmation.NetWeight?.ToString("F2") ?? "")
                     .Replace("<LCODE>", rollConfirmation.AllotId.Trim())
                     .Replace("<ROLLNO>", rollConfirmation.RollNo.Trim())
-                    .Replace("<FGROLLNO>", rollConfirmation.RollNo.Trim()) // Same as ROLLNO in this context
+                    .Replace("<FGROLLNO>", rollConfirmation.FgRollNo?.ToString() ?? rollConfirmation.RollNo.Trim()) // Use FG Roll No if available
                     .Replace("<FEBTYP>", productionAllotment.FabricType?.Trim() ?? "")
                     .Replace("<COMP>", productionAllotment.Composition?.Trim() ?? "");
 

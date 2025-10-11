@@ -43,6 +43,18 @@ namespace AvyyanBackend.Controllers
                     return Conflict($"Roll confirmation for Allot ID {request.AllotId}, Machine {request.MachineName}, Roll No {request.RollNo} already exists.");
                 }
 
+                // Automatically assign FG Roll Number if not provided
+                int? fgRollNo = request.FgRollNo;
+                if (!fgRollNo.HasValue)
+                {
+                    // Get the maximum FG Roll Number for this AllotId and increment by 1
+                    var maxFgRollNo = await _context.RollConfirmations
+                        .Where(r => r.AllotId == request.AllotId)
+                        .MaxAsync(r => (int?)r.FgRollNo);
+
+                    fgRollNo = (maxFgRollNo ?? 0) + 1;
+                }
+
                 // Create roll confirmation entity
                 var rollConfirmation = new RollConfirmation
                 {
@@ -56,6 +68,7 @@ namespace AvyyanBackend.Controllers
                     Polyester = request.Polyester,
                     Spandex = request.Spandex,
                     RollNo = request.RollNo,
+                    FgRollNo = fgRollNo, // Assign the FG Roll Number
                     CreatedDate = request.CreatedDate
                 };
 
@@ -77,6 +90,7 @@ namespace AvyyanBackend.Controllers
                     Polyester = rollConfirmation.Polyester,
                     Spandex = rollConfirmation.Spandex,
                     RollNo = rollConfirmation.RollNo,
+                    FgRollNo = rollConfirmation.FgRollNo, // Include in response
                     CreatedDate = rollConfirmation.CreatedDate
                 };
 
@@ -153,6 +167,8 @@ namespace AvyyanBackend.Controllers
                     GrossWeight = roll.GrossWeight,
                     TareWeight = roll.TareWeight,
                     NetWeight = roll.NetWeight,
+                    FgRollNo = roll.FgRollNo, // Include in response
+                    IsFGStickerGenerated = roll.IsFGStickerGenerated,
                     CreatedDate = roll.CreatedDate
                 }).ToList();
 
