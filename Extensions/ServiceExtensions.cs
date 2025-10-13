@@ -42,6 +42,7 @@ namespace AvyyanBackend.Extensions
             services.AddScoped<ISalesOrderService, SalesOrderService>();
             services.AddScoped<ITapeColorService, TapeColorService>();
             services.AddScoped<IShiftService, ShiftService>();
+            services.AddScoped<IStorageCaptureService, StorageCaptureService>();
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();

@@ -17,6 +17,9 @@ namespace AvyyanBackend.Repositories
         private IRepository<ShiftMaster>? _shifts;
         public IRepository<ShiftMaster> Shifts => _shifts ??= new Repository<ShiftMaster>(_context);
 
+        private IRepository<StorageCapture>? _storageCaptures;
+        public IRepository<StorageCapture> StorageCaptures => _storageCaptures ??= new Repository<StorageCapture>(_context);
+
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;

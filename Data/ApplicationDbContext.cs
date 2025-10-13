@@ -40,6 +40,7 @@ namespace AvyyanBackend.Data
 		public DbSet<SalesOrderItem> SalesOrderItems { get; set; }
 
 		public DbSet<ShiftMaster> ShiftMasters { get; set; }
+		public DbSet<StorageCapture> StorageCaptures { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -149,6 +150,19 @@ namespace AvyyanBackend.Data
 				.WithMany(ra => ra.GeneratedBarcodes)
 				.HasForeignKey(gb => gb.RollAssignmentId)
 				.OnDelete(DeleteBehavior.Cascade);
+
+			// Configure StorageCapture indexes
+			modelBuilder.Entity<StorageCapture>()
+				.HasIndex(s => s.LotNo);
+
+			modelBuilder.Entity<StorageCapture>()
+				.HasIndex(s => s.FGRollNo);
+
+			modelBuilder.Entity<StorageCapture>()
+				.HasIndex(s => s.LocationCode);
+
+			modelBuilder.Entity<StorageCapture>()
+				.HasIndex(s => s.CustomerName);
 		}
 
 

@@ -36,12 +36,11 @@ namespace AvyyanBackend.WebSockets
                     if (bytesRead > 0)
                     {
                         string weightData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                        // Assuming weight data is in format: "GROSS:123.45 TARE:2.00"
                         var parsedData = ParseWeightData(weightData);
                         await Clients.Caller.SendAsync("WeightUpdate", parsedData);
                     }
 
-                    await Task.Delay(2000); // Fetch every 2 seconds
+                    await Task.Delay(2000); 
                 }
             }
             catch (Exception ex)

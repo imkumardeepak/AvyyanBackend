@@ -11,6 +11,7 @@ namespace AvyyanBackend.Interfaces
         // Example: IOrderRepository Orders { get; }
         IRepository<TapeColorMaster> TapeColors { get; }
         IRepository<ShiftMaster> Shifts { get; }
+        IRepository<StorageCapture> StorageCaptures { get; }
 
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();
