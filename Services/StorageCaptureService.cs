@@ -5,108 +5,108 @@ using AvyyanBackend.Models;
 
 namespace AvyyanBackend.Services
 {
-    public class StorageCaptureService : IStorageCaptureService
-    {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IRepository<StorageCapture> _storageCaptureRepository;
-        private readonly IMapper _mapper;
-        private readonly ILogger<StorageCaptureService> _logger;
+	public class StorageCaptureService : IStorageCaptureService
+	{
+		private readonly IUnitOfWork _unitOfWork;
+		private readonly IRepository<StorageCapture> _storageCaptureRepository;
+		private readonly IMapper _mapper;
+		private readonly ILogger<StorageCaptureService> _logger;
 
-        public StorageCaptureService(
-            IUnitOfWork unitOfWork,
-            IRepository<StorageCapture> storageCaptureRepository,
-            IMapper mapper,
-            ILogger<StorageCaptureService> logger)
-        {
-            _unitOfWork = unitOfWork;
-            _storageCaptureRepository = storageCaptureRepository;
-            _mapper = mapper;
-            _logger = logger;
-        }
+		public StorageCaptureService(
+			IUnitOfWork unitOfWork,
+			IRepository<StorageCapture> storageCaptureRepository,
+			IMapper mapper,
+			ILogger<StorageCaptureService> logger)
+		{
+			_unitOfWork = unitOfWork;
+			_storageCaptureRepository = storageCaptureRepository;
+			_mapper = mapper;
+			_logger = logger;
+		}
 
-        public async Task<IEnumerable<StorageCaptureResponseDto>> GetAllStorageCapturesAsync()
-        {
-            _logger.LogDebug("Getting all storage captures");
-            var storageCaptures = await _storageCaptureRepository.GetAllAsync();
-            _logger.LogInformation("Retrieved {StorageCaptureCount} storage captures", storageCaptures.Count());
-            return _mapper.Map<IEnumerable<StorageCaptureResponseDto>>(storageCaptures);
-        }
+		public async Task<IEnumerable<StorageCaptureResponseDto>> GetAllStorageCapturesAsync()
+		{
+			_logger.LogDebug("Getting all storage captures");
+			var storageCaptures = await _storageCaptureRepository.GetAllAsync();
+			_logger.LogInformation("Retrieved {StorageCaptureCount} storage captures", storageCaptures.Count());
+			return _mapper.Map<IEnumerable<StorageCaptureResponseDto>>(storageCaptures);
+		}
 
-        public async Task<StorageCaptureResponseDto?> GetStorageCaptureByIdAsync(int id)
-        {
-            _logger.LogDebug("Getting storage capture by ID: {StorageCaptureId}", id);
-            var storageCapture = await _storageCaptureRepository.GetByIdAsync(id);
-            if (storageCapture == null)
-            {
-                _logger.LogWarning("Storage capture {StorageCaptureId} not found", id);
-                return null;
-            }
-            return _mapper.Map<StorageCaptureResponseDto>(storageCapture);
-        }
+		public async Task<bool> GetStorageCaptureByLotNoAndFGRollNoAsync(string lotNo, string fgRollNo)
+		{
+			_logger.LogDebug("Getting storage capture by LotNo: {LotNo} and FGRollNo: {FGRollNo}", lotNo, fgRollNo);
+			var storageCapture = await _storageCaptureRepository.FindAsync(m => m.LotNo == lotNo && m.FGRollNo == fgRollNo);
+			if (storageCapture == null)
+			{
+				_logger.LogWarning("Storage capture not found for LotNo: {LotNo} and FGRollNo: {FGRollNo}", lotNo, fgRollNo);
+				return false;
+			}
+			return true;
+		}
 
-        public async Task<StorageCaptureResponseDto> CreateStorageCaptureAsync(CreateStorageCaptureRequestDto createStorageCaptureDto)
-        {
-            _logger.LogDebug("Creating new storage capture for FGRollNo: {FGRollNo}", createStorageCaptureDto.FGRollNo);
+		public async Task<StorageCaptureResponseDto> CreateStorageCaptureAsync(CreateStorageCaptureRequestDto createStorageCaptureDto)
+		{
+			_logger.LogDebug("Creating new storage capture for FGRollNo: {FGRollNo}", createStorageCaptureDto.FGRollNo);
+			var storageCapture = _mapper.Map<StorageCapture>(createStorageCaptureDto);
 
-            var storageCapture = _mapper.Map<StorageCapture>(createStorageCaptureDto);
-            await _storageCaptureRepository.AddAsync(storageCapture);
-            await _unitOfWork.SaveChangesAsync();
+			await _storageCaptureRepository.AddAsync(storageCapture);
+			await _unitOfWork.SaveChangesAsync();
 
-            _logger.LogInformation("Created storage capture {StorageCaptureId} for FGRollNo: {FGRollNo}", 
-                storageCapture.Id, storageCapture.FGRollNo);
-            return _mapper.Map<StorageCaptureResponseDto>(storageCapture);
-        }
+			_logger.LogInformation("Created storage capture {StorageCaptureId} for FGRollNo: {FGRollNo}",
+				storageCapture.Id, storageCapture.FGRollNo);
+			return _mapper.Map<StorageCaptureResponseDto>(storageCapture);
+		}
 
-        public async Task<StorageCaptureResponseDto?> UpdateStorageCaptureAsync(int id, UpdateStorageCaptureRequestDto updateStorageCaptureDto)
-        {
-            _logger.LogDebug("Updating storage capture {StorageCaptureId}", id);
+		public async Task<StorageCaptureResponseDto?> UpdateStorageCaptureAsync(int id, UpdateStorageCaptureRequestDto updateStorageCaptureDto)
+		{
+			_logger.LogDebug("Updating storage capture {StorageCaptureId}", id);
 
-            var storageCapture = await _storageCaptureRepository.GetByIdAsync(id);
-            if (storageCapture == null)
-            {
-                _logger.LogWarning("Storage capture {StorageCaptureId} not found for update", id);
-                return null;
-            }
+			var storageCapture = await _storageCaptureRepository.GetByIdAsync(id);
+			if (storageCapture == null)
+			{
+				_logger.LogWarning("Storage capture {StorageCaptureId} not found for update", id);
+				return null;
+			}
 
-            _mapper.Map(updateStorageCaptureDto, storageCapture);
-            storageCapture.UpdatedAt = DateTime.Now;
+			_mapper.Map(updateStorageCaptureDto, storageCapture);
+			storageCapture.UpdatedAt = DateTime.Now;
 
-            _storageCaptureRepository.Update(storageCapture);
-            await _unitOfWork.SaveChangesAsync();
+			_storageCaptureRepository.Update(storageCapture);
+			await _unitOfWork.SaveChangesAsync();
 
-            _logger.LogInformation("Updated storage capture {StorageCaptureId}", id);
-            return _mapper.Map<StorageCaptureResponseDto>(storageCapture);
-        }
+			_logger.LogInformation("Updated storage capture {StorageCaptureId}", id);
+			return _mapper.Map<StorageCaptureResponseDto>(storageCapture);
+		}
 
-        public async Task<bool> DeleteStorageCaptureAsync(int id)
-        {
-            _logger.LogDebug("Deleting storage capture {StorageCaptureId}", id);
+		public async Task<bool> DeleteStorageCaptureAsync(int id)
+		{
+			_logger.LogDebug("Deleting storage capture {StorageCaptureId}", id);
 
-            var storageCapture = await _storageCaptureRepository.GetByIdAsync(id);
-            if (storageCapture == null)
-            {
-                _logger.LogWarning("Storage capture {StorageCaptureId} not found for deletion", id);
-                return false;
-            }
-            _storageCaptureRepository.Remove(storageCapture);
-            await _unitOfWork.SaveChangesAsync();
-            return true;
-        }
+			var storageCapture = await _storageCaptureRepository.GetByIdAsync(id);
+			if (storageCapture == null)
+			{
+				_logger.LogWarning("Storage capture {StorageCaptureId} not found for deletion", id);
+				return false;
+			}
+			_storageCaptureRepository.Remove(storageCapture);
+			await _unitOfWork.SaveChangesAsync();
+			return true;
+		}
 
-        public async Task<IEnumerable<StorageCaptureResponseDto>> SearchStorageCapturesAsync(StorageCaptureSearchRequestDto searchDto)
-        {
-            _logger.LogDebug("Searching storage captures with LotNo: {LotNo}, FGRollNo: {FGRollNo}", 
-                searchDto.LotNo, searchDto.FGRollNo);
+		public async Task<IEnumerable<StorageCaptureResponseDto>> SearchStorageCapturesAsync(StorageCaptureSearchRequestDto searchDto)
+		{
+			_logger.LogDebug("Searching storage captures with LotNo: {LotNo}, FGRollNo: {FGRollNo}",
+				searchDto.LotNo, searchDto.FGRollNo);
 
-            var storageCaptures = await _storageCaptureRepository.FindAsync(m =>
-                (string.IsNullOrEmpty(searchDto.LotNo) || m.LotNo.Contains(searchDto.LotNo)) &&
-                (string.IsNullOrEmpty(searchDto.FGRollNo) || m.FGRollNo.Contains(searchDto.FGRollNo)) &&
-                (string.IsNullOrEmpty(searchDto.LocationCode) || m.LocationCode.Contains(searchDto.LocationCode)) &&
-                (string.IsNullOrEmpty(searchDto.Tape) || m.Tape.Contains(searchDto.Tape)) &&
-                (string.IsNullOrEmpty(searchDto.CustomerName) || m.CustomerName.Contains(searchDto.CustomerName)) &&
-                (!searchDto.IsActive.HasValue || m.IsActive == searchDto.IsActive.Value));
+			var storageCaptures = await _storageCaptureRepository.FindAsync(m =>
+				(string.IsNullOrEmpty(searchDto.LotNo) || m.LotNo.Contains(searchDto.LotNo)) &&
+				(string.IsNullOrEmpty(searchDto.FGRollNo) || m.FGRollNo.Contains(searchDto.FGRollNo)) &&
+				(string.IsNullOrEmpty(searchDto.LocationCode) || m.LocationCode.Contains(searchDto.LocationCode)) &&
+				(string.IsNullOrEmpty(searchDto.Tape) || m.Tape.Contains(searchDto.Tape)) &&
+				(string.IsNullOrEmpty(searchDto.CustomerName) || m.CustomerName.Contains(searchDto.CustomerName)) &&
+				(!searchDto.IsActive.HasValue || m.IsActive == searchDto.IsActive.Value));
 
-            return _mapper.Map<IEnumerable<StorageCaptureResponseDto>>(storageCaptures);
-        }
-    }
+			return _mapper.Map<IEnumerable<StorageCaptureResponseDto>>(storageCaptures);
+		}
+	}
 }
