@@ -103,6 +103,25 @@ namespace AvyyanBackend.DTOs.ProductionConfirmation
         [Column(TypeName = "decimal(18,2)")]
         public decimal? NetWeight { get; set; }
         
+        // Fabric specification fields
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? GreyGsm { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? GreyWidth { get; set; }
+
+        [Column(TypeName = "decimal(5,2)")]
+        public decimal? BlendPercent { get; set; }
+
+        [Column(TypeName = "decimal(5,2)")]
+        public decimal? Cotton { get; set; }
+
+        [Column(TypeName = "decimal(5,2)")]
+        public decimal? Polyester { get; set; }
+
+        [Column(TypeName = "decimal(5,2)")]
+        public decimal? Spandex { get; set; }
+        
         // Flag to indicate if FG Sticker has been generated
         public bool? IsFGStickerGenerated { get; set; }
         

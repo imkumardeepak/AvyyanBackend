@@ -207,14 +207,44 @@ namespace AvyyanBackend.Controllers
 				}
 
 				// Update weight fields
-				rollConfirmation.GrossWeight = updateData.GrossWeight;
-				rollConfirmation.TareWeight = updateData.TareWeight;
-				rollConfirmation.NetWeight = updateData.NetWeight;
+				if (updateData.GrossWeight.HasValue)
+					rollConfirmation.GrossWeight = updateData.GrossWeight.Value;
+					
+				if (updateData.TareWeight.HasValue)
+					rollConfirmation.TareWeight = updateData.TareWeight.Value;
+					
+				if (updateData.NetWeight.HasValue)
+					rollConfirmation.NetWeight = updateData.NetWeight.Value;
+
+               // Update fabric specification fields
+               if (updateData.GreyGsm.HasValue)
+					rollConfirmation.GreyGsm = updateData.GreyGsm.Value;
+					
+				if (updateData.GreyWidth.HasValue)
+					rollConfirmation.GreyWidth = updateData.GreyWidth.Value;
+					
+				if (updateData.BlendPercent.HasValue)
+					rollConfirmation.BlendPercent = updateData.BlendPercent.Value;
+					
+				if (updateData.Cotton.HasValue)
+					rollConfirmation.Cotton = updateData.Cotton.Value;
+					
+				if (updateData.Polyester.HasValue)
+					rollConfirmation.Polyester = updateData.Polyester.Value;
+					
+				if (updateData.Spandex.HasValue)
+					rollConfirmation.Spandex = updateData.Spandex.Value;
 
 				// Update FG Sticker generated flag if provided
 				if (updateData.IsFGStickerGenerated.HasValue)
 				{
 					rollConfirmation.IsFGStickerGenerated = updateData.IsFGStickerGenerated.Value;
+				}
+
+				// Update FG Roll Number if provided
+				if (updateData.FgRollNo.HasValue)
+				{
+					rollConfirmation.FgRollNo = updateData.FgRollNo.Value;
 				}
 
 				await _context.SaveChangesAsync();
@@ -236,6 +266,7 @@ namespace AvyyanBackend.Controllers
 					GrossWeight = rollConfirmation.GrossWeight,
 					TareWeight = rollConfirmation.TareWeight,
 					NetWeight = rollConfirmation.NetWeight,
+					FgRollNo = rollConfirmation.FgRollNo,
 					IsFGStickerGenerated = rollConfirmation.IsFGStickerGenerated,
 					CreatedDate = rollConfirmation.CreatedDate
 				};
