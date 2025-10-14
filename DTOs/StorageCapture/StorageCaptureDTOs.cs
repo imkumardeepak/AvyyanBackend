@@ -14,6 +14,7 @@ namespace AvyyanBackend.DTOs.StorageCapture
 		public string LocationCode { get; set; } = string.Empty;
 		public string Tape { get; set; } = string.Empty;
 		public string CustomerName { get; set; } = string.Empty;
+		public bool IsDispatched { get; set; } = false;
 		public DateTime CreatedAt { get; set; }
 		public DateTime? UpdatedAt { get; set; }
 		public bool IsActive { get; set; }
@@ -43,6 +44,8 @@ namespace AvyyanBackend.DTOs.StorageCapture
 		[Required]
 		[MaxLength(200)]
 		public string CustomerName { get; set; } = string.Empty;
+		
+		public bool IsDispatched { get; set; } = false;
 	}
 
 	/// <summary>
@@ -70,6 +73,7 @@ namespace AvyyanBackend.DTOs.StorageCapture
 		[MaxLength(200)]
 		public string CustomerName { get; set; } = string.Empty;
 
+		public bool IsDispatched { get; set; } = false;
 		public bool IsActive { get; set; } = true;
 	}
 

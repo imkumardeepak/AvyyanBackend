@@ -1,3 +1,5 @@
+using AvyyanBackend.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace AvyyanBackend.Interfaces
@@ -23,5 +25,8 @@ namespace AvyyanBackend.Interfaces
         void RemoveRange(IEnumerable<T> entities);
         
         Task<bool> SaveChangesAsync();
-    }
+
+
+
+	}
 }
