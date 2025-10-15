@@ -2,6 +2,7 @@ using AvyyanBackend.Data;
 using AvyyanBackend.DTOs.ProductionConfirmation;
 using AvyyanBackend.DTOs.StorageCapture;
 using AvyyanBackend.Interfaces;
+using AvyyanBackend.Models.ProAllot;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -38,28 +39,6 @@ namespace AvyyanBackend.Controllers
 			catch (Exception ex)
 			{
 				_logger.LogError(ex, "Error occurred while getting storage captures");
-				return StatusCode(500, "An error occurred while processing your request");
-			}
-		}
-
-		/// <summary>
-		/// Get storage capture by ID
-		/// </summary>
-		[HttpGet("{id}")]
-		public async Task<ActionResult<StorageCaptureResponseDto>> GetStorageCapture(int id)
-		{
-			try
-			{
-				var storageCapture = await _storageCaptureService.GetStorageCaptureByIdAsync(id);
-				if (storageCapture == null)
-				{
-					return NotFound($"Storage capture with ID {id} not found");
-				}
-				return Ok(storageCapture);
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error occurred while getting storage capture {StorageCaptureId}", id);
 				return StatusCode(500, "An error occurred while processing your request");
 			}
 		}
@@ -105,8 +84,17 @@ namespace AvyyanBackend.Controllers
 		{
 			try
 			{
+				// Check if a storage capture with the same LotNo and FGRollNo already exists
+				var existingStorageCapture = await _storageCaptureService.GetStorageCaptureByLotNoAndFGRollNoAsync(createStorageCaptureDto.LotNo, createStorageCaptureDto.FGRollNo);
+
+				if (existingStorageCapture != null)
+				{
+					return BadRequest($"A storage capture with LotNo '{createStorageCaptureDto.LotNo}' and FGRollNo '{createStorageCaptureDto.FGRollNo}' already exists.");
+				}
+
+
 				var storageCapture = await _storageCaptureService.CreateStorageCaptureAsync(createStorageCaptureDto);
-				return CreatedAtAction(nameof(GetStorageCapture), new { id = storageCapture.Id }, storageCapture);
+				return CreatedAtAction(nameof(GetStorageCaptures), new { id = storageCapture.Id }, storageCapture);
 			}
 			catch (Exception ex)
 			{
@@ -119,41 +107,110 @@ namespace AvyyanBackend.Controllers
 		///</summary>   
 		// GET api/storagecapture/by-allot-id/{allotId}
 		[HttpGet("by-allot-id/{allotId}")]
-		public async Task<ActionResult<IEnumerable<RollConfirmationResponseDto>>> GetRollConfirmationsByAllotId(string allotId)
+		public async Task<ActionResult<StorageCaptureRollDataResponseDto>> GetRollConfirmationsByAllotId(string allotId)
 		{
 			try
 			{
-				var rollConfirmations = await _context.RollConfirmations
+				// Get only the first roll confirmation for the given AllotId
+				var rollConfirmation = await _context.RollConfirmations
 					.Where(r => r.AllotId == allotId)
-					.ToListAsync();
+					.FirstOrDefaultAsync();
 
-				if (rollConfirmations == null || rollConfirmations.Count == 0)
+				if (rollConfirmation == null)
 				{
-					return NotFound($"No roll confirmations found for Allot ID {allotId}.");
+					return NotFound($"No roll confirmation found for Allot ID {allotId}.");
 				}
 
 				var productionAllotment = await _context.ProductionAllotments
 					.Include(pa => pa.MachineAllocations)
 					.FirstOrDefaultAsync(pa => pa.AllotmentId == allotId);
 
-
 				if (productionAllotment == null)
 				{
 					return NotFound($"Production allotment with Allot ID {allotId} not found.");
 				}
 
-				var responseDtos = new
+				// Map to DTOs - now with single roll confirmation
+				var rollConfirmationDto = new RollConfirmationResponseDto
 				{
-					rollConfirmations = rollConfirmations,
-					machineAllocations = productionAllotment.MachineAllocations,
-					productionAllotment = productionAllotment
+					Id = rollConfirmation.Id,
+					AllotId = rollConfirmation.AllotId,
+					MachineName = rollConfirmation.MachineName,
+					RollPerKg = rollConfirmation.RollPerKg,
+					GreyGsm = rollConfirmation.GreyGsm,
+					GreyWidth = rollConfirmation.GreyWidth,
+					BlendPercent = rollConfirmation.BlendPercent,
+					Cotton = rollConfirmation.Cotton,
+					Polyester = rollConfirmation.Polyester,
+					Spandex = rollConfirmation.Spandex,
+					RollNo = rollConfirmation.RollNo,
+					GrossWeight = rollConfirmation.GrossWeight,
+					TareWeight = rollConfirmation.TareWeight,
+					NetWeight = rollConfirmation.NetWeight,
+					FgRollNo = rollConfirmation.FgRollNo,
+					IsFGStickerGenerated = rollConfirmation.IsFGStickerGenerated,
+					CreatedDate = rollConfirmation.CreatedDate
 				};
 
-				return Ok(responseDtos);
+				var machineAllocationDto = productionAllotment.MachineAllocations.Select(ma => new MachineAllocationDto
+				{
+					Id = ma.Id,
+					ProductionAllotmentId = ma.ProductionAllotmentId,
+					MachineName = ma.MachineName,
+					MachineId = ma.MachineId,
+					NumberOfNeedles = ma.NumberOfNeedles,
+					Feeders = ma.Feeders,
+					RPM = ma.RPM,
+					RollPerKg = ma.RollPerKg,
+					TotalLoadWeight = ma.TotalLoadWeight,
+					TotalRolls = ma.TotalRolls,
+					RollBreakdown = ma.RollBreakdown,
+					EstimatedProductionTime = ma.EstimatedProductionTime
+				}).FirstOrDefault();
+
+				var productionAllotmentDto = new ProductionAllotmentDto
+				{
+					Id = productionAllotment.Id,
+					AllotmentId = productionAllotment.AllotmentId,
+					VoucherNumber = productionAllotment.VoucherNumber,
+					ItemName = productionAllotment.ItemName,
+					SalesOrderId = productionAllotment.SalesOrderId,
+					SalesOrderItemId = productionAllotment.SalesOrderItemId,
+					ActualQuantity = productionAllotment.ActualQuantity,
+					YarnCount = productionAllotment.YarnCount,
+					Diameter = productionAllotment.Diameter,
+					Gauge = productionAllotment.Gauge,
+					FabricType = productionAllotment.FabricType,
+					SlitLine = productionAllotment.SlitLine,
+					StitchLength = productionAllotment.StitchLength,
+					Efficiency = productionAllotment.Efficiency,
+					Composition = productionAllotment.Composition,
+					TotalProductionTime = productionAllotment.TotalProductionTime,
+					CreatedDate = productionAllotment.CreatedDate,
+					YarnLotNo = productionAllotment.YarnLotNo,
+					Counter = productionAllotment.Counter,
+					ColourCode = productionAllotment.ColourCode,
+					ReqGreyGsm = productionAllotment.ReqGreyGsm,
+					ReqGreyWidth = productionAllotment.ReqGreyWidth,
+					ReqFinishGsm = productionAllotment.ReqFinishGsm,
+					ReqFinishWidth = productionAllotment.ReqFinishWidth,
+					PartyName = productionAllotment.PartyName,
+					TubeWeight = productionAllotment.TubeWeight,
+					TapeColor = productionAllotment.TapeColor
+				};
+
+				var responseDto = new StorageCaptureRollDataResponseDto
+				{
+					RollConfirmation = rollConfirmationDto,
+					MachineAllocation = machineAllocationDto ?? new MachineAllocationDto(),
+					ProductionAllotment = productionAllotmentDto
+				};
+
+				return Ok(responseDto);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, "Error fetching roll confirmations for Allot ID {AllotId}", allotId);
+				_logger.LogError(ex, "Error fetching roll confirmation for Allot ID {AllotId}", allotId);
 				return StatusCode(500, $"Internal server error: {ex.Message}");
 			}
 		}

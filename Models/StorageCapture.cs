@@ -24,5 +24,7 @@ namespace AvyyanBackend.Models
         [Required]
         [MaxLength(200)]
         public string CustomerName { get; set; } = string.Empty;
+
+        public bool IsDispatched { get; set; } = false;
     }
 }
