@@ -332,6 +332,7 @@ namespace AvyyanBackend.Controllers
 							.Replace("<COMP2>", pa.Composition?.Trim() ?? "");
 
 						PrintToNetworkPrinter(printerName, fileContent);
+						_logger.LogInformation($"Stickers for rolls {rollNo1} and {rollNo2} printed.");
 					}
 					else
 					{
@@ -349,6 +350,7 @@ namespace AvyyanBackend.Controllers
 							.Replace("<COMP>", pa.Composition?.Trim() ?? "");
 
 						PrintToNetworkPrinter(printerName, fileContent);
+						_logger.LogInformation($"Sticker for roll {rollNo} printed.");
 					}
 				}
 				return Ok(new { message = $"{request.RollNumbers.Count} QR codes printed successfully." });
