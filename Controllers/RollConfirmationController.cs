@@ -4,6 +4,8 @@ using AvyyanBackend.DTOs.ProductionConfirmation;
 using AvyyanBackend.Models.ProductionConfirmation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Sockets;
+using System.Text;
 
 namespace AvyyanBackend.Controllers
 {
@@ -187,6 +189,67 @@ namespace AvyyanBackend.Controllers
 			}
 		}
 
+		// GET api/rollconfirmation/weight-data - Get weight data from TCP client
+		[HttpGet("weight-data")]
+		public async Task<ActionResult<WeightDataResponseDto>> GetWeightData([FromQuery] string ipAddress, [FromQuery] int port = 23)
+		{
+			try
+			{
+				using var client = new TcpClient();
+				await client.ConnectAsync(ipAddress, port);
+				var stream = client.GetStream();
+
+				// Read the response
+				byte[] buffer = new byte[256];
+				int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+
+				if (bytesRead > 0)
+				{
+					string weightData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+					var parsedData = ParseWeightData(weightData);
+
+					return Ok(parsedData);
+				}
+				else
+				{
+					var parsedData = ParseWeightData("0");
+					return Ok(parsedData);
+				}
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting weight data from TCP client {IpAddress}:{Port}", ipAddress, port);
+				return StatusCode(500, $"Internal server error: {ex.Message}");
+			}
+		}
+
+		private WeightDataResponseDto ParseWeightData(string data)
+		{
+			var parts = data.Split(new char[] { ' ', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+			string grossWeight = "0.00";
+			string tareWeight = "0.00";
+			string netWeight = "0.00";
+
+			if (parts.Length >= 0)
+			{
+				grossWeight = parts[0];
+			}
+			else
+			{
+				grossWeight = 0f.ToString("F2");
+				_logger.LogWarning("Failed to parse gross weight from data: {Data}", data);
+			}
+
+
+			return new WeightDataResponseDto
+			{
+				GrossWeight = grossWeight,
+				TareWeight = tareWeight,
+				NetWeight = netWeight
+			};
+		}
+
 		// PUT api/rollconfirmation/{id} - Update roll confirmation with weight data
 		[HttpPut("{id}")]
 		public async Task<ActionResult<RollConfirmationResponseDto>> UpdateRollConfirmation(int id, [FromBody] RollConfirmationUpdateDto updateData)
@@ -209,29 +272,29 @@ namespace AvyyanBackend.Controllers
 				// Update weight fields
 				if (updateData.GrossWeight.HasValue)
 					rollConfirmation.GrossWeight = updateData.GrossWeight.Value;
-					
+
 				if (updateData.TareWeight.HasValue)
 					rollConfirmation.TareWeight = updateData.TareWeight.Value;
-					
+
 				if (updateData.NetWeight.HasValue)
 					rollConfirmation.NetWeight = updateData.NetWeight.Value;
 
-               // Update fabric specification fields
-               if (updateData.GreyGsm.HasValue)
+				// Update fabric specification fields
+				if (updateData.GreyGsm.HasValue)
 					rollConfirmation.GreyGsm = updateData.GreyGsm.Value;
-					
+
 				if (updateData.GreyWidth.HasValue)
 					rollConfirmation.GreyWidth = updateData.GreyWidth.Value;
-					
+
 				if (updateData.BlendPercent.HasValue)
 					rollConfirmation.BlendPercent = updateData.BlendPercent.Value;
-					
+
 				if (updateData.Cotton.HasValue)
 					rollConfirmation.Cotton = updateData.Cotton.Value;
-					
+
 				if (updateData.Polyester.HasValue)
 					rollConfirmation.Polyester = updateData.Polyester.Value;
-					
+
 				if (updateData.Spandex.HasValue)
 					rollConfirmation.Spandex = updateData.Spandex.Value;
 

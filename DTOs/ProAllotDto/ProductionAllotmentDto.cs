@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using AvyyanBackend.Models.ProAllot;
+﻿﻿﻿﻿﻿﻿using AvyyanBackend.Models.ProAllot;
 using System.ComponentModel.DataAnnotations;
 
 namespace AvyyanBackend.DTOs.ProAllotDto
@@ -95,6 +95,8 @@ namespace AvyyanBackend.DTOs.ProAllotDto
         
         // Packaging Details
         public decimal TubeWeight { get; set; }
+        public decimal? ShrinkRapWeight { get; set; }
+        public decimal? TotalWeight { get; set; }
         public string TapeColor { get; set; }
         
         public string SerialNo { get; set; } // New Serial Number field

@@ -114,6 +114,8 @@ namespace AvyyanBackend.Controllers
 					ReqFinishWidth = productionAllotment.ReqFinishWidth,
 					PartyName = productionAllotment.PartyName,
 					TubeWeight = productionAllotment.TubeWeight,
+					ShrinkRapWeight = productionAllotment.ShrinkRapWeight,
+					TotalWeight = productionAllotment.TotalWeight,
 					TapeColor = productionAllotment.TapeColor,
 					SerialNo = productionAllotment.SerialNo,
 					MachineAllocations = productionAllotment.MachineAllocations.Select(ma => new MachineAllocationResponseDto
