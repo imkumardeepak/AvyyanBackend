@@ -36,7 +36,7 @@ namespace AvyyanBackend.Services
 		{
 			_logger.LogDebug("Getting storage capture by LotNo: {LotNo} and FGRollNo: {FGRollNo}", lotNo, fgRollNo);
 			var storageCapture = await _storageCaptureRepository.FindAsync(m => m.LotNo == lotNo && m.FGRollNo == fgRollNo);
-			if (storageCapture == null)
+			if (!storageCapture.Any())
 			{
 				_logger.LogWarning("Storage capture not found for LotNo: {LotNo} and FGRollNo: {FGRollNo}", lotNo, fgRollNo);
 				return false;

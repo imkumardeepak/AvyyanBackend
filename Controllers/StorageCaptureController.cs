@@ -87,7 +87,7 @@ namespace AvyyanBackend.Controllers
 				// Check if a storage capture with the same LotNo and FGRollNo already exists
 				var existingStorageCapture = await _storageCaptureService.GetStorageCaptureByLotNoAndFGRollNoAsync(createStorageCaptureDto.LotNo, createStorageCaptureDto.FGRollNo);
 
-				if (existingStorageCapture != null)
+				if (existingStorageCapture)
 				{
 					return BadRequest($"A storage capture with LotNo '{createStorageCaptureDto.LotNo}' and FGRollNo '{createStorageCaptureDto.FGRollNo}' already exists.");
 				}
@@ -107,13 +107,13 @@ namespace AvyyanBackend.Controllers
 		///</summary>   
 		// GET api/storagecapture/by-allot-id/{allotId}
 		[HttpGet("by-allot-id/{allotId}")]
-		public async Task<ActionResult<StorageCaptureRollDataResponseDto>> GetRollConfirmationsByAllotId(string allotId)
+		public async Task<ActionResult<StorageCaptureRollDataResponseDto>> GetRollConfirmationsByAllotId(string allotId,int fgroll)
 		{
 			try
 			{
 				// Get only the first roll confirmation for the given AllotId
 				var rollConfirmation = await _context.RollConfirmations
-					.Where(r => r.AllotId == allotId)
+					.Where(r => r.AllotId == allotId && r.FgRollNo==fgroll && r.IsFGStickerGenerated==true)
 					.FirstOrDefaultAsync();
 
 				if (rollConfirmation == null)
