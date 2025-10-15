@@ -529,6 +529,8 @@ namespace AvyyanBackend.Controllers
 					ReqFinishWidth = request.ReqFinishWidth,
 					PartyName = request.PartyName,
 					TubeWeight = request.TubeWeight,
+					ShrinkRapWeight = request.ShrinkRapWeight,
+					TotalWeight = request.TotalWeight,
 					TapeColor = request.TapeColor,
 					SerialNo = nextSerialNumber, // Assign the generated serial number
 					TotalProductionTime = request.MachineAllocations.Max(ma => ma.EstimatedProductionTime),

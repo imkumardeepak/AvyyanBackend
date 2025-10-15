@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿using System.ComponentModel.DataAnnotations;
+﻿﻿﻿﻿﻿﻿﻿﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AvyyanBackend.Models.ProAllot
@@ -79,13 +79,16 @@ namespace AvyyanBackend.Models.ProAllot
         [Column(TypeName = "decimal(18,3)")]
         public decimal TubeWeight { get; set; }
 
+        [Column(TypeName = "decimal(18,3)")]
+        public decimal? ShrinkRapWeight { get; set; }
+
+        [Column(TypeName = "decimal(18,3)")]
+        public decimal? TotalWeight { get; set; }
+
         [MaxLength(100)]
         public string TapeColor { get; set; }
 
-        // New Serial Number field
-        [Required]
-        [MaxLength(10)]
-        public string SerialNo { get; set; } // Format: "0001", "0002", etc."
+        public string? SerialNo { get; set; } // Format: "0001", "0002", etc."
 
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
