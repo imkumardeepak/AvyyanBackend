@@ -43,6 +43,17 @@ namespace AvyyanBackend.Controllers
                     return Conflict($"Inspection for Allot ID {request.AllotId}, Machine {request.MachineName}, Roll No {request.RollNo} already exists.");
                 }
 
+                // Check if the roll has been confirmed before allowing inspection
+                var rollConfirmation = await _context.RollConfirmations
+                    .FirstOrDefaultAsync(r => r.AllotId == request.AllotId && 
+                                         r.MachineName == request.MachineName && 
+                                         r.RollNo == request.RollNo);
+                
+                if (rollConfirmation == null)
+                {
+                    return BadRequest("Roll must be confirmed before inspection. Please confirm the roll first, then inspect it.");
+                }
+
                 // Create inspection entity
                 var inspection = new Inspection
                 {
@@ -129,7 +140,6 @@ namespace AvyyanBackend.Controllers
                 {
                     return NotFound($"Inspection with ID {id} not found.");
                 }
-
                 var responseDto = new InspectionResponseDto
                 {
                     Id = inspection.Id,
