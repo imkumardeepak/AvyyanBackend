@@ -192,7 +192,7 @@ namespace AvyyanBackend.Controllers
 		// GET api/rollconfirmation/weight-data - Get weight data from TCP client
 		[HttpGet("weight-data")]
 		public async Task<ActionResult<WeightDataResponseDto>> GetWeightData([FromQuery] string ipAddress, [FromQuery] int port = 23)
-		{
+		 {
 			try
 			{
 				using var client = new TcpClient();

@@ -388,7 +388,7 @@ namespace AvyyanBackend.Controllers
 				}
 
 				string filepath = Path.Combine("wwwroot", "Sticker", "FGRoll.prn");
-				string printerName = _configuration["Printers:Printer_IP"];
+				string printerName = _configuration["Printers:FG_Printer_IP"];
 
 				if (!System.IO.File.Exists(filepath))
 				{
