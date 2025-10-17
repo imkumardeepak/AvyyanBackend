@@ -3,6 +3,7 @@ using AvyyanBackend.Data;
 using AvyyanBackend.DTOs.ProAllotDto;
 using AvyyanBackend.Models.ProAllot;
 using AvyyanBackend.Models.ProductionConfirmation;
+using AvyyanBackend.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -293,7 +294,11 @@ namespace AvyyanBackend.Controllers
 
 				string doubleStickerPath = Path.Combine("wwwroot", "Sticker", "MLRoll(2ups)5025.prn");
 				string singleStickerPath = Path.Combine("wwwroot", "Sticker", "MLRoll.prn");
-				string printerName = _configuration["Printers:Printer_IP"];
+
+				string printerName = _configuration["Printers:PrinterName"] ?? "";
+
+				if (string.IsNullOrEmpty(printerName))
+					return StatusCode(500, "Printer name not configured.");
 
 				if (!System.IO.File.Exists(doubleStickerPath) || !System.IO.File.Exists(singleStickerPath))
 					return StatusCode(500, "PRN template file not found.");
@@ -333,7 +338,7 @@ namespace AvyyanBackend.Controllers
 							.Replace("<FEBTYP2>", pa.FabricType?.Trim() ?? "")
 							.Replace("<COMP2>", pa.Composition?.Trim() ?? "");
 
-						PrintToNetworkPrinter(printerName, fileContent);
+						PrintToUSB(printerName, fileContent);
 						_logger.LogInformation($"Stickers for rolls {rollNo1} and {rollNo2} printed.");
 					}
 					else
@@ -351,7 +356,7 @@ namespace AvyyanBackend.Controllers
 							.Replace("<FEBTYP>", pa.FabricType?.Trim() ?? "")
 							.Replace("<COMP>", pa.Composition?.Trim() ?? "");
 
-						PrintToNetworkPrinter(printerName, fileContent);
+						PrintToUSB(printerName, fileContent);
 						_logger.LogInformation($"Sticker for roll {rollNo} printed.");
 					}
 				}
@@ -362,6 +367,7 @@ namespace AvyyanBackend.Controllers
 				return StatusCode(500, $"Error printing QR codes: {ex.Message}");
 			}
 		}
+
 
 		// New endpoint for FG Roll Sticker Printing
 		[HttpPost("fgsticker/{id}")]
@@ -485,6 +491,27 @@ namespace AvyyanBackend.Controllers
 			}
 		}
 
+		/// <summary>
+		/// Sends raw print data to a USB printer using the Windows API
+		/// </summary>
+		/// <param name="printerName">The name of the USB printer</param>
+		/// <param name="content">The raw content to print</param>
+		private void PrintToUSB(string printerName, string content)
+		{
+			try
+			{
+				// Call the Windows API to send raw data to the printer
+				var result = RawPrinterHelper.SendStringToPrinter(printerName, content);
+				if (!result)
+				{
+					throw new Exception($"Failed to print to USB printer: {printerName}");
+				}
+			}
+			catch (Exception ex)
+			{
+				throw new Exception($"Failed to print to USB printer {printerName}: {ex.Message}");
+			}
+		}
 
 		// POST api/productionallotment
 		[HttpPost]
