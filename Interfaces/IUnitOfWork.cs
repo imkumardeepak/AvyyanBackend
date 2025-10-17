@@ -1,4 +1,5 @@
 using AvyyanBackend.Models;
+using AvyyanBackend.Models.ProAllot;
 
 namespace AvyyanBackend.Interfaces
 {
@@ -12,6 +13,7 @@ namespace AvyyanBackend.Interfaces
         IRepository<TapeColorMaster> TapeColors { get; }
         IRepository<ShiftMaster> Shifts { get; }
         IRepository<StorageCapture> StorageCaptures { get; }
+        IRepository<ProductionAllotment> ProductionAllotments { get; }
 
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();

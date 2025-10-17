@@ -12,6 +12,7 @@ using AvyyanBackend.Models;
 using AvyyanBackend.DTOs.TapeColor;
 using AvyyanBackend.DTOs.Shift;
 using AvyyanBackend.DTOs.StorageCapture;
+using AvyyanBackend.DTOs.DispatchPlanning; // Add this import
 
 namespace AvyyanBackend.Extensions
 {
@@ -173,6 +174,14 @@ namespace AvyyanBackend.Extensions
 			CreateMap<UpdateStorageCaptureRequestDto, StorageCapture>()
 				.ForMember(dest => dest.Id, opt => opt.Ignore())
 				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+				
+			// Dispatch Planning mappings
+			CreateMap<DispatchPlanning, DispatchPlanningDto>();
+			CreateMap<CreateDispatchPlanningDto, DispatchPlanning>();
+			CreateMap<UpdateDispatchPlanningDto, DispatchPlanning>();
+			
+			CreateMap<DispatchedRoll, DispatchedRollDto>();
+			CreateMap<DispatchedRollDto, DispatchedRoll>();
 		}
 	}
 }

@@ -41,6 +41,10 @@ namespace AvyyanBackend.Data
 
 		public DbSet<ShiftMaster> ShiftMasters { get; set; }
 		public DbSet<StorageCapture> StorageCaptures { get; set; }
+		
+		// Dispatch Planning entities
+		public DbSet<DispatchPlanning> DispatchPlannings { get; set; }
+		public DbSet<DispatchedRoll> DispatchedRolls { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -163,6 +167,37 @@ namespace AvyyanBackend.Data
 
 			modelBuilder.Entity<StorageCapture>()
 				.HasIndex(s => s.CustomerName);
+				
+			// Configure DispatchPlanning indexes
+			modelBuilder.Entity<DispatchPlanning>()
+				.HasIndex(dp => dp.LotNo);
+				
+			modelBuilder.Entity<DispatchPlanning>()
+				.HasIndex(dp => dp.LoadingNo)
+				.IsUnique();
+				
+			modelBuilder.Entity<DispatchPlanning>()
+				.HasIndex(dp => dp.SalesOrderId);
+				
+			modelBuilder.Entity<DispatchPlanning>()
+                .HasIndex(dp => dp.CustomerName);
+				
+			// Configure DispatchedRoll indexes
+			modelBuilder.Entity<DispatchedRoll>()
+				.HasIndex(dr => dr.LotNo);
+				
+			modelBuilder.Entity<DispatchedRoll>()
+				.HasIndex(dr => dr.FGRollNo);
+				
+			modelBuilder.Entity<DispatchedRoll>()
+				.HasIndex(dr => dr.DispatchPlanningId);
+				
+			// Configure DispatchedRoll relationship
+			modelBuilder.Entity<DispatchedRoll>()
+				.HasOne(dr => dr.DispatchPlanning)
+				.WithMany()
+				.HasForeignKey(dr => dr.DispatchPlanningId)
+				.OnDelete(DeleteBehavior.Cascade);
 		}
 
 

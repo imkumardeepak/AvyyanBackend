@@ -28,6 +28,7 @@ namespace AvyyanBackend.Extensions
         {
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IDispatchPlanningRepository, DispatchPlanningRepository>();
 
             return services;
         }
@@ -48,6 +49,9 @@ namespace AvyyanBackend.Extensions
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<DataSeedService>();
+
+            // Dispatch Planning services
+            services.AddScoped<DispatchPlanningService>();
 
             // Register HttpClient for Tally services
             services.AddHttpClient<TallyService>();

@@ -2,6 +2,7 @@ using AutoMapper;
 using AvyyanBackend.DTOs.TapeColor;
 using AvyyanBackend.Interfaces;
 using AvyyanBackend.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AvyyanBackend.Services
 {
@@ -125,6 +126,48 @@ namespace AvyyanBackend.Services
                 query = query.Where(m => m.Id != excludeId.Value);
             }
             return !query.Any();
+        }
+
+        // New method to check if tape color is already assigned to a lotment
+        public async Task<bool> IsTapeColorAssignedToLotmentAsync(string tapeColor, string lotmentId)
+        {
+            // Handle edge cases
+            if (string.IsNullOrEmpty(tapeColor) || string.IsNullOrEmpty(lotmentId))
+            {
+                return false;
+            }
+
+            _logger.LogDebug("Checking if tape color {TapeColor} is assigned to lotment {LotmentId}", tapeColor, lotmentId);
+
+            try
+            {
+                // Check in ProductionAllotment table for the same tape color but different lotment
+                var productionAllotmentWithSameTape = await _unitOfWork.ProductionAllotments
+                    .FindAsync(pa => pa.TapeColor == tapeColor && pa.AllotmentId != lotmentId);
+                
+                if (productionAllotmentWithSameTape.Any())
+                {
+                    _logger.LogDebug("Found tape color {TapeColor} assigned to different lotment in ProductionAllotment", tapeColor);
+                    return true;
+                }
+
+                // Check in StorageCapture table for the same tape color
+                var storageCaptureWithSameTape = await _unitOfWork.StorageCaptures
+                    .FindAsync(sc => sc.Tape == tapeColor);
+                
+                var result = storageCaptureWithSameTape.Any();
+                if (result)
+                {
+                    _logger.LogDebug("Found tape color {TapeColor} assigned in StorageCapture", tapeColor);
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking if tape color {TapeColor} is assigned to lotment {LotmentId}", tapeColor, lotmentId);
+                // In case of error, we return false to not block the user
+                return false;
+            }
         }
     }
 }
