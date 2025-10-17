@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using AvyyanBackend.Data;
 using AvyyanBackend.Interfaces;
 using AvyyanBackend.Models;
+using AvyyanBackend.Models.ProAllot;
 
 namespace AvyyanBackend.Repositories
 {
@@ -19,6 +20,9 @@ namespace AvyyanBackend.Repositories
 
         private IRepository<StorageCapture>? _storageCaptures;
         public IRepository<StorageCapture> StorageCaptures => _storageCaptures ??= new Repository<StorageCapture>(_context);
+
+        private IRepository<ProductionAllotment>? _productionAllotments;
+        public IRepository<ProductionAllotment> ProductionAllotments => _productionAllotments ??= new Repository<ProductionAllotment>(_context);
 
         public UnitOfWork(ApplicationDbContext context)
         {

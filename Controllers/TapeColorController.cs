@@ -85,6 +85,26 @@ namespace AvyyanBackend.Controllers
         }
 
         /// <summary>
+        /// Check if a tape color is already assigned to a lotment
+        /// </summary>
+        [HttpGet("is-assigned/{lotmentId}")]
+        public async Task<ActionResult<bool>> IsTapeColorAssignedToLotment(
+            string lotmentId,
+            [FromQuery] string tapeColor)
+        {
+            try
+            {
+                var isAssigned = await _tapeColorService.IsTapeColorAssignedToLotmentAsync(tapeColor, lotmentId);
+                return Ok(isAssigned);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while checking if tape color {TapeColor} is assigned to lotment {LotmentId}", tapeColor, lotmentId);
+                return StatusCode(500, "An error occurred while processing your request");
+            }
+        }
+
+        /// <summary>
         /// Create a new tape color
         /// </summary>
         [HttpPost]
