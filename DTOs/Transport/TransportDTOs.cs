@@ -13,6 +13,8 @@ namespace AvyyanBackend.DTOs.Transport
         public string? Address { get; set; }
         public string? VehicleNumber { get; set; }
         public string? DriverName { get; set; }
+        public string? DriverNumber { get; set; }
+        public string? LicenseNumber { get; set; }
         public decimal? MaximumCapacityKgs { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
@@ -43,6 +45,12 @@ namespace AvyyanBackend.DTOs.Transport
         [MaxLength(100)]
         public string? DriverName { get; set; }
 
+        [MaxLength(20)]
+        public string? DriverNumber { get; set; }
+
+        [MaxLength(50)]
+        public string? LicenseNumber { get; set; }
+
         [Range(0.01, double.MaxValue, ErrorMessage = "Maximum capacity must be greater than 0")]
         public decimal? MaximumCapacityKgs { get; set; }
     }
@@ -71,6 +79,12 @@ namespace AvyyanBackend.DTOs.Transport
         [MaxLength(100)]
         public string? DriverName { get; set; }
 
+        [MaxLength(20)]
+        public string? DriverNumber { get; set; }
+
+        [MaxLength(50)]
+        public string? LicenseNumber { get; set; }
+
         [Range(0.01, double.MaxValue, ErrorMessage = "Maximum capacity must be greater than 0")]
         public decimal? MaximumCapacityKgs { get; set; }
 
@@ -93,6 +107,12 @@ namespace AvyyanBackend.DTOs.Transport
 
         [MaxLength(100)]
         public string? DriverName { get; set; }
+
+        [MaxLength(20)]
+        public string? DriverNumber { get; set; }
+
+        [MaxLength(50)]
+        public string? LicenseNumber { get; set; }
 
         public bool? IsActive { get; set; }
     }
