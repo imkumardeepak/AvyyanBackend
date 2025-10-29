@@ -19,5 +19,6 @@ namespace AvyyanBackend.DTOs.DispatchPlanning
         public string MobileNumber { get; set; } = string.Empty;
         public string Remarks { get; set; } = string.Empty;
         public string LoadingNo { get; set; } = string.Empty;
+        public string DispatchOrderId { get; set; } = string.Empty;
     }
 }

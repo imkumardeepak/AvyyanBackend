@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AvyyanBackend.Models
@@ -58,5 +58,8 @@ namespace AvyyanBackend.Models
         [Required]
         [MaxLength(20)]
         public string LoadingNo { get; set; } = string.Empty;
+
+        [MaxLength(20)]
+        public string DispatchOrderId { get; set; } = string.Empty;
     }
 }

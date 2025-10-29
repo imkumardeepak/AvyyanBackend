@@ -12,7 +12,9 @@ using AvyyanBackend.Models;
 using AvyyanBackend.DTOs.TapeColor;
 using AvyyanBackend.DTOs.Shift;
 using AvyyanBackend.DTOs.StorageCapture;
-using AvyyanBackend.DTOs.DispatchPlanning; // Add this import
+using AvyyanBackend.DTOs.DispatchPlanning;
+using AvyyanBackend.DTOs.Transport;
+using AvyyanBackend.DTOs.Courier; // Add this import
 
 namespace AvyyanBackend.Extensions
 {
@@ -182,6 +184,28 @@ namespace AvyyanBackend.Extensions
 			
 			CreateMap<DispatchedRoll, DispatchedRollDto>();
 			CreateMap<DispatchedRollDto, DispatchedRoll>();
+			
+			// Transport mappings
+			CreateMap<TransportMaster, TransportResponseDto>();
+			CreateMap<CreateTransportRequestDto, TransportMaster>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+			CreateMap<UpdateTransportRequestDto, TransportMaster>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+
+			// Courier mappings
+			CreateMap<CourierMaster, CourierResponseDto>();
+			CreateMap<CreateCourierRequestDto, CourierMaster>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+			CreateMap<UpdateCourierRequestDto, CourierMaster>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
 		}
 	}
 }
