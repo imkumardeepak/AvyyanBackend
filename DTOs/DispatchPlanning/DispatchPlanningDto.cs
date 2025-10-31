@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
 namespace AvyyanBackend.DTOs.DispatchPlanning
 {
     public class DispatchPlanningDto
@@ -24,5 +30,10 @@ namespace AvyyanBackend.DTOs.DispatchPlanning
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool IsActive { get; set; }
+        // Transport/Courier fields
+        public bool IsTransport { get; set; } = false;
+        public bool IsCourier { get; set; } = false;
+        public int? TransportId { get; set; }
+        public int? CourierId { get; set; }
     }
 }

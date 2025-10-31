@@ -200,6 +200,19 @@ namespace AvyyanBackend.Data
 				.WithMany()
 				.HasForeignKey(dr => dr.DispatchPlanningId)
 				.OnDelete(DeleteBehavior.Cascade);
+				
+			// Configure DispatchPlanning relationships
+			modelBuilder.Entity<DispatchPlanning>()
+				.HasOne(dp => dp.Transport)
+				.WithMany()
+				.HasForeignKey(dp => dp.TransportId)
+				.OnDelete(DeleteBehavior.SetNull);
+				
+			modelBuilder.Entity<DispatchPlanning>()
+				.HasOne(dp => dp.Courier)
+				.WithMany()
+				.HasForeignKey(dp => dp.CourierId)
+				.OnDelete(DeleteBehavior.SetNull);
 		}
 
 

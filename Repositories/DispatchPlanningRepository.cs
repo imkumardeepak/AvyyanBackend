@@ -34,17 +34,25 @@ namespace AvyyanBackend.Repositories
 
         public async Task<IEnumerable<DispatchPlanning>> GetAllAsync()
         {
-            return await _context.DispatchPlannings.ToListAsync();
+            return await _context.DispatchPlannings
+                .Include(dp => dp.Transport)
+                .Include(dp => dp.Courier)
+                .ToListAsync();
         }
 
         public async Task<DispatchPlanning?> GetByIdAsync(int id)
         {
-            return await _context.DispatchPlannings.FindAsync(id);
+            return await _context.DispatchPlannings
+                .Include(dp => dp.Transport)
+                .Include(dp => dp.Courier)
+                .FirstOrDefaultAsync(dp => dp.Id == id);
         }
 
         public async Task<DispatchPlanning?> GetByLotNoAsync(string lotNo)
         {
             return await _context.DispatchPlannings
+                .Include(dp => dp.Transport)
+                .Include(dp => dp.Courier)
                 .FirstOrDefaultAsync(dp => dp.LotNo == lotNo);
         }
 
@@ -72,6 +80,12 @@ namespace AvyyanBackend.Repositories
             existing.MobileNumber = dispatchPlanning.MobileNumber;
             existing.Remarks = dispatchPlanning.Remarks;
             existing.LoadingNo = dispatchPlanning.LoadingNo;
+            existing.DispatchOrderId = dispatchPlanning.DispatchOrderId;
+            // Transport/Courier fields
+            existing.IsTransport = dispatchPlanning.IsTransport;
+            existing.IsCourier = dispatchPlanning.IsCourier;
+            existing.TransportId = dispatchPlanning.TransportId;
+            existing.CourierId = dispatchPlanning.CourierId;
             existing.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();

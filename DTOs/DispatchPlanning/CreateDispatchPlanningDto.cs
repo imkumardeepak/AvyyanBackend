@@ -18,7 +18,11 @@ namespace AvyyanBackend.DTOs.DispatchPlanning
         public string License { get; set; } = string.Empty;
         public string MobileNumber { get; set; } = string.Empty;
         public string Remarks { get; set; } = string.Empty;
-        // LoadingNo will be auto-generated
-        // DispatchOrderId will be auto-generated
+        // Transport/Courier fields
+        public bool IsTransport { get; set; } = false;
+        public bool IsCourier { get; set; } = false;
+        public int? TransportId { get; set; }
+        public int? CourierId { get; set; }
+      
     }
 }

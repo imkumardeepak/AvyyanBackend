@@ -20,5 +20,10 @@ namespace AvyyanBackend.DTOs.DispatchPlanning
         public string Remarks { get; set; } = string.Empty;
         public string LoadingNo { get; set; } = string.Empty;
         public string DispatchOrderId { get; set; } = string.Empty;
+        // Transport/Courier fields
+        public bool IsTransport { get; set; } = false;
+        public bool IsCourier { get; set; } = false;
+        public int? TransportId { get; set; }
+        public int? CourierId { get; set; }
     }
 }

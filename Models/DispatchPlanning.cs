@@ -61,5 +61,18 @@ namespace AvyyanBackend.Models
 
         [MaxLength(20)]
         public string DispatchOrderId { get; set; } = string.Empty;
+
+        // Transport/Courier foreign key fields
+        public bool IsTransport { get; set; } = false;
+        public bool IsCourier { get; set; } = false;
+        public int? TransportId { get; set; }
+        public int? CourierId { get; set; }
+
+        // Navigation properties
+        [ForeignKey("TransportId")]
+        public virtual TransportMaster? Transport { get; set; }
+
+        [ForeignKey("CourierId")]
+        public virtual CourierMaster? Courier { get; set; }
     }
 }

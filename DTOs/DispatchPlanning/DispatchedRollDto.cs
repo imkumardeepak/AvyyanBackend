@@ -6,10 +6,6 @@ namespace AvyyanBackend.DTOs.DispatchPlanning
         public int DispatchPlanningId { get; set; }
         public string LotNo { get; set; } = string.Empty;
         public string FGRollNo { get; set; } = string.Empty;
-        public string LocationCode { get; set; } = string.Empty;
-        public decimal NetWeight { get; set; }
-        public string MachineName { get; set; } = string.Empty;
-        public string RollNo { get; set; } = string.Empty;
         public bool IsLoaded { get; set; }
         public DateTime? LoadedAt { get; set; }
         public string LoadedBy { get; set; } = string.Empty;
