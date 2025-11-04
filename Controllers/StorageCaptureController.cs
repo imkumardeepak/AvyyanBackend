@@ -43,6 +43,7 @@ namespace AvyyanBackend.Controllers
 			}
 		}
 
+
 		/// <summary>
 		/// Search storage captures by various criteria
 		/// </summary>
@@ -53,7 +54,8 @@ namespace AvyyanBackend.Controllers
 			[FromQuery] string? locationCode,
 			[FromQuery] string? tape,
 			[FromQuery] string? customerName,
-			[FromQuery] bool? isActive)
+			[FromQuery] bool? isActive,
+			[FromQuery] bool? isDispatched)
 		{
 			try
 			{
@@ -64,7 +66,8 @@ namespace AvyyanBackend.Controllers
 					LocationCode = locationCode,
 					Tape = tape,
 					CustomerName = customerName,
-					IsActive = isActive
+					IsActive = isActive,
+					IsDispatched = isDispatched
 				};
 				var storageCaptures = await _storageCaptureService.SearchStorageCapturesAsync(searchDto);
 				return Ok(storageCaptures);

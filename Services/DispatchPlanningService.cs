@@ -222,5 +222,29 @@ namespace AvyyanBackend.Services
         {
             return await _repository.GenerateDispatchOrderIdAsync();
         }
+
+        // New method to get dispatched rolls ordered by lotNo and fgRoll sequence
+        public async Task<IEnumerable<DispatchedRollDto>> GetOrderedDispatchedRollsByDispatchOrderIdAsync(string dispatchOrderId)
+        {
+            // First get all dispatch planning records for this dispatch order ID
+            var dispatchPlannings = await _repository.GetAllAsync();
+            var filteredPlannings = dispatchPlannings.Where(dp => dp.DispatchOrderId == dispatchOrderId).ToList();
+            
+            // Get all dispatched rolls for these planning records
+            var allDispatchedRolls = new List<DispatchedRoll>();
+            foreach (var planning in filteredPlannings)
+            {
+                var rolls = await _repository.GetDispatchedRollsByPlanningIdAsync(planning.Id);
+                allDispatchedRolls.AddRange(rolls);
+            }
+            
+            // Order by LotNo and FGRollNo
+            var orderedRolls = allDispatchedRolls
+                .OrderBy(dr => dr.LotNo)
+                .ThenBy(dr => dr.FGRollNo)
+                .ToList();
+            
+            return _mapper.Map<IEnumerable<DispatchedRollDto>>(orderedRolls);
+        }
     }
 }

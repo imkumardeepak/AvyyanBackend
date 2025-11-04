@@ -122,5 +122,19 @@ namespace AvyyanBackend.Controllers
             }
         }
 
+        // New endpoint to get dispatched rolls ordered by lotNo and fgRoll sequence
+        [HttpGet("ordered-dispatched-rolls/{dispatchOrderId}")]
+        public async Task<ActionResult<IEnumerable<DispatchedRollDto>>> GetOrderedDispatchedRolls(string dispatchOrderId)
+        {
+            try
+            {
+                var dispatchedRolls = await _service.GetOrderedDispatchedRollsByDispatchOrderIdAsync(dispatchOrderId);
+                return Ok(dispatchedRolls);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

@@ -28,8 +28,9 @@ namespace AvyyanBackend.Services
 		{
 			_logger.LogDebug("Getting all storage captures");
 			var storageCaptures = await _storageCaptureRepository.GetAllAsync();
-			_logger.LogInformation("Retrieved {StorageCaptureCount} storage captures", storageCaptures.Count());
-			return _mapper.Map<IEnumerable<StorageCaptureResponseDto>>(storageCaptures);
+			var orderstorgae = storageCaptures.OrderBy(a => a.LotNo).ThenBy(a => a.FGRollNo).ToList();
+			_logger.LogInformation("Retrieved {StorageCaptureCount} storage captures", orderstorgae.Count());
+			return _mapper.Map<IEnumerable<StorageCaptureResponseDto>>(orderstorgae);
 		}
 
 		public async Task<bool> GetStorageCaptureByLotNoAndFGRollNoAsync(string lotNo, string fgRollNo)
@@ -104,9 +105,13 @@ namespace AvyyanBackend.Services
 				(string.IsNullOrEmpty(searchDto.LocationCode) || m.LocationCode.Contains(searchDto.LocationCode)) &&
 				(string.IsNullOrEmpty(searchDto.Tape) || m.Tape.Contains(searchDto.Tape)) &&
 				(string.IsNullOrEmpty(searchDto.CustomerName) || m.CustomerName.Contains(searchDto.CustomerName)) &&
-				(!searchDto.IsActive.HasValue || m.IsActive == searchDto.IsActive.Value));
+				(!searchDto.IsActive.HasValue || m.IsActive == searchDto.IsActive.Value) &&
+				(!searchDto.IsDispatched.HasValue || m.IsDispatched == searchDto.IsDispatched.Value));
 
-			return _mapper.Map<IEnumerable<StorageCaptureResponseDto>>(storageCaptures);
+			// Order by LotNo and FGRollNo as requested
+			var orderedStorageCaptures = storageCaptures.OrderBy(m => m.LotNo).ThenBy(m => m.FGRollNo).ToList();
+
+			return _mapper.Map<IEnumerable<StorageCaptureResponseDto>>(orderedStorageCaptures);
 		}
 	}
 }
