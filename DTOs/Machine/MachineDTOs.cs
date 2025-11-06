@@ -19,6 +19,8 @@ namespace AvyyanBackend.DTOs.Machine
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool IsActive { get; set; }
+        // Added MachineType field
+        public string? MachineType { get; set; } = "Single Jersey";
     }
 
     /// <summary>
@@ -55,6 +57,10 @@ namespace AvyyanBackend.DTOs.Machine
 
         [MaxLength(500)]
         public string? Description { get; set; }
+        
+        // Added MachineType field
+        [MaxLength(50)]
+        public string? MachineType { get; set; } = "Single Jersey";
     }
 
     /// <summary>
@@ -93,6 +99,10 @@ namespace AvyyanBackend.DTOs.Machine
         public string? Description { get; set; }
 
         public bool IsActive { get; set; } = true;
+        
+        // Added MachineType field
+        [MaxLength(50)]
+        public string? MachineType { get; set; } = "Single Jersey";
     }
 
     /// <summary>

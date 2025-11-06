@@ -55,6 +55,9 @@ namespace AvyyanBackend.Extensions
 				.ForMember(dest => dest.IsActive, opt => opt.Ignore());
 			CreateMap<PageAccess, UserPageAccessDto>();
 
+			// Add the missing mapping for UserPageAccessDto to AuthPageAccessDto
+			CreateMap<UserPageAccessDto, AuthPageAccessDto>();
+
 			// Role Controller mappings
 			CreateMap<RoleMaster, RoleResponseDto>()
 				.ForMember(dest => dest.PageAccesses, opt => opt.MapFrom(src => src.PageAccesses));
@@ -77,8 +80,6 @@ namespace AvyyanBackend.Extensions
 
 			// Machine Controller mappings
 			CreateMap<MachineManager, MachineResponseDto>();
-			CreateMap<User, AuthUserDto>();
-			CreateMap<UserPageAccessDto, AuthPageAccessDto>();
 			CreateMap<CreateMachineRequestDto, MachineManager>()
 				.ForMember(dest => dest.Id, opt => opt.Ignore())
 				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
