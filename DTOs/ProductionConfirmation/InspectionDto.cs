@@ -47,7 +47,6 @@ namespace AvyyanBackend.DTOs.ProductionConfirmation
 
         public int TotalFaults { get; set; }
 
-        [Required]
         [MaxLength(500)]
         public string Remarks { get; set; } = string.Empty;
 

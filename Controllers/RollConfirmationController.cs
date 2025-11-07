@@ -46,16 +46,16 @@ namespace AvyyanBackend.Controllers
 				}
 
 				// Automatically assign FG Roll Number if not provided
-				int? fgRollNo = request.FgRollNo;
-				if (!fgRollNo.HasValue)
-				{
-					// Get the maximum FG Roll Number for this AllotId and increment by 1
-					var maxFgRollNo = await _context.RollConfirmations
-						.Where(r => r.AllotId == request.AllotId)
-						.MaxAsync(r => (int?)r.FgRollNo);
+				// int? fgRollNo = request.FgRollNo;
+				// if (!fgRollNo.HasValue)
+				// {
+				// 	// Get the maximum FG Roll Number for this AllotId and increment by 1
+				// 	var maxFgRollNo = await _context.RollConfirmations
+				// 		.Where(r => r.AllotId == request.AllotId)
+				// 		.MaxAsync(r => (int?)r.FgRollNo);
 
-					fgRollNo = (maxFgRollNo ?? 0) + 1;
-				}
+				// 	fgRollNo = (maxFgRollNo ?? 0) + 1;
+				// }
 
 				// Create roll confirmation entity
 				var rollConfirmation = new RollConfirmation
@@ -70,7 +70,7 @@ namespace AvyyanBackend.Controllers
 					Polyester = request.Polyester,
 					Spandex = request.Spandex,
 					RollNo = request.RollNo,
-					FgRollNo = fgRollNo, // Assign the FG Roll Number
+					FgRollNo = null, // Assign the FG Roll Number
 					CreatedDate = request.CreatedDate
 				};
 
@@ -302,6 +302,17 @@ namespace AvyyanBackend.Controllers
 				if (updateData.IsFGStickerGenerated.HasValue)
 				{
 					rollConfirmation.IsFGStickerGenerated = updateData.IsFGStickerGenerated.Value;
+						// Automatically assign FG Roll Number if not provided
+				int? fgRollNo = updateData.FgRollNo;
+				if (!fgRollNo.HasValue)
+				{
+					// Get the maximum FG Roll Number for this AllotId and increment by 1
+					var maxFgRollNo = await _context.RollConfirmations
+						.Where(r => r.AllotId == updateData.AllotId)
+						.MaxAsync(r => (int?)r.FgRollNo);
+
+					fgRollNo = (maxFgRollNo ?? 0) + 1;
+				}
 				}
 
 				// Update FG Roll Number if provided
