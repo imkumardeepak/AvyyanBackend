@@ -86,6 +86,11 @@ namespace AvyyanBackend.Repositories
             existing.IsCourier = dispatchPlanning.IsCourier;
             existing.TransportId = dispatchPlanning.TransportId;
             existing.CourierId = dispatchPlanning.CourierId;
+            // Manual transport details (new fields)
+            existing.TransportName = dispatchPlanning.TransportName;
+            existing.ContactPerson = dispatchPlanning.ContactPerson;
+            existing.Phone = dispatchPlanning.Phone;
+            existing.MaximumCapacityKgs = dispatchPlanning.MaximumCapacityKgs;
             existing.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();

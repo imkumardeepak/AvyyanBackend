@@ -23,6 +23,11 @@ namespace AvyyanBackend.DTOs.DispatchPlanning
         public bool IsCourier { get; set; } = false;
         public int? TransportId { get; set; }
         public int? CourierId { get; set; }
+        // Manual transport details (new fields)
+        public string TransportName { get; set; } = string.Empty;
+        public string ContactPerson { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public decimal? MaximumCapacityKgs { get; set; }
         // LoadingNo will be auto-generated
         // DispatchOrderId will be auto-generated
     }

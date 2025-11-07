@@ -68,6 +68,19 @@ namespace AvyyanBackend.Models
         public int? TransportId { get; set; }
         public int? CourierId { get; set; }
 
+        // Manual transport details (new fields)
+        [MaxLength(200)]
+        public string TransportName { get; set; } = string.Empty;
+        
+        [MaxLength(100)]
+        public string ContactPerson { get; set; } = string.Empty;
+        
+        [MaxLength(20)]
+        public string Phone { get; set; } = string.Empty;
+        
+        [Column(TypeName = "decimal(18,3)")]
+        public decimal? MaximumCapacityKgs { get; set; }
+
         // Navigation properties
         [ForeignKey("TransportId")]
         public virtual TransportMaster? Transport { get; set; }

@@ -175,16 +175,28 @@ namespace AvyyanBackend.Data
 				.HasIndex(dp => dp.LotNo);
 				
 			modelBuilder.Entity<DispatchPlanning>()
+				.HasIndex(dp => dp.SalesOrderId);
+				
+			modelBuilder.Entity<DispatchPlanning>()
+				.HasIndex(dp => dp.CustomerName);
+				
+			modelBuilder.Entity<DispatchPlanning>()
 				.HasIndex(dp => dp.LoadingNo)
 				.IsUnique();
 				
 			modelBuilder.Entity<DispatchPlanning>()
-				.HasIndex(dp => dp.SalesOrderId);
+				.HasIndex(dp => dp.TransportId);
 				
 			modelBuilder.Entity<DispatchPlanning>()
-                .HasIndex(dp => dp.CustomerName);
+				.HasIndex(dp => dp.CourierId);
 				
-			// Configure DispatchedRoll indexes
+			// Add indexes for new fields
+			modelBuilder.Entity<DispatchPlanning>()
+				.HasIndex(dp => dp.TransportName);
+				
+			modelBuilder.Entity<DispatchPlanning>()
+				.HasIndex(dp => dp.ContactPerson);
+				
 			modelBuilder.Entity<DispatchedRoll>()
 				.HasIndex(dr => dr.LotNo);
 				

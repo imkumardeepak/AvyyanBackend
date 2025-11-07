@@ -31,9 +31,14 @@ namespace AvyyanBackend.DTOs.DispatchPlanning
         public DateTime? UpdatedAt { get; set; }
         public bool IsActive { get; set; }
         // Transport/Courier fields
-        public bool IsTransport { get; set; } = false;
-        public bool IsCourier { get; set; } = false;
+        public bool IsTransport { get; set; }
+        public bool IsCourier { get; set; }
         public int? TransportId { get; set; }
         public int? CourierId { get; set; }
+        // Manual transport details (new fields)
+        public string TransportName { get; set; } = string.Empty;
+        public string ContactPerson { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public decimal? MaximumCapacityKgs { get; set; }
     }
 }
