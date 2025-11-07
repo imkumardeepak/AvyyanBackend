@@ -302,24 +302,22 @@ namespace AvyyanBackend.Controllers
 				if (updateData.IsFGStickerGenerated.HasValue)
 				{
 					rollConfirmation.IsFGStickerGenerated = updateData.IsFGStickerGenerated.Value;
-						// Automatically assign FG Roll Number if not provided
+				}
+
+				// Automatically assign FG Roll Number if not provided
 				int? fgRollNo = updateData.FgRollNo;
 				if (!fgRollNo.HasValue)
 				{
 					// Get the maximum FG Roll Number for this AllotId and increment by 1
 					var maxFgRollNo = await _context.RollConfirmations
-						.Where(r => r.AllotId == updateData.AllotId)
+						.Where(r => r.AllotId == rollConfirmation.AllotId)
 						.MaxAsync(r => (int?)r.FgRollNo);
 
 					fgRollNo = (maxFgRollNo ?? 0) + 1;
 				}
-				}
 
-				// Update FG Roll Number if provided
-				if (updateData.FgRollNo.HasValue)
-				{
-					rollConfirmation.FgRollNo = updateData.FgRollNo.Value;
-				}
+				// Update FG Roll Number
+				rollConfirmation.FgRollNo = fgRollNo;
 
 				await _context.SaveChangesAsync();
 
