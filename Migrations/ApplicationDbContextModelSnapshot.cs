@@ -182,6 +182,14 @@ namespace AvyyanBackend.Migrations
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)");
 
+                    b.Property<decimal?>("TotalGrossWeight")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("TotalNetWeight")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("TotalReadyRolls")
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)");
