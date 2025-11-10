@@ -81,6 +81,13 @@ namespace AvyyanBackend.Models
         [Column(TypeName = "decimal(18,3)")]
         public decimal? MaximumCapacityKgs { get; set; }
 
+        // Weight fields for dispatch planning
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? TotalGrossWeight { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? TotalNetWeight { get; set; }
+
         // Navigation properties
         [ForeignKey("TransportId")]
         public virtual TransportMaster? Transport { get; set; }

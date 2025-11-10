@@ -40,5 +40,8 @@ namespace AvyyanBackend.DTOs.DispatchPlanning
         public string ContactPerson { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public decimal? MaximumCapacityKgs { get; set; }
+        // Weight fields for dispatch planning
+        public decimal? TotalGrossWeight { get; set; }
+        public decimal? TotalNetWeight { get; set; }
     }
 }
