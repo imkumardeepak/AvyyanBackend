@@ -15,21 +15,6 @@ namespace AvyyanBackend.Models
         [MaxLength(100)]
         public string FGRollNo { get; set; } = string.Empty;
 
-        [Required]
-        [MaxLength(50)]
-        public string LocationCode { get; set; } = string.Empty;
-
-        [Column(TypeName = "decimal(18,3)")]
-        public decimal NetWeight { get; set; }
-
-        [Required]
-        [MaxLength(100)]
-        public string MachineName { get; set; } = string.Empty;
-
-        [Required]
-        [MaxLength(100)]
-        public string RollNo { get; set; } = string.Empty;
-
         public bool IsLoaded { get; set; } = false;
 
         public DateTime? LoadedAt { get; set; }

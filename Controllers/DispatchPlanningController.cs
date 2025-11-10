@@ -90,5 +90,51 @@ namespace AvyyanBackend.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        
+        // New endpoint to update dispatch status based on roll counts
+        [HttpPut("{id}/status")]
+        public async Task<ActionResult<DispatchPlanningDto>> UpdateDispatchStatus(int id, [FromBody] decimal totalDispatchedRolls)
+        {
+            try
+            {
+                var dispatchPlanning = await _service.UpdateDispatchStatusAsync(id, totalDispatchedRolls);
+                return Ok(dispatchPlanning);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // New endpoint to create multiple dispatch planning records with the same dispatch order ID
+        [HttpPost("batch")]
+        public async Task<ActionResult<IEnumerable<DispatchPlanningDto>>> CreateBatch(
+      [FromBody] IEnumerable<CreateDispatchPlanningRequestDto> createDtos)
+        {
+            try
+            {
+                var results = await _service.CreateBatchAsync(createDtos);
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // New endpoint to get dispatched rolls ordered by lotNo and fgRoll sequence
+        [HttpGet("ordered-dispatched-rolls/{dispatchOrderId}")]
+        public async Task<ActionResult<IEnumerable<DispatchedRollDto>>> GetOrderedDispatchedRolls(string dispatchOrderId)
+        {
+            try
+            {
+                var dispatchedRolls = await _service.GetOrderedDispatchedRollsByDispatchOrderIdAsync(dispatchOrderId);
+                return Ok(dispatchedRolls);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

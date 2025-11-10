@@ -19,5 +19,19 @@ namespace AvyyanBackend.DTOs.DispatchPlanning
         public string MobileNumber { get; set; } = string.Empty;
         public string Remarks { get; set; } = string.Empty;
         public string LoadingNo { get; set; } = string.Empty;
+        public string DispatchOrderId { get; set; } = string.Empty;
+        // Transport/Courier fields
+        public bool IsTransport { get; set; } = false;
+        public bool IsCourier { get; set; } = false;
+        public int? TransportId { get; set; }
+        public int? CourierId { get; set; }
+        // Manual transport details (new fields)
+        public string TransportName { get; set; } = string.Empty;
+        public string ContactPerson { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public decimal? MaximumCapacityKgs { get; set; }
+        // Weight fields for dispatch planning
+        public decimal? TotalGrossWeight { get; set; }
+        public decimal? TotalNetWeight { get; set; }
     }
 }

@@ -32,6 +32,12 @@ namespace AvyyanBackend.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+                // Require remarks when rejecting a roll (flag is false)
+                if (!request.Flag && string.IsNullOrWhiteSpace(request.Remarks))
+                {
+                    return BadRequest("Remarks are required when rejecting a roll.");
+                }
+
                 // Check if this inspection already exists
                 var existingInspection = await _context.Inspections
                     .FirstOrDefaultAsync(i => i.AllotId == request.AllotId && 

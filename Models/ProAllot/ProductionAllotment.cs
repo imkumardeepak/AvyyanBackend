@@ -49,7 +49,7 @@ namespace AvyyanBackend.Models.ProAllot
 		public string Composition { get; set; } // e.g., "97% Cotton + 3% Lycra"
 
 		[Column(TypeName = "decimal(18,2)")]
-		public decimal TotalProductionTime { get; set; } // In hours
+		public decimal TotalProductionTime { get; set; } // In days
 
         [MaxLength(50)]
         public string YarnLotNo { get; set; }
@@ -124,7 +124,7 @@ namespace AvyyanBackend.Models.ProAllot
 		public string RollBreakdown { get; set; }
 
 		[Column(TypeName = "decimal(18,2)")]
-		public decimal EstimatedProductionTime { get; set; } // In hours
+		public decimal EstimatedProductionTime { get; set; } // In days
 
         // Navigation property
         public virtual ProductionAllotment ProductionAllotment { get; set; }

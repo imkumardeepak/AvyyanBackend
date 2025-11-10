@@ -98,6 +98,7 @@ namespace AvyyanBackend.DTOs.StorageCapture
 		public string? CustomerName { get; set; }
 
 		public bool? IsActive { get; set; }
+		public bool? IsDispatched { get; set; }
 	}
 
 	/// <summary>

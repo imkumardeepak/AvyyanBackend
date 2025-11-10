@@ -41,6 +41,8 @@ namespace AvyyanBackend.Data
 
 		public DbSet<ShiftMaster> ShiftMasters { get; set; }
 		public DbSet<StorageCapture> StorageCaptures { get; set; }
+		public DbSet<TransportMaster> TransportMasters { get; set; }
+		public DbSet<CourierMaster> CourierMasters { get; set; }
 		
 		// Dispatch Planning entities
 		public DbSet<DispatchPlanning> DispatchPlannings { get; set; }
@@ -173,16 +175,28 @@ namespace AvyyanBackend.Data
 				.HasIndex(dp => dp.LotNo);
 				
 			modelBuilder.Entity<DispatchPlanning>()
+				.HasIndex(dp => dp.SalesOrderId);
+				
+			modelBuilder.Entity<DispatchPlanning>()
+				.HasIndex(dp => dp.CustomerName);
+				
+			modelBuilder.Entity<DispatchPlanning>()
 				.HasIndex(dp => dp.LoadingNo)
 				.IsUnique();
 				
 			modelBuilder.Entity<DispatchPlanning>()
-				.HasIndex(dp => dp.SalesOrderId);
+				.HasIndex(dp => dp.TransportId);
 				
 			modelBuilder.Entity<DispatchPlanning>()
-                .HasIndex(dp => dp.CustomerName);
+				.HasIndex(dp => dp.CourierId);
 				
-			// Configure DispatchedRoll indexes
+			// Add indexes for new fields
+			modelBuilder.Entity<DispatchPlanning>()
+				.HasIndex(dp => dp.TransportName);
+				
+			modelBuilder.Entity<DispatchPlanning>()
+				.HasIndex(dp => dp.ContactPerson);
+				
 			modelBuilder.Entity<DispatchedRoll>()
 				.HasIndex(dr => dr.LotNo);
 				
@@ -198,6 +212,19 @@ namespace AvyyanBackend.Data
 				.WithMany()
 				.HasForeignKey(dr => dr.DispatchPlanningId)
 				.OnDelete(DeleteBehavior.Cascade);
+				
+			// Configure DispatchPlanning relationships
+			modelBuilder.Entity<DispatchPlanning>()
+				.HasOne(dp => dp.Transport)
+				.WithMany()
+				.HasForeignKey(dp => dp.TransportId)
+				.OnDelete(DeleteBehavior.SetNull);
+				
+			modelBuilder.Entity<DispatchPlanning>()
+				.HasOne(dp => dp.Courier)
+				.WithMany()
+				.HasForeignKey(dp => dp.CourierId)
+				.OnDelete(DeleteBehavior.SetNull);
 		}
 
 

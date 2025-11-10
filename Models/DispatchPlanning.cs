@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AvyyanBackend.Models
@@ -58,5 +58,41 @@ namespace AvyyanBackend.Models
         [Required]
         [MaxLength(20)]
         public string LoadingNo { get; set; } = string.Empty;
+
+        [MaxLength(20)]
+        public string DispatchOrderId { get; set; } = string.Empty;
+
+        // Transport/Courier foreign key fields
+        public bool IsTransport { get; set; } = false;
+        public bool IsCourier { get; set; } = false;
+        public int? TransportId { get; set; }
+        public int? CourierId { get; set; }
+
+        // Manual transport details (new fields)
+        [MaxLength(200)]
+        public string TransportName { get; set; } = string.Empty;
+        
+        [MaxLength(100)]
+        public string ContactPerson { get; set; } = string.Empty;
+        
+        [MaxLength(20)]
+        public string Phone { get; set; } = string.Empty;
+        
+        [Column(TypeName = "decimal(18,3)")]
+        public decimal? MaximumCapacityKgs { get; set; }
+
+        // Weight fields for dispatch planning
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? TotalGrossWeight { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? TotalNetWeight { get; set; }
+
+        // Navigation properties
+        [ForeignKey("TransportId")]
+        public virtual TransportMaster? Transport { get; set; }
+
+        [ForeignKey("CourierId")]
+        public virtual CourierMaster? Courier { get; set; }
     }
 }

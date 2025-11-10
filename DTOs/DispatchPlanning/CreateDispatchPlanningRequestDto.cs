@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace AvyyanBackend.DTOs.DispatchPlanning
 {
-    public class DispatchPlanningDto
+    public class CreateDispatchPlanningRequestDto
     {
-        public int Id { get; set; }
         public string LotNo { get; set; } = string.Empty;
         public int SalesOrderId { get; set; }
         public int SalesOrderItemId { get; set; }
@@ -25,14 +18,9 @@ namespace AvyyanBackend.DTOs.DispatchPlanning
         public string License { get; set; } = string.Empty;
         public string MobileNumber { get; set; } = string.Empty;
         public string Remarks { get; set; } = string.Empty;
-        public string LoadingNo { get; set; } = string.Empty;
-        public string DispatchOrderId { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public bool IsActive { get; set; }
         // Transport/Courier fields
-        public bool IsTransport { get; set; }
-        public bool IsCourier { get; set; }
+        public bool IsTransport { get; set; } = false;
+        public bool IsCourier { get; set; } = false;
         public int? TransportId { get; set; }
         public int? CourierId { get; set; }
         // Manual transport details (new fields)
@@ -43,5 +31,7 @@ namespace AvyyanBackend.DTOs.DispatchPlanning
         // Weight fields for dispatch planning
         public decimal? TotalGrossWeight { get; set; }
         public decimal? TotalNetWeight { get; set; }
+        // LoadingNo will be auto-generated
+        // DispatchOrderId will be auto-generated
     }
 }

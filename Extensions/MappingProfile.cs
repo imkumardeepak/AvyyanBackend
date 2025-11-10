@@ -12,7 +12,9 @@ using AvyyanBackend.Models;
 using AvyyanBackend.DTOs.TapeColor;
 using AvyyanBackend.DTOs.Shift;
 using AvyyanBackend.DTOs.StorageCapture;
-using AvyyanBackend.DTOs.DispatchPlanning; // Add this import
+using AvyyanBackend.DTOs.DispatchPlanning;
+using AvyyanBackend.DTOs.Transport;
+using AvyyanBackend.DTOs.Courier; // Add this import
 
 namespace AvyyanBackend.Extensions
 {
@@ -53,6 +55,9 @@ namespace AvyyanBackend.Extensions
 				.ForMember(dest => dest.IsActive, opt => opt.Ignore());
 			CreateMap<PageAccess, UserPageAccessDto>();
 
+			// Add the missing mapping for UserPageAccessDto to AuthPageAccessDto
+			CreateMap<UserPageAccessDto, AuthPageAccessDto>();
+
 			// Role Controller mappings
 			CreateMap<RoleMaster, RoleResponseDto>()
 				.ForMember(dest => dest.PageAccesses, opt => opt.MapFrom(src => src.PageAccesses));
@@ -75,8 +80,6 @@ namespace AvyyanBackend.Extensions
 
 			// Machine Controller mappings
 			CreateMap<MachineManager, MachineResponseDto>();
-			CreateMap<User, AuthUserDto>();
-			CreateMap<UserPageAccessDto, AuthPageAccessDto>();
 			CreateMap<CreateMachineRequestDto, MachineManager>()
 				.ForMember(dest => dest.Id, opt => opt.Ignore())
 				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
@@ -182,6 +185,28 @@ namespace AvyyanBackend.Extensions
 			
 			CreateMap<DispatchedRoll, DispatchedRollDto>();
 			CreateMap<DispatchedRollDto, DispatchedRoll>();
+			
+			// Transport mappings
+			CreateMap<TransportMaster, TransportResponseDto>();
+			CreateMap<CreateTransportRequestDto, TransportMaster>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+			CreateMap<UpdateTransportRequestDto, TransportMaster>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+
+			// Courier mappings
+			CreateMap<CourierMaster, CourierResponseDto>();
+			CreateMap<CreateCourierRequestDto, CourierMaster>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+			CreateMap<UpdateCourierRequestDto, CourierMaster>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
 		}
 	}
 }

@@ -28,5 +28,8 @@ namespace AvyyanBackend.Models
         [MaxLength(500)]
         public string? Description { get; set; }
       
+        // Added MachineType field
+        [MaxLength(50)]
+        public string? MachineType { get; set; } = "Single Jersey";
     }
 }
