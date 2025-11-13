@@ -109,7 +109,7 @@ namespace AvyyanBackend.Models.ProAllot
 
 		public int NumberOfNeedles { get; set; }
 		public int Feeders { get; set; }
-		public int RPM { get; set; }
+		public decimal RPM { get; set; }
 
 		[Column(TypeName = "decimal(18,3)")]
 		public decimal RollPerKg { get; set; }

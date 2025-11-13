@@ -81,6 +81,7 @@ namespace AvyyanBackend.Repositories
             existing.Remarks = dispatchPlanning.Remarks;
             existing.LoadingNo = dispatchPlanning.LoadingNo;
             existing.DispatchOrderId = dispatchPlanning.DispatchOrderId;
+            
             // Transport/Courier fields
             existing.IsTransport = dispatchPlanning.IsTransport;
             existing.IsCourier = dispatchPlanning.IsCourier;
@@ -91,8 +92,11 @@ namespace AvyyanBackend.Repositories
             existing.ContactPerson = dispatchPlanning.ContactPerson;
             existing.Phone = dispatchPlanning.Phone;
             existing.MaximumCapacityKgs = dispatchPlanning.MaximumCapacityKgs;
+            // Weight fields for dispatch planning
+            existing.TotalGrossWeight = dispatchPlanning.TotalGrossWeight;
+            existing.TotalNetWeight = dispatchPlanning.TotalNetWeight;
             existing.UpdatedAt = DateTime.UtcNow;
-
+    
             await _context.SaveChangesAsync();
             return existing;
         }
