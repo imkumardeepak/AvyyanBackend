@@ -351,5 +351,44 @@ namespace AvyyanBackend.Controllers
 				return StatusCode(500, $"Internal server error: {ex.Message}");
 			}
 		}
+		
+		// GET api/rollconfirmation - Get all roll confirmations
+		[HttpGet]
+		public async Task<ActionResult<IEnumerable<RollConfirmationResponseDto>>> GetAllRollConfirmations()
+		{
+			try
+			{
+				var rollConfirmations = await _context.RollConfirmations
+					.ToListAsync();
+
+				var responseDtos = rollConfirmations.Select(roll => new RollConfirmationResponseDto
+				{
+					Id = roll.Id,
+					AllotId = roll.AllotId,
+					MachineName = roll.MachineName,
+					RollPerKg = roll.RollPerKg,
+					GreyGsm = roll.GreyGsm,
+					GreyWidth = roll.GreyWidth,
+					BlendPercent = roll.BlendPercent,
+					Cotton = roll.Cotton,
+					Polyester = roll.Polyester,
+					Spandex = roll.Spandex,
+					RollNo = roll.RollNo,
+					GrossWeight = roll.GrossWeight,
+					TareWeight = roll.TareWeight,
+					NetWeight = roll.NetWeight,
+					FgRollNo = roll.FgRollNo,
+					IsFGStickerGenerated = roll.IsFGStickerGenerated,
+					CreatedDate = roll.CreatedDate
+				}).ToList();
+
+				return Ok(responseDtos);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error fetching all roll confirmations");
+				return StatusCode(500, $"Internal server error: {ex.Message}");
+			}
+		}
 	}
 }
