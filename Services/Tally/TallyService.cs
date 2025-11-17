@@ -1217,7 +1217,7 @@ public class TallyService
 			}
 
 			xmlContent = xmlContent.Replace("{Cname}", companyName);
-			xmlContent = xmlContent.Replace("{fromdate}", DateTime.Now.AddDays(-30).ToString("yyyyMMdd"));
+			xmlContent = xmlContent.Replace("{fromdate}", DateTime.Now.AddDays(-10).ToString("yyyyMMdd"));
 			xmlContent = xmlContent.Replace("{todate}", DateTime.Now.ToString("yyyyMMdd"));
 
 			// Create HTTP request
