@@ -145,6 +145,23 @@ namespace AvyyanBackend.Extensions
 				.ForMember(dest => dest.Id, opt => opt.Ignore())
 				.ForMember(dest => dest.SalesOrderId, opt => opt.Ignore());
 
+			// Sales Order Web mappings
+			CreateMap<SalesOrderWeb, SalesOrderWebResponseDto>();
+			CreateMap<SalesOrderItemWeb, SalesOrderItemWebResponseDto>();
+			CreateMap<CreateSalesOrderWebRequestDto, SalesOrderWeb>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+			CreateMap<CreateSalesOrderItemWebRequestDto, SalesOrderItemWeb>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.SalesOrderWebId, opt => opt.Ignore());
+			CreateMap<UpdateSalesOrderWebRequestDto, SalesOrderWeb>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+			CreateMap<UpdateSalesOrderItemWebRequestDto, SalesOrderItemWeb>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.SalesOrderWebId, opt => opt.Ignore());
+
 			// Tape Color mappings
 			CreateMap<TapeColorMaster, TapeColorResponseDto>();
 			CreateMap<CreateTapeColorRequestDto, TapeColorMaster>()

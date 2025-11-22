@@ -47,6 +47,10 @@ namespace AvyyanBackend.Data
 		// Dispatch Planning entities
 		public DbSet<DispatchPlanning> DispatchPlannings { get; set; }
 		public DbSet<DispatchedRoll> DispatchedRolls { get; set; }
+		
+		// Sales Order Web entities
+		public DbSet<SalesOrderWeb> SalesOrdersWeb { get; set; }
+		public DbSet<SalesOrderItemWeb> SalesOrderItemsWeb { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -104,6 +108,30 @@ namespace AvyyanBackend.Data
 
 			modelBuilder.Entity<SalesOrderItem>()
 				.HasIndex(i => i.StockItemName);
+
+			// Configure relationships for SalesOrderWeb
+			modelBuilder.Entity<SalesOrderWeb>()
+				.HasMany(sow => sow.Items)
+				.WithOne(soiw => soiw.SalesOrderWeb)
+				.HasForeignKey(soiw => soiw.SalesOrderWebId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			// Add indexes for SalesOrderWeb
+			modelBuilder.Entity<SalesOrderWeb>()
+				.HasIndex(sow => sow.VoucherNumber)
+				.IsUnique();
+
+			modelBuilder.Entity<SalesOrderWeb>()
+				.HasIndex(sow => sow.OrderDate);
+
+			modelBuilder.Entity<SalesOrderWeb>()
+				.HasIndex(sow => sow.BuyerName);
+
+			modelBuilder.Entity<SalesOrderItemWeb>()
+				.HasIndex(soiw => soiw.SalesOrderWebId);
+
+			modelBuilder.Entity<SalesOrderItemWeb>()
+				.HasIndex(soiw => soiw.ItemName);
 
 			// Configure relationships
 			modelBuilder.Entity<RollConfirmation>()
@@ -226,11 +254,6 @@ namespace AvyyanBackend.Data
 				.HasForeignKey(dp => dp.CourierId)
 				.OnDelete(DeleteBehavior.SetNull);
 		}
-
-
-
-
-
 
 		public override int SaveChanges()
 		{

@@ -28,6 +28,7 @@ public class VoucherMapper
 			LedgerEntries = JoinLedgerEntries(xmlVoucher.LedgerEntries),
 			Items = MapItems(xmlVoucher.AllInventoryEntries) ?? new List<SalesOrderItem>()
 		};
+
 	}
 
 	private static DateTime ParseDate(string dateString)
