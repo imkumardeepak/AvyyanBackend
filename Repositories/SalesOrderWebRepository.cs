@@ -89,7 +89,8 @@ namespace AvyyanBackend.Repositories
                         existingItem.ItemName = item.ItemName;
                         existingItem.ItemDescription = item.ItemDescription;
                         existingItem.YarnCount = item.YarnCount;
-                        existingItem.DiaGG = item.DiaGG;
+                        existingItem.Dia = item.Dia;
+                        existingItem.GG = item.GG;
                         existingItem.FabricType = item.FabricType;
                         existingItem.Composition = item.Composition;
                         existingItem.WtPerRoll = item.WtPerRoll;

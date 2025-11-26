@@ -21,7 +21,7 @@ namespace TallyERPWebApi.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> Get()
+		public async Task<IActionResult> Get(){
 		
 			try
 			{

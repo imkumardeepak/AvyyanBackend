@@ -65,6 +65,19 @@ namespace AvyyanBackend.Services
                 throw new InvalidOperationException($"Sales order web with voucher number '{createSalesOrderWebDto.VoucherNumber}' already exists");
             }
 
+            // Generate serial number if not provided
+            if (string.IsNullOrEmpty(createSalesOrderWebDto.SerialNo))
+            {
+                createSalesOrderWebDto.SerialNo = await GetNextSerialNumberAsync();
+            }
+
+            // Calculate totals if not provided
+            if (createSalesOrderWebDto.TotalQuantity == 0 && createSalesOrderWebDto.TotalAmount == 0)
+            {
+                createSalesOrderWebDto.TotalQuantity = createSalesOrderWebDto.Items.Sum(item => item.Qty);
+                createSalesOrderWebDto.TotalAmount = createSalesOrderWebDto.Items.Sum(item => item.Amount);
+            }
+
             var salesOrderWeb = _mapper.Map<SalesOrderWeb>(createSalesOrderWebDto);
 
             // Map items
@@ -107,6 +120,19 @@ namespace AvyyanBackend.Services
             if (existingSalesOrderWeb != null)
             {
                 throw new InvalidOperationException($"Sales order web with voucher number '{updateSalesOrderWebDto.VoucherNumber}' already exists");
+            }
+
+            // Generate serial number if not provided
+            if (string.IsNullOrEmpty(updateSalesOrderWebDto.SerialNo))
+            {
+                updateSalesOrderWebDto.SerialNo = await GetNextSerialNumberAsync();
+            }
+
+            // Calculate totals if not provided
+            if (updateSalesOrderWebDto.TotalQuantity == 0 && updateSalesOrderWebDto.TotalAmount == 0)
+            {
+                updateSalesOrderWebDto.TotalQuantity = updateSalesOrderWebDto.Items.Sum(item => item.Qty);
+                updateSalesOrderWebDto.TotalAmount = updateSalesOrderWebDto.Items.Sum(item => item.Amount);
             }
 
             // Update main sales order properties
@@ -177,6 +203,44 @@ namespace AvyyanBackend.Services
             }
         }
 
+        // Method to generate the next serial number for sales orders
+        public async Task<string> GetNextSerialNumberAsync()
+        {
+            try
+            {
+                // Get the maximum serial number from existing sales orders and add 1
+                var maxSerialNumber = 0;
+                var existingOrders = await _context.SalesOrdersWeb
+                    .Select(order => order.SerialNo)
+                    .ToListAsync();
+
+                if (existingOrders.Any())
+                {
+                    foreach (var serialNo in existingOrders)
+                    {
+                        // Parse the serial number (format: "0001", "0002", etc.)
+                        if (int.TryParse(serialNo, out int serial))
+                        {
+                            if (serial > maxSerialNumber)
+                                maxSerialNumber = serial;
+                        }
+                    }
+                }
+
+                var nextNumber = maxSerialNumber + 1;
+
+                // Format as 4-digit zero-padded string
+                var serialNumber = nextNumber.ToString("D4");
+
+                return serialNumber;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating next serial number");
+                throw new InvalidOperationException("Error generating next serial number", ex);
+            }
+        }
+
         // Method to generate voucher number based on job work flag and financial year
         public string GenerateVoucherNumber(bool isJobWork, string buyerName)
         {
@@ -212,14 +276,19 @@ namespace AvyyanBackend.Services
         // Method to get the next serial number
         private int GetNextSerialNumber(bool isJobWork, string buyerName)
         {
-            // Get the last voucher number for the same series (A or J) and buyer
+            // Get the last voucher number for the same series (A or J)
             var series = isJobWork ? "J" : "A";
             
             // Find the highest voucher number with the same series
-            var lastOrder = _context.SalesOrdersWeb
+            // We'll fetch all matching records and process them in memory
+            var matchingOrders = _context.SalesOrdersWeb
                 .Where(sow => sow.VoucherNumber.Contains($"/{series}"))
+                .AsEnumerable() // Switch to client evaluation for complex string operations
+                .Where(sow => sow.VoucherNumber.Split('/').Last().StartsWith(series))
                 .OrderByDescending(sow => sow.CreatedAt)
-                .FirstOrDefault();
+                .ToList();
+            
+            var lastOrder = matchingOrders.FirstOrDefault();
             
             if (lastOrder != null)
             {
@@ -229,7 +298,7 @@ namespace AvyyanBackend.Services
                 if (parts.Length == 3)
                 {
                     var serialPart = parts[2]; // Get the last part (e.g., "A0001")
-                    if (serialPart.Length > 1)
+                    if (serialPart.Length > 1 && char.ToUpper(serialPart[0]) == series[0])
                     {
                         var numericPart = serialPart.Substring(1); // Remove the series letter (e.g., "0001")
                         if (int.TryParse(numericPart, out int lastSerial))
@@ -242,6 +311,13 @@ namespace AvyyanBackend.Services
             
             // If no previous order found, start with 1
             return 1;
+        }
+
+        // Helper method to extract the last part of a voucher number
+        private string GetLastPart(string voucherNumber)
+        {
+            var parts = voucherNumber.Split('/');
+            return parts.Length > 0 ? parts[parts.Length - 1] : string.Empty;
         }
 
         // Helper method to validate voucher number format

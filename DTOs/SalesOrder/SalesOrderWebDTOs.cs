@@ -13,6 +13,9 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public DateTime OrderDate { get; set; }
         public string TermsOfPayment { get; set; } = string.Empty;
         public bool IsJobWork { get; set; } = false; // Checkbox for job work
+        
+        // Serial number field
+        public string? SerialNo { get; set; }
 
         // Company details
         public string CompanyName { get; set; } = string.Empty;
@@ -38,6 +41,10 @@ namespace AvyyanBackend.DTOs.SalesOrder
         // Order details
         public string Remarks { get; set; } = string.Empty;
 
+        // New fields for totals
+        public decimal TotalQuantity { get; set; }
+        public decimal TotalAmount { get; set; }
+
         // Items
         public ICollection<SalesOrderItemWebResponseDto> Items { get; set; } = new List<SalesOrderItemWebResponseDto>();
 
@@ -58,7 +65,12 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public string ItemName { get; set; } = string.Empty;
         public string ItemDescription { get; set; } = string.Empty;
         public string YarnCount { get; set; } = string.Empty;
-        public string DiaGG { get; set; } = string.Empty;
+        public int Dia { get; set; } = 0;
+        public int GG { get; set; } = 0;
+        
+        // Computed property for backward compatibility
+        public string DiaGG => $"{Dia}*{GG}";
+        
         public string FabricType { get; set; } = string.Empty;
         public string Composition { get; set; } = string.Empty;
         public decimal WtPerRoll { get; set; }
@@ -70,6 +82,11 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public decimal SGST { get; set; }
         public decimal CGST { get; set; } // Added CGST field
         public string Remarks { get; set; } = string.Empty;
+        
+        // New fields
+        public string? SlitLine { get; set; }
+        public string? StitchLength { get; set; }
+        public DateTime? DueDate { get; set; }
     }
 
     // Request DTO for creating SalesOrderWeb
@@ -90,6 +107,10 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public string TermsOfPayment { get; set; } = string.Empty;
 
         public bool IsJobWork { get; set; } = false; // Checkbox for job work
+        
+        // Serial number field
+        [MaxLength(50)]
+        public string? SerialNo { get; set; }
 
         // Company details
         [Required]
@@ -147,6 +168,10 @@ namespace AvyyanBackend.DTOs.SalesOrder
         [MaxLength(500)]
         public string Remarks { get; set; } = string.Empty;
 
+        // New fields for totals
+        public decimal TotalQuantity { get; set; } = 0;
+        public decimal TotalAmount { get; set; } = 0;
+
         // Items
         public ICollection<CreateSalesOrderItemWebRequestDto> Items { get; set; } = new List<CreateSalesOrderItemWebRequestDto>();
     }
@@ -165,8 +190,8 @@ namespace AvyyanBackend.DTOs.SalesOrder
         [MaxLength(50)]
         public string YarnCount { get; set; } = string.Empty;
 
-        [MaxLength(50)]
-        public string DiaGG { get; set; } = string.Empty;
+        public int Dia { get; set; } = 0;
+        public int GG { get; set; } = 0;
 
         [MaxLength(100)]
         public string FabricType { get; set; } = string.Empty;
@@ -192,6 +217,15 @@ namespace AvyyanBackend.DTOs.SalesOrder
 
         [MaxLength(500)]
         public string Remarks { get; set; } = string.Empty;
+        
+        // New fields
+        [MaxLength(50)]
+        public string? SlitLine { get; set; }
+        
+        [MaxLength(50)]
+        public string? StitchLength { get; set; }
+        
+        public DateTime? DueDate { get; set; }
     }
 
     // Request DTO for updating SalesOrderWeb
@@ -212,6 +246,10 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public string TermsOfPayment { get; set; } = string.Empty;
 
         public bool IsJobWork { get; set; } = false; // Checkbox for job work
+        
+        // Serial number field
+        [MaxLength(50)]
+        public string? SerialNo { get; set; }
 
         // Company details
         [Required]
@@ -268,6 +306,10 @@ namespace AvyyanBackend.DTOs.SalesOrder
 
         [MaxLength(500)]
         public string Remarks { get; set; } = string.Empty;
+
+        // New fields for totals
+        public decimal TotalQuantity { get; set; } = 0;
+        public decimal TotalAmount { get; set; } = 0;
 
         // Items
         public ICollection<UpdateSalesOrderItemWebRequestDto> Items { get; set; } = new List<UpdateSalesOrderItemWebRequestDto>();
@@ -289,8 +331,8 @@ namespace AvyyanBackend.DTOs.SalesOrder
         [MaxLength(50)]
         public string YarnCount { get; set; } = string.Empty;
 
-        [MaxLength(50)]
-        public string DiaGG { get; set; } = string.Empty;
+        public int Dia { get; set; } = 0;
+        public int GG { get; set; } = 0;
 
         [MaxLength(100)]
         public string FabricType { get; set; } = string.Empty;
@@ -316,5 +358,14 @@ namespace AvyyanBackend.DTOs.SalesOrder
 
         [MaxLength(500)]
         public string Remarks { get; set; } = string.Empty;
+        
+        // New fields
+        [MaxLength(50)]
+        public string? SlitLine { get; set; }
+        
+        [MaxLength(50)]
+        public string? StitchLength { get; set; }
+        
+        public DateTime? DueDate { get; set; }
     }
 }

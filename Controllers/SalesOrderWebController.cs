@@ -20,6 +20,24 @@ namespace AvyyanBackend.Controllers
 		}
 
 		/// <summary>
+		/// Get the next serial number for sales order items
+		/// </summary>
+		[HttpGet("next-serial-number")]
+		public async Task<ActionResult<string>> GetNextSerialNumber()
+		{
+			try
+			{
+				var serialNumber = await _salesOrderWebService.GetNextSerialNumberAsync();
+				return Ok(serialNumber);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error occurred while getting next serial number");
+				return StatusCode(500, "An error occurred while processing your request");
+			}
+		}
+
+		/// <summary>
 		/// Get all sales orders web
 		/// </summary>
 		[HttpGet]

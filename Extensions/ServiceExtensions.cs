@@ -30,6 +30,7 @@ namespace AvyyanBackend.Extensions
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IDispatchPlanningRepository, DispatchPlanningRepository>();
             services.AddScoped<ISalesOrderWebRepository, SalesOrderWebRepository>();
+            services.AddScoped<ISlitLineRepository, SlitLineRepository>();
 
             return services;
         }
@@ -48,6 +49,7 @@ namespace AvyyanBackend.Extensions
             services.AddScoped<IStorageCaptureService, StorageCaptureService>();
             services.AddScoped<ITransportService, TransportService>();
             services.AddScoped<ICourierService, CourierService>();
+            services.AddScoped<ISlitLineService, SlitLineService>();
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();

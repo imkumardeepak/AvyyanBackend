@@ -22,6 +22,10 @@ namespace AvyyanBackend.Models
         public string TermsOfPayment { get; set; } = string.Empty;
 
         public bool IsJobWork { get; set; } = false; // Checkbox for job work
+        
+        // Serial number field
+        [MaxLength(50)]
+        public string? SerialNo { get; set; }
 
         // Company details
         [MaxLength(200)]
@@ -74,6 +78,10 @@ namespace AvyyanBackend.Models
         [MaxLength(500)]
         public string Remarks { get; set; } = string.Empty;
 
+        // New fields for totals
+        public decimal TotalQuantity { get; set; } = 0;
+        public decimal TotalAmount { get; set; } = 0;
+
         // Navigation property for items
         public virtual ICollection<SalesOrderItemWeb> Items { get; set; } = new List<SalesOrderItemWeb>();
     }
@@ -96,8 +104,9 @@ namespace AvyyanBackend.Models
         [MaxLength(50)]
         public string YarnCount { get; set; } = string.Empty;
 
-        [MaxLength(50)]
-        public string DiaGG { get; set; } = string.Empty;
+        public int Dia { get; set; } = 0;
+
+        public int GG { get; set; } = 0;
 
         [MaxLength(100)]
         public string FabricType { get; set; } = string.Empty;
@@ -123,6 +132,15 @@ namespace AvyyanBackend.Models
 
         [MaxLength(500)]
         public string Remarks { get; set; } = string.Empty;
+
+        // New fields
+        [MaxLength(50)]
+        public string? SlitLine { get; set; }
+
+        [MaxLength(50)]
+        public string? StitchLength { get; set; }
+
+        public DateTime? DueDate { get; set; }
 
         // Navigation property
         [ForeignKey("SalesOrderWebId")]

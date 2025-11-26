@@ -14,7 +14,8 @@ using AvyyanBackend.DTOs.Shift;
 using AvyyanBackend.DTOs.StorageCapture;
 using AvyyanBackend.DTOs.DispatchPlanning;
 using AvyyanBackend.DTOs.Transport;
-using AvyyanBackend.DTOs.Courier; // Add this import
+using AvyyanBackend.DTOs.Courier;
+using AvyyanBackend.DTOs.SlitLine; // Add this import
 
 namespace AvyyanBackend.Extensions
 {
@@ -222,6 +223,17 @@ namespace AvyyanBackend.Extensions
 				.ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
 				.ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
 			CreateMap<UpdateCourierRequestDto, CourierMaster>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+
+			// Slit Line mappings
+			CreateMap<SlitLineMaster, SlitLineResponseDto>();
+			CreateMap<CreateSlitLineRequestDto, SlitLineMaster>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+			CreateMap<UpdateSlitLineRequestDto, SlitLineMaster>()
 				.ForMember(dest => dest.Id, opt => opt.Ignore())
 				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
 		}

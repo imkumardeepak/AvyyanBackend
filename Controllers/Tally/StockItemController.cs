@@ -20,8 +20,61 @@ namespace TallyERPWebApi.Controllers
             _tallyService = tallyService;
             _postTallyService = postTallyService;
         }
-        // GET: api/<GetStockItemController>
-       
+        
+        // GET: api/StockItem
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                bool result = await _tallyService.GetTestConnection();
+                if (!result)
+                {
+                    _logger.LogWarning("Tally Server is not running");
+                    return NotFound(new ApiResponse<string>
+                    {
+                        Success = false,
+                        Message = "Tally Server is not running!!!"
+                    });
+                }
+
+                // Path to the XML file
+                string xmlFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "TallyXML", "GetStockItem.xml");
+
+                // Check if the XML file exists
+                if (!System.IO.File.Exists(xmlFilePath))
+                {
+                    _logger.LogWarning("The specified XML file does not exist: {FilePath}", xmlFilePath);
+                    return NotFound(new ApiResponse<string>
+                    {
+                        Success = false,
+                        Message = "The specified XML file does not exist."
+                    });
+                }
+                
+                // Get stock items from Tally
+                List<StockItem> stockItems = await _tallyService.GetStockItem(xmlFilePath);
+
+                _logger.LogInformation("Successfully fetched stock items from Tally. Count: {Count}", stockItems.Count);
+
+                // Return success response with stock items data
+                return Ok(new ApiResponse<List<StockItem>>
+                {
+                    Success = true,
+                    Message = "Stock items fetched successfully.",
+                    Data = stockItems
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching stock items from Tally.");
+                return StatusCode(500, new ApiResponse<string>
+                {
+                    Success = false,
+                    Message = "An internal server error occurred. Please try again later."
+                });
+            }
+        }
 
         [HttpPost]
         public async Task<IActionResult> Savestockitem(StockItem stockItem)

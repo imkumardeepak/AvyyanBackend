@@ -43,6 +43,7 @@ namespace AvyyanBackend.Data
 		public DbSet<StorageCapture> StorageCaptures { get; set; }
 		public DbSet<TransportMaster> TransportMasters { get; set; }
 		public DbSet<CourierMaster> CourierMasters { get; set; }
+		public DbSet<SlitLineMaster> SlitLineMasters { get; set; }
 		
 		// Dispatch Planning entities
 		public DbSet<DispatchPlanning> DispatchPlannings { get; set; }
