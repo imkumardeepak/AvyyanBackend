@@ -1,4 +1,3 @@
-using AvyyanBackend.Controllers;
 using AvyyanBackend.Data;
 using AvyyanBackend.Extensions;
 using AvyyanBackend.Middleware;
@@ -8,10 +7,12 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using Serilog;
+using System.ComponentModel;
 using System.Net.WebSockets;
 
 
-ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
 
 // Configure Serilog early
 var builder = WebApplication.CreateBuilder(args);
