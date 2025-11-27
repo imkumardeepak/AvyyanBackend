@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
@@ -74,6 +74,60 @@ namespace TallyERPWebApi.Controllers
                     Message = "Open companies fetched successfully.",
                     Data = currentCompany
                 });
+            }
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "An error occurred while fetching company information from Tally.");
+				return StatusCode(500, new ApiResponse<string>
+				{
+					Success = false,
+					Message = "An internal server error occurred. Please try again later."
+				});
+			}
+		}
+
+		[HttpGet("details")]
+		public async Task<IActionResult> GetCompanyDetails()
+		{
+			try
+			{
+				bool result = await _tallyService.GetTestConnection();
+				if (!result)
+				{
+					_logger.LogWarning("Tally Server is not running");
+					return NotFound(new ApiResponse<string>
+					{
+						Success = false,
+						Message = "Tally Server is not running!!!"
+					});
+				}
+
+				// Path to the XML file
+				string xmlFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "TallyXML", "GetCompanyDetails.xml");
+
+				// Check if the XML file exists
+				if (!System.IO.File.Exists(xmlFilePath))
+				{
+					_logger.LogWarning("The specified XML file does not exist: {FilePath}", xmlFilePath);
+					return NotFound(new ApiResponse<string>
+					{
+						Success = false,
+						Message = "The specified XML file does not exist."
+					});
+				}
+
+				// Get the detailed company information from Tally
+				List<Ledger> companyDetails = await _tallyService.GetCompanyDetailsAsync(xmlFilePath);
+
+				_logger.LogInformation("Successfully fetched company details: {CompanyDetails}", companyDetails);
+
+				// Return success response with company data
+				return Ok(new ApiResponse<List<Ledger>>
+				{
+					Success = true,
+					Message = "Company details fetched successfully.",
+					Data = companyDetails
+				});
             }
 			catch (Exception ex)
 			{
