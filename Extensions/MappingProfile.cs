@@ -14,7 +14,8 @@ using AvyyanBackend.DTOs.Shift;
 using AvyyanBackend.DTOs.StorageCapture;
 using AvyyanBackend.DTOs.DispatchPlanning;
 using AvyyanBackend.DTOs.Transport;
-using AvyyanBackend.DTOs.Courier; // Add this import
+using AvyyanBackend.DTOs.Courier;
+using AvyyanBackend.DTOs.SlitLine; // Add this import
 
 namespace AvyyanBackend.Extensions
 {
@@ -145,6 +146,23 @@ namespace AvyyanBackend.Extensions
 				.ForMember(dest => dest.Id, opt => opt.Ignore())
 				.ForMember(dest => dest.SalesOrderId, opt => opt.Ignore());
 
+			// Sales Order Web mappings
+			CreateMap<SalesOrderWeb, SalesOrderWebResponseDto>();
+			CreateMap<SalesOrderItemWeb, SalesOrderItemWebResponseDto>();
+			CreateMap<CreateSalesOrderWebRequestDto, SalesOrderWeb>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+			CreateMap<CreateSalesOrderItemWebRequestDto, SalesOrderItemWeb>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.SalesOrderWebId, opt => opt.Ignore());
+			CreateMap<UpdateSalesOrderWebRequestDto, SalesOrderWeb>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+			CreateMap<UpdateSalesOrderItemWebRequestDto, SalesOrderItemWeb>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.SalesOrderWebId, opt => opt.Ignore());
+
 			// Tape Color mappings
 			CreateMap<TapeColorMaster, TapeColorResponseDto>();
 			CreateMap<CreateTapeColorRequestDto, TapeColorMaster>()
@@ -205,6 +223,17 @@ namespace AvyyanBackend.Extensions
 				.ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
 				.ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
 			CreateMap<UpdateCourierRequestDto, CourierMaster>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+
+			// Slit Line mappings
+			CreateMap<SlitLineMaster, SlitLineResponseDto>();
+			CreateMap<CreateSlitLineRequestDto, SlitLineMaster>()
+				.ForMember(dest => dest.Id, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+				.ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true));
+			CreateMap<UpdateSlitLineRequestDto, SlitLineMaster>()
 				.ForMember(dest => dest.Id, opt => opt.Ignore())
 				.ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
 		}

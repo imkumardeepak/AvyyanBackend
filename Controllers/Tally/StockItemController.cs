@@ -20,7 +20,8 @@ namespace TallyERPWebApi.Controllers
             _tallyService = tallyService;
             _postTallyService = postTallyService;
         }
-        // GET: api/<GetStockItemController>
+        
+        // GET: api/StockItem
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -50,33 +51,23 @@ namespace TallyERPWebApi.Controllers
                         Message = "The specified XML file does not exist."
                     });
                 }
-                // Get the current company from Tally
-                List<StockItem> currentCompany = await _tallyService.GetStockItem(xmlFilePath);
+                
+                // Get stock items from Tally
+                List<StockItem> stockItems = await _tallyService.GetStockItem(xmlFilePath);
 
-               /* // Check if the result is valid
-                if (currentCompany.Count == 0)
-                {
-                    _logger.LogWarning("The current company returned by Tally is null or empty.");
-                    return NotFound(new ApiResponse<string>
-                    {
-                        Success = false,
-                        Message = "No current company found in Tally."
-                    });
-                }*/
+                _logger.LogInformation("Successfully fetched stock items from Tally. Count: {Count}", stockItems.Count);
 
-                _logger.LogInformation("Successfully fetched current company: {CurrentCompany}", currentCompany);
-
-                // Return success response with company data
+                // Return success response with stock items data
                 return Ok(new ApiResponse<List<StockItem>>
                 {
                     Success = true,
-                    Message = "Current company fetched successfully.",
-                    Data = currentCompany
+                    Message = "Stock items fetched successfully.",
+                    Data = stockItems
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while fetching company information from Tally.");
+                _logger.LogError(ex, "An error occurred while fetching stock items from Tally.");
                 return StatusCode(500, new ApiResponse<string>
                 {
                     Success = false,

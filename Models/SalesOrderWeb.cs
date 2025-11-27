@@ -1,0 +1,149 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace AvyyanBackend.Models
+{
+    public class SalesOrderWeb : BaseEntity
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
+        // Voucher details
+        [MaxLength(50)]
+        public string VoucherType { get; set; } = "Sales Order"; // Default value
+
+        [MaxLength(50)]
+        public string VoucherNumber { get; set; } = string.Empty;
+
+        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
+
+        [MaxLength(50)]
+        public string TermsOfPayment { get; set; } = string.Empty;
+
+        public bool IsJobWork { get; set; } = false; // Checkbox for job work
+        
+        // Serial number field
+        [MaxLength(50)]
+        public string? SerialNo { get; set; }
+
+        // Company details
+        [MaxLength(200)]
+        public string CompanyName { get; set; } = string.Empty;
+
+        [MaxLength(50)]
+        public string CompanyGSTIN { get; set; } = string.Empty;
+
+        [MaxLength(100)]
+        public string CompanyState { get; set; } = string.Empty;
+
+        // Buyer details (Bill To)
+        [MaxLength(200)]
+        public string BuyerName { get; set; } = string.Empty;
+
+        [MaxLength(50)]
+        public string? BuyerGSTIN { get; set; } // Made nullable
+
+        [MaxLength(100)]
+        public string? BuyerState { get; set; } // Made nullable
+
+        [MaxLength(20)]
+        public string BuyerPhone { get; set; } = string.Empty;
+
+        [MaxLength(100)]
+        public string BuyerContactPerson { get; set; } = string.Empty;
+
+        [MaxLength(200)]
+        public string BuyerAddress { get; set; } = string.Empty;
+
+        // Consignee details (Ship To)
+        [MaxLength(200)]
+        public string ConsigneeName { get; set; } = string.Empty;
+
+        [MaxLength(50)]
+        public string? ConsigneeGSTIN { get; set; } // Made nullable
+
+        [MaxLength(100)]
+        public string? ConsigneeState { get; set; } // Made nullable
+
+        [MaxLength(20)]
+        public string ConsigneePhone { get; set; } = string.Empty;
+
+        [MaxLength(100)]
+        public string ConsigneeContactPerson { get; set; } = string.Empty;
+
+        [MaxLength(200)]
+        public string ConsigneeAddress { get; set; } = string.Empty;
+
+        [MaxLength(500)]
+        public string Remarks { get; set; } = string.Empty;
+
+        // New fields for totals
+        public decimal TotalQuantity { get; set; } = 0;
+        public decimal TotalAmount { get; set; } = 0;
+
+        // Navigation property for items
+        public virtual ICollection<SalesOrderItemWeb> Items { get; set; } = new List<SalesOrderItemWeb>();
+    }
+
+    public class SalesOrderItemWeb
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
+        public int SalesOrderWebId { get; set; }
+
+        // Item details
+        [MaxLength(200)]
+        public string ItemName { get; set; } = string.Empty;
+
+        [MaxLength(200)]
+        public string ItemDescription { get; set; } = string.Empty;
+
+        [MaxLength(50)]
+        public string YarnCount { get; set; } = string.Empty;
+
+        public int Dia { get; set; } = 0;
+
+        public int GG { get; set; } = 0;
+
+        [MaxLength(100)]
+        public string FabricType { get; set; } = string.Empty;
+
+        [MaxLength(200)]
+        public string Composition { get; set; } = string.Empty;
+
+        public decimal WtPerRoll { get; set; }
+
+        public int NoOfRolls { get; set; }
+
+        public decimal Rate { get; set; }
+
+        public decimal Qty { get; set; }
+
+        public decimal Amount { get; set; }
+
+        public decimal IGST { get; set; }
+
+        public decimal SGST { get; set; }
+
+        public decimal CGST { get; set; } // Added CGST field
+
+        [MaxLength(500)]
+        public string Remarks { get; set; } = string.Empty;
+
+        // New fields
+        [MaxLength(50)]
+        public string? SlitLine { get; set; }
+
+        [MaxLength(50)]
+        public string? StitchLength { get; set; }
+
+        public DateTime? DueDate { get; set; }
+
+        // Navigation property
+        [ForeignKey("SalesOrderWebId")]
+        public virtual SalesOrderWeb SalesOrderWeb { get; set; } = null!;
+    }
+}

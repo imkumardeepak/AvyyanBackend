@@ -21,8 +21,8 @@ namespace TallyERPWebApi.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> Get()
-		{
+		public async Task<IActionResult> Get(){
+		
 			try
 			{
 				bool result = await _tallyService.GetTestConnection();
