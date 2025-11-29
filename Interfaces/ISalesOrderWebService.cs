@@ -10,5 +10,6 @@ namespace AvyyanBackend.Interfaces
         Task<SalesOrderWebResponseDto?> UpdateAsync(int id, UpdateSalesOrderWebRequestDto updateSalesOrderWebDto);
         Task<bool> DeleteAsync(int id);
         Task<string> GetNextSerialNumberAsync(); // Add method for serial number generation
+        Task<bool> MarkSalesOrderItemWebAsProcessedAsync(int salesOrderWebId, int salesOrderItemWebId); // Add method for marking items as processed
     }
 }

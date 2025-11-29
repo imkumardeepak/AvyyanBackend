@@ -170,6 +170,48 @@ namespace AvyyanBackend.Services
             return true;
         }
 
+        // Method to mark a sales order web item as processed
+        public async Task<bool> MarkSalesOrderItemWebAsProcessedAsync(int salesOrderWebId, int salesOrderItemWebId)
+        {
+            _logger.LogDebug("Marking sales order web item {SalesOrderItemWebId} as processed for sales order web {SalesOrderWebId}", salesOrderItemWebId, salesOrderWebId);
+
+            var salesOrderWeb = await _context.SalesOrdersWeb
+                .Include(sow => sow.Items)
+                .FirstOrDefaultAsync(sow => sow.Id == salesOrderWebId);
+
+            if (salesOrderWeb == null)
+            {
+                _logger.LogWarning("Sales order web {SalesOrderWebId} not found for processing item {SalesOrderItemWebId}", salesOrderWebId, salesOrderItemWebId);
+                return false;
+            }
+
+            var salesOrderItemWeb = salesOrderWeb.Items.FirstOrDefault(item => item.Id == salesOrderItemWebId);
+            if (salesOrderItemWeb == null)
+            {
+                _logger.LogWarning("Sales order web item {SalesOrderItemWebId} not found in sales order web {SalesOrderWebId}", salesOrderItemWebId, salesOrderWebId);
+                return false;
+            }
+
+            // Update the item's process flag
+            salesOrderItemWeb.IsProcess = true;
+            salesOrderItemWeb.ProcessDate = DateTime.Now;
+
+            // Check if all items are processed, then mark the entire order as processed
+            if (salesOrderWeb.Items.All(item => item.IsProcess == true))
+            {
+                salesOrderWeb.IsProcess = true;
+                salesOrderWeb.ProcessDate = DateTime.Now;
+            }
+
+            salesOrderWeb.UpdatedAt = DateTime.Now;
+
+            _context.SalesOrdersWeb.Update(salesOrderWeb);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Marked sales order web item {SalesOrderItemWebId} as processed for sales order web {SalesOrderWebId}", salesOrderItemWebId, salesOrderWebId);
+            return true;
+        }
+
         private void UpdateSalesOrderWebItems(SalesOrderWeb salesOrderWeb, ICollection<UpdateSalesOrderItemWebRequestDto> itemDtos)
         {
             // Remove items that are not in the update DTOs (if they have IDs)

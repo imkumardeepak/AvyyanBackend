@@ -49,16 +49,16 @@ namespace AvyyanBackend.Models.ProAllot
 		public string Composition { get; set; } // e.g., "97% Cotton + 3% Lycra"
 
 		[Column(TypeName = "decimal(18,2)")]
-		public decimal TotalProductionTime { get; set; } // In days
+		public decimal? TotalProductionTime { get; set; } // In days
 
         [MaxLength(50)]
-        public string YarnLotNo { get; set; }
+        public string? YarnLotNo { get; set; }
 
         [MaxLength(50)]
-        public string Counter { get; set; }
+        public string? Counter { get; set; }
 
         [MaxLength(50)]
-        public string ColourCode { get; set; }
+        public string? ColourCode { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal? ReqGreyGsm { get; set; }
@@ -77,7 +77,7 @@ namespace AvyyanBackend.Models.ProAllot
 
         // Packaging Details
         [Column(TypeName = "decimal(18,3)")]
-        public decimal TubeWeight { get; set; }
+        public decimal? TubeWeight { get; set; }
 
         [Column(TypeName = "decimal(18,3)")]
         public decimal? ShrinkRapWeight { get; set; }
@@ -86,7 +86,7 @@ namespace AvyyanBackend.Models.ProAllot
         public decimal? TotalWeight { get; set; }
 
         [MaxLength(100)]
-        public string TapeColor { get; set; }
+        public string? TapeColor { get; set; }
 
         public string? SerialNo { get; set; } // Format: "0001", "0002", etc."
 

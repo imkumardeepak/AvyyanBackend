@@ -13,9 +13,7 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public DateTime OrderDate { get; set; }
         public string TermsOfPayment { get; set; } = string.Empty;
         public bool IsJobWork { get; set; } = false; // Checkbox for job work
-        
-        // Serial number field
-        public string? SerialNo { get; set; }
+        public string? SerialNo { get; set; } // Add serial number field
 
         // Company details
         public string CompanyName { get; set; } = string.Empty;
@@ -45,6 +43,10 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public decimal TotalQuantity { get; set; }
         public decimal TotalAmount { get; set; }
 
+        // Process fields
+        public int IsProcess { get; set; } = 0;
+        public DateTime? ProcessDate { get; set; }
+
         // Items
         public ICollection<SalesOrderItemWebResponseDto> Items { get; set; } = new List<SalesOrderItemWebResponseDto>();
 
@@ -55,7 +57,6 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public string UpdatedBy { get; set; } = string.Empty;
     }
 
-    // Response DTO for SalesOrderItemWeb
     public class SalesOrderItemWebResponseDto
     {
         public int Id { get; set; }
@@ -87,6 +88,10 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public string? SlitLine { get; set; }
         public string? StitchLength { get; set; }
         public DateTime? DueDate { get; set; }
+        
+        // Process fields
+        public int IsProcess { get; set; } = 0;
+        public DateTime? ProcessDate { get; set; }
     }
 
     // Request DTO for creating SalesOrderWeb
@@ -172,6 +177,10 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public decimal TotalQuantity { get; set; } = 0;
         public decimal TotalAmount { get; set; } = 0;
 
+        // Process fields (optional for creation)
+        public int IsProcess { get; set; } = 0;
+        public DateTime? ProcessDate { get; set; }
+
         // Items
         public ICollection<CreateSalesOrderItemWebRequestDto> Items { get; set; } = new List<CreateSalesOrderItemWebRequestDto>();
     }
@@ -226,6 +235,10 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public string? StitchLength { get; set; }
         
         public DateTime? DueDate { get; set; }
+        
+        // Process fields (optional for creation)
+        public int IsProcess { get; set; } = 0;
+        public DateTime? ProcessDate { get; set; }
     }
 
     // Request DTO for updating SalesOrderWeb
@@ -311,6 +324,10 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public decimal TotalQuantity { get; set; } = 0;
         public decimal TotalAmount { get; set; } = 0;
 
+        // Process fields
+        public int IsProcess { get; set; } = 0;
+        public DateTime? ProcessDate { get; set; }
+
         // Items
         public ICollection<UpdateSalesOrderItemWebRequestDto> Items { get; set; } = new List<UpdateSalesOrderItemWebRequestDto>();
     }
@@ -367,5 +384,9 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public string? StitchLength { get; set; }
         
         public DateTime? DueDate { get; set; }
+        
+        // Process fields
+        public int IsProcess { get; set; } = 0;
+        public DateTime? ProcessDate { get; set; }
     }
 }

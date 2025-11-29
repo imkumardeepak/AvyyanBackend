@@ -188,7 +188,7 @@ namespace AvyyanBackend.Controllers
 					StitchLength = productionAllotment.StitchLength,
 					Efficiency = productionAllotment.Efficiency,
 					Composition = productionAllotment.Composition,
-					TotalProductionTime = productionAllotment.TotalProductionTime,
+					TotalProductionTime = (decimal)productionAllotment.TotalProductionTime,
 					CreatedDate = productionAllotment.CreatedDate,
 					YarnLotNo = productionAllotment.YarnLotNo,
 					Counter = productionAllotment.Counter,
@@ -198,7 +198,7 @@ namespace AvyyanBackend.Controllers
 					ReqFinishGsm = productionAllotment.ReqFinishGsm,
 					ReqFinishWidth = productionAllotment.ReqFinishWidth,
 					PartyName = productionAllotment.PartyName,
-					TubeWeight = productionAllotment.TubeWeight,
+					TubeWeight = (decimal)productionAllotment.TubeWeight,
 					TapeColor = productionAllotment.TapeColor
 				};
 

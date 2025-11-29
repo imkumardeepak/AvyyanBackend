@@ -1,22 +1,25 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace AvyyanBackend.Models
 {
-    public class SalesOrderWeb : BaseEntity
+    public class SalesOrderWeb
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         // Voucher details
+        [Required]
         [MaxLength(50)]
         public string VoucherType { get; set; } = "Sales Order"; // Default value
 
+        [Required]
         [MaxLength(50)]
         public string VoucherNumber { get; set; } = string.Empty;
 
-        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
+        public DateTime OrderDate { get; set; } = DateTime.Now;
 
         [MaxLength(50)]
         public string TermsOfPayment { get; set; } = string.Empty;
@@ -28,16 +31,20 @@ namespace AvyyanBackend.Models
         public string? SerialNo { get; set; }
 
         // Company details
+        [Required]
         [MaxLength(200)]
         public string CompanyName { get; set; } = string.Empty;
 
+        [Required]
         [MaxLength(50)]
         public string CompanyGSTIN { get; set; } = string.Empty;
 
+        [Required]
         [MaxLength(100)]
         public string CompanyState { get; set; } = string.Empty;
 
         // Buyer details (Bill To)
+        [Required]
         [MaxLength(200)]
         public string BuyerName { get; set; } = string.Empty;
 
@@ -57,6 +64,7 @@ namespace AvyyanBackend.Models
         public string BuyerAddress { get; set; } = string.Empty;
 
         // Consignee details (Ship To)
+        [Required]
         [MaxLength(200)]
         public string ConsigneeName { get; set; } = string.Empty;
 
@@ -81,6 +89,19 @@ namespace AvyyanBackend.Models
         // New fields for totals
         public decimal TotalQuantity { get; set; } = 0;
         public decimal TotalAmount { get; set; } = 0;
+
+        // Process flag - Added to match SalesOrder
+        public bool IsProcess { get; set; } = false;
+
+        // Process date - Added to match SalesOrder
+        [Column(TypeName = "timestamp without time zone")]
+        public DateTime? ProcessDate { get; set; }
+
+        // Audit fields
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public string CreatedBy { get; set; } = string.Empty;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public string UpdatedBy { get; set; } = string.Empty;
 
         // Navigation property for items
         public virtual ICollection<SalesOrderItemWeb> Items { get; set; } = new List<SalesOrderItemWeb>();
@@ -133,6 +154,9 @@ namespace AvyyanBackend.Models
         [MaxLength(500)]
         public string Remarks { get; set; } = string.Empty;
 
+        [MaxLength(50)]
+        public string? Unit { get; set; } // Unit field
+
         // New fields
         [MaxLength(50)]
         public string? SlitLine { get; set; }
@@ -141,6 +165,13 @@ namespace AvyyanBackend.Models
         public string? StitchLength { get; set; }
 
         public DateTime? DueDate { get; set; }
+
+        // Process flag - Changed from bool to int to match SalesOrderItem
+        public bool IsProcess { get; set; } = false;
+
+        // Process date - Added to match SalesOrderItem
+        [Column(TypeName = "timestamp without time zone")]
+        public DateTime? ProcessDate { get; set; }
 
         // Navigation property
         [ForeignKey("SalesOrderWebId")]
