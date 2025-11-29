@@ -116,6 +116,18 @@ namespace AvyyanBackend.DTOs.SalesOrder
         // Serial number field
         [MaxLength(50)]
         public string? SerialNo { get; set; }
+        
+        // Additional fields
+        public bool IsProcess { get; set; } = false; // Process flag
+        
+        [MaxLength(100)]
+        public string? OrderNo { get; set; } // Order number
+        
+        [MaxLength(200)]
+        public string? TermsOfDelivery { get; set; } // Terms of delivery
+        
+        [MaxLength(200)]
+        public string? DispatchThrough { get; set; } // Dispatch through
 
         // Company details
         [Required]
@@ -227,6 +239,9 @@ namespace AvyyanBackend.DTOs.SalesOrder
         [MaxLength(500)]
         public string Remarks { get; set; } = string.Empty;
         
+        [MaxLength(50)]
+        public string? Unit { get; set; } // Unit field
+        
         // New fields
         [MaxLength(50)]
         public string? SlitLine { get; set; }
@@ -263,6 +278,18 @@ namespace AvyyanBackend.DTOs.SalesOrder
         // Serial number field
         [MaxLength(50)]
         public string? SerialNo { get; set; }
+        
+        // Additional fields
+        public bool IsProcess { get; set; } = false; // Process flag
+        
+        [MaxLength(100)]
+        public string? OrderNo { get; set; } // Order number
+        
+        [MaxLength(200)]
+        public string? TermsOfDelivery { get; set; } // Terms of delivery
+        
+        [MaxLength(200)]
+        public string? DispatchThrough { get; set; } // Dispatch through
 
         // Company details
         [Required]
@@ -375,6 +402,9 @@ namespace AvyyanBackend.DTOs.SalesOrder
 
         [MaxLength(500)]
         public string Remarks { get; set; } = string.Empty;
+        
+        [MaxLength(50)]
+        public string? Unit { get; set; } // Unit field
         
         // New fields
         [MaxLength(50)]

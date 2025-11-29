@@ -1,4 +1,4 @@
-﻿using AvyyanBackend.Data;
+using AvyyanBackend.Data;
 using AvyyanBackend.Models.ProAllot;
 using AvyyanBackend.Models.ProductionConfirmation;
 using Microsoft.AspNetCore.Mvc;

@@ -3,6 +3,7 @@ using System;
 using AvyyanBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AvyyanBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251127065103_FixDuplicateColumns")]
+    partial class FixDuplicateColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -587,6 +590,7 @@ namespace AvyyanBackend.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<string>("ColourCode")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
@@ -596,6 +600,7 @@ namespace AvyyanBackend.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<string>("Counter")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
@@ -666,10 +671,11 @@ namespace AvyyanBackend.Migrations
                         .HasColumnType("decimal(18,3)");
 
                     b.Property<string>("TapeColor")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<decimal?>("TotalProductionTime")
+                    b.Property<decimal>("TotalProductionTime")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
@@ -677,7 +683,7 @@ namespace AvyyanBackend.Migrations
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)");
 
-                    b.Property<decimal?>("TubeWeight")
+                    b.Property<decimal>("TubeWeight")
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)");
 
@@ -692,6 +698,7 @@ namespace AvyyanBackend.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<string>("YarnLotNo")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
@@ -1178,8 +1185,8 @@ namespace AvyyanBackend.Migrations
                         .HasPrecision(18, 3)
                         .HasColumnType("numeric(18,3)");
 
-                    b.Property<int>("IsProcess")
-                        .HasColumnType("integer");
+                    b.Property<bool>("IsProcess")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("ItemDescription")
                         .IsRequired()
@@ -1193,9 +1200,6 @@ namespace AvyyanBackend.Migrations
 
                     b.Property<int>("NoOfRolls")
                         .HasColumnType("integer");
-
-                    b.Property<DateTime?>("ProcessDate")
-                        .HasColumnType("timestamp without time zone");
 
                     b.Property<decimal>("Qty")
                         .HasPrecision(18, 3)
@@ -1327,17 +1331,20 @@ namespace AvyyanBackend.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("DispatchThrough")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsJobWork")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("IsProcess")
-                        .HasColumnType("integer");
 
                     b.Property<bool>("IsProcess")
                         .HasColumnType("boolean");
@@ -1345,8 +1352,9 @@ namespace AvyyanBackend.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("ProcessDate")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<string>("OrderNo")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Remarks")
                         .IsRequired()
@@ -1374,11 +1382,10 @@ namespace AvyyanBackend.Migrations
                         .HasPrecision(18, 3)
                         .HasColumnType("numeric(18,3)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("UpdatedBy")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("VoucherNumber")

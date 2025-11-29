@@ -3,6 +3,7 @@ using AvyyanBackend.Extensions;
 using AvyyanBackend.Middleware;
 using AvyyanBackend.Services;
 using AvyyanBackend.WebSockets;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using Serilog;
@@ -18,7 +19,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.ConfigureSerilog();
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = null; // Use PascalCase for property names
+    });
+
+ 
+
+// Configure Kestrel server options for larger file uploads
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 52428800; // 50 MB
+});
 
 // Add custom services using extension methods
 builder.Services.AddDatabaseServices(builder.Configuration);
@@ -88,6 +101,17 @@ app.UseSerilogRequestLogging();
 
 // Use CORS (must be before UseAuthentication and UseAuthorization)
 app.UseCors("AllowAll");
+
+// Configure middleware to handle large file uploads
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/fg-rolls"), appBuilder =>
+{
+    appBuilder.Use(async (context, next) =>
+    {
+        // Disable request size limit for fg-rolls endpoint
+        context.Features.Get<IHttpMaxRequestBodySizeFeature>().MaxRequestBodySize = null;
+        await next();
+    });
+});
 
 // Use Authentication & Authorization
 app.UseAuthentication();

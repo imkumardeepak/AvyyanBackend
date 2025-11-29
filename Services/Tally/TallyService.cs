@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -139,6 +139,200 @@ public class TallyService
 		{
 			_logger.LogError(ex, "An unexpected error occurred.");
 			return new List<string> { "Error retrieving companies from Tally." };
+		}
+	}
+
+	public async Task<List<Ledger>> GetCompanyDetailsAsync(string xmlFilePath)
+	{
+		try
+		{
+			// Validate Tally URL
+			string tallyUrl = _configuration["TallySettings:TallyUrl"] ?? string.Empty;
+			if (string.IsNullOrWhiteSpace(tallyUrl))
+			{
+				throw new InvalidOperationException("Tally URL is not configured.");
+			}
+
+			// Validate XML file
+			if (!File.Exists(xmlFilePath))
+			{
+				throw new FileNotFoundException("The specified XML file was not found.", xmlFilePath);
+			}
+
+			// Read the XML content from the file
+			string xmlContent = await File.ReadAllTextAsync(xmlFilePath);
+
+			string companyName = _configuration["TallySettings:CompanyName"] ?? string.Empty;
+			if (string.IsNullOrWhiteSpace(companyName))
+			{
+				throw new InvalidOperationException("Company Name is not configured.");
+			}
+
+			xmlContent = xmlContent.Replace("{Cname}", companyName);
+
+			// Create HTTP request
+			var request = new HttpRequestMessage(HttpMethod.Post, tallyUrl)
+			{
+				Content = new StringContent(xmlContent, Encoding.UTF8, "text/xml")
+			};
+
+			//// Send request and get response
+
+			var response = await _httpClient.SendAsync(request);
+			response.EnsureSuccessStatusCode();
+			var str = await response.Content.ReadAsStringAsync();
+			if (str.Contains("\u0005"))
+			{
+				str = str?.Replace("\u0005", "") ?? "";
+			}
+			if (str.Contains("\u0004"))
+			{
+				str = str?.Replace("\u0004", "") ?? "";
+			}
+			if (str.Contains("\u0004 Not Applicable"))
+			{
+				str = str?.Replace("\u0004 Not Applicable", "NA") ?? "";
+			}
+
+			var responseContent = await response.Content.ReadAsStringAsync();
+			responseContent = RemoveInvalidCharacters(responseContent);
+
+			// Unescape XML special characters
+			//responseContent = WebUtility.HtmlDecode(responseContent);
+
+			var xmlDocument = new XmlDocument();
+			xmlDocument.LoadXml(responseContent);
+			string jsonData = JsonConvert.SerializeXmlNode(xmlDocument, Newtonsoft.Json.Formatting.Indented);
+			var jsonObject = JsonConvert.DeserializeObject<JObject>(jsonData);
+			RemoveEmptyValues(jsonObject);
+			var tallyMessages = jsonObject["ENVELOPE"]?["BODY"]?["DATA"]?["COLLECTION"]?["COMPANYLEDGERDETAILS"];
+			var ledgerList = new List<Ledger>();
+
+			if (tallyMessages != null)
+			{
+				JArray companyArray;
+				if (tallyMessages is JObject)
+				{
+					// Single company
+					companyArray = new JArray(tallyMessages);
+				}
+				else
+				{
+					// Multiple companies
+					companyArray = (JArray)tallyMessages;
+				}
+
+				foreach (var company in companyArray)
+				{
+					var companyNameField = company["@NAME"]?.ToString();
+					var addressList = company["ADDRESS.LIST"];
+					string address1 = "NA";
+
+					if (addressList != null)
+					{
+						if (addressList["ADDRESS"] is JArray addressArray)
+						{
+							address1 = string.Join(", ", addressArray.Select(a => a["#text"]?.ToString() ?? "").Where(a => !string.IsNullOrWhiteSpace(a)));
+						}
+						else if (addressList["ADDRESS"]?["#text"] != null)
+						{
+							address1 = addressList["ADDRESS"]["#text"]?.ToString() ?? string.Empty;
+						}
+					}
+
+					var gstNo = "NA";
+					var gstDetailsToken = company["LEDGSTREGDETAILS.LIST"];
+					if (gstDetailsToken != null)
+					{
+						if (gstDetailsToken is JObject gstObj)
+						{
+							gstNo = gstObj["GSTIN"]?.ToString().Trim() ?? "NA";
+						}
+						else if (gstDetailsToken is JArray gstArray && gstArray.Count > 0)
+						{
+							gstNo = gstArray[0]?["GSTIN"]?.ToString().Trim() ?? "NA";
+						}
+
+						// Handle any '\u0004 Unknown' edge cases
+						if (gstNo.Contains("\u0004 Unknown"))
+						{
+							gstNo = "NA";
+						}
+					}
+
+					var contactNo = company["CONTACTDETAILS.LIST"]?["PHONENUMBER"]?.ToString().Trim() ?? "NA";
+					var emailId = company["EMAIL"]?.ToString() ?? "NA";
+					var contactperson = company["LEDGERCONTACT"]?.ToString() ?? "NA";
+					var contactpersonno = company["LEDGERPHONE"]?.ToString() ?? "NA";
+					var address = address1;
+					var city = company["CITY"]?.ToString() ?? "NA";
+
+					string state = "NA";
+					string country = "NA";
+					string pincode = "NA";
+					var mailingDetails = company["LEDMAILINGDETAILS.LIST"];
+					if (mailingDetails != null)
+					{
+						// If it's a single object
+						if (mailingDetails.Type == JTokenType.Object)
+						{
+							state = mailingDetails["STATE"]?.ToString().Trim() ?? "NA";
+							country = mailingDetails["COUNTRY"]?.ToString().Trim() ?? "NA";
+							pincode = mailingDetails["PINCODE"]?.ToString().Trim() ?? "NA";
+						}
+						// If it's an array, use the first object
+						else if (mailingDetails.Type == JTokenType.Array)
+						{
+							var firstItem = mailingDetails.FirstOrDefault();
+							if (firstItem != null)
+							{
+								state = firstItem["STATE"]?.ToString().Trim() ?? "NA";
+								country = firstItem["COUNTRY"]?.ToString().Trim() ?? "NA";
+								pincode = firstItem["PINCODE"]?.ToString().Trim() ?? "NA";
+							}
+						}
+					}
+
+					if (gstNo != null)
+					{
+						if (gstNo.Contains("\u0004 Unknown"))
+						{
+							gstNo = "NA";
+						}
+					}
+					else
+					{
+						gstNo = "NA";
+					}
+
+					// Create a new company record
+					var companyRecord = new Ledger
+					{
+						name2 = "",
+						GUID = "",
+						type = "Company",
+						name1 = companyNameField?.Trim() ?? "NA",
+						gst = gstNo.Trim() ?? "NA",
+						phoneno = contactNo.Trim() ?? "NA",
+						contactpersonno = contactpersonno.Trim() ?? "NA",
+						contactpersonemail = emailId.Trim() ?? "NA",
+						address = address.Trim() ?? "NA",
+						city = city.Trim() ?? "NA",
+						state = state.Trim() ?? "NA",
+						country = country ?? "NA",
+						zipcode = pincode.Trim() ?? "NA",
+						contactpersonname = contactperson.Trim() ?? "NA",
+						creditlimit = "0",
+					};
+					ledgerList.Add(companyRecord);
+				}
+			}
+			return ledgerList;
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "An error occurred while communicating with Tally.");
+			throw;
 		}
 	}
 	public async Task<List<string>> GetStockGroup(string xmlFilePath)
