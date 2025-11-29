@@ -44,7 +44,7 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public decimal TotalAmount { get; set; }
 
         // Process fields
-        public int IsProcess { get; set; } = 0;
+        public bool IsProcess { get; set; } = false;
         public DateTime? ProcessDate { get; set; }
 
         // Items
@@ -189,8 +189,6 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public decimal TotalQuantity { get; set; } = 0;
         public decimal TotalAmount { get; set; } = 0;
 
-        // Process fields (optional for creation)
-        public int IsProcess { get; set; } = 0;
         public DateTime? ProcessDate { get; set; }
 
         // Items
@@ -351,8 +349,6 @@ namespace AvyyanBackend.DTOs.SalesOrder
         public decimal TotalQuantity { get; set; } = 0;
         public decimal TotalAmount { get; set; } = 0;
 
-        // Process fields
-        public int IsProcess { get; set; } = 0;
         public DateTime? ProcessDate { get; set; }
 
         // Items

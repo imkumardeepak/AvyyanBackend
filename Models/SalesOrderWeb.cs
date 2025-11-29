@@ -102,8 +102,6 @@ namespace AvyyanBackend.Models
         public decimal TotalQuantity { get; set; } = 0;
         public decimal TotalAmount { get; set; } = 0;
 
-        // Process flag - Added to match SalesOrder
-        public bool IsProcess { get; set; } = false;
 
         // Process date - Added to match SalesOrder
         [Column(TypeName = "timestamp without time zone")]
@@ -169,9 +167,6 @@ namespace AvyyanBackend.Models
         [MaxLength(50)]
         public string? Unit { get; set; } // Unit field
 
-        [MaxLength(50)]
-        public string? Unit { get; set; } // Unit field
-
         // New fields
         [MaxLength(50)]
         public string? SlitLine { get; set; }
@@ -183,9 +178,7 @@ namespace AvyyanBackend.Models
         
         // Process flag
         public bool IsProcess { get; set; } = false;
-
-        // Process flag - Changed from bool to int to match SalesOrderItem
-        public bool IsProcess { get; set; } = false;
+ 
 
         // Process date - Added to match SalesOrderItem
         [Column(TypeName = "timestamp without time zone")]
